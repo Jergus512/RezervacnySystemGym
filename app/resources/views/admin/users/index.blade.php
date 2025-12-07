@@ -37,14 +37,16 @@
                     @endif
                 </td>
                 <td class="text-end">
-                    <a href="{{ route('admin.users.edit', $user) }}" class="btn btn-sm btn-outline-primary me-1">Upraviť</a>
+                    <div class="d-flex flex-column flex-sm-row gap-2 align-items-stretch justify-content-end">
+                        <a href="{{ route('admin.users.edit', $user) }}" class="btn btn-sm btn-outline-primary w-100 w-sm-auto">Upraviť</a>
 
-                    <form action="{{ route('admin.users.destroy', $user) }}" method="POST" class="d-inline"
-                          onsubmit="return confirm('Naozaj chceš zmazať tohto používateľa?');">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="btn btn-sm btn-outline-danger">Zmazať</button>
-                    </form>
+                        <form action="{{ route('admin.users.destroy', $user) }}" method="POST" class="m-0 w-100 w-sm-auto"
+                              onsubmit="return confirm('Naozaj chceš zmazať tohto používateľa?');">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-sm btn-outline-danger w-100 w-sm-auto">Zmazať</button>
+                        </form>
+                    </div>
                 </td>
             </tr>
         @empty
@@ -60,4 +62,3 @@
     {{ $users->links() }}
 </div>
 @endsection
-

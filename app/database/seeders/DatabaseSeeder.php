@@ -16,31 +16,29 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        User::updateOrCreate(
-            ['email' => 'test@example.com'],
-            [
-                'name' => 'Test User',
-                'password' => Hash::make('password'),
-                'is_admin' => false,
-            ]
-        );
-
+        // Ensure one admin exists (idempotent)
         User::updateOrCreate(
             ['email' => 'admin@example.com'],
             [
-                'name' => 'Admin User',
+                'name' => 'Administrator',
                 'password' => Hash::make('password'),
                 'is_admin' => true,
+                'email_verified_at' => now(),
             ]
         );
 
-        User::updateOrCreate(
-            ['email' => 'tester@example.com'],
-            [
-                'name' => 'Tester User',
-                'password' => Hash::make('password'),
+        // Create several regular users if they don't already exist.
+        // We use the factory which sets a hashed password.
+        $regularCount = 8;
+
+        // Count existing non-admin users to avoid duplicating when re-seeding
+        $existingRegular = User::where('is_admin', false)->count();
+        $toCreate = max(0, $regularCount - $existingRegular);
+
+        if ($toCreate > 0) {
+            User::factory()->count($toCreate)->create([
                 'is_admin' => false,
-            ]
-        );
+            ]);
+        }
     }
 }
