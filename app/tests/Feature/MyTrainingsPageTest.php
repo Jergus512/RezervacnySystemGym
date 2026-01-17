@@ -52,5 +52,34 @@ class MyTrainingsPageTest extends TestCase
             ->assertDontSee('Past')
             ->assertDontSee('Not mine');
     }
-}
 
+    public function test_admin_cannot_access_my_trainings_page(): void
+    {
+        $admin = User::factory()->create(['is_admin' => true, 'is_trainer' => false]);
+
+        $this->actingAs($admin)
+            ->get(route('my-trainings.index'))
+            ->assertForbidden();
+
+        // also ensure the nav link isn't visible for admin
+        $this->actingAs($admin)
+            ->get(route('training-calendar.index'))
+            ->assertOk()
+            ->assertDontSee('Moje tréningy');
+    }
+
+    public function test_trainer_cannot_access_my_trainings_page(): void
+    {
+        $trainer = User::factory()->create(['is_admin' => false, 'is_trainer' => true]);
+
+        $this->actingAs($trainer)
+            ->get(route('my-trainings.index'))
+            ->assertForbidden();
+
+        // also ensure the nav link isn't visible for trainer
+        $this->actingAs($trainer)
+            ->get(route('training-calendar.index'))
+            ->assertOk()
+            ->assertDontSee('Moje tréningy');
+    }
+}

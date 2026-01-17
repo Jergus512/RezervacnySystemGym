@@ -30,9 +30,12 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{{ route('training-calendar.index') }}">Kalendár tréningov</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('my-trainings.index') }}">Moje tréningy</a>
-                    </li>
+
+                    @if(auth()->user()->isRegularUser())
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('my-trainings.index') }}">Moje tréningy</a>
+                        </li>
+                    @endif
 
                     @if(auth()->user()->is_trainer)
                         <li class="nav-item">
@@ -46,6 +49,9 @@
                     @if(auth()->user()->is_admin)
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('admin.users.index') }}">Používatelia</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('admin.trainings.index') }}">Editácia tréningov</a>
                         </li>
                     @endif
                 @endauth

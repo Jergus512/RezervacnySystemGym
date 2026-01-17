@@ -8,6 +8,7 @@ use App\Http\Controllers\TrainingCalendarController;
 use App\Http\Controllers\TrainingRegistrationController;
 use App\Http\Controllers\MyTrainingsController;
 use App\Http\Controllers\Trainer\TrainingManageController;
+use App\Http\Controllers\Admin\TrainingController as AdminTrainingController;
 
 Route::get('/', function () {
     return view('home');
@@ -52,6 +53,12 @@ Route::middleware('auth')->group(function () {
             return $next($request);
         }], function () {
             Route::resource('users', AdminUserController::class)->except(['show']);
+
+            // Admin training management
+            Route::get('trainings', [AdminTrainingController::class, 'index'])->name('trainings.index');
+            Route::get('trainings/{training}/edit', [AdminTrainingController::class, 'edit'])->name('trainings.edit');
+            Route::put('trainings/{training}', [AdminTrainingController::class, 'update'])->name('trainings.update');
+            Route::delete('trainings/{training}', [AdminTrainingController::class, 'destroy'])->name('trainings.destroy');
         });
     });
 

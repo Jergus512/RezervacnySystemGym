@@ -50,6 +50,8 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Zavrieť</button>
 
+                    <a href="#" class="btn btn-outline-primary d-none" id="trainingEventAdminEditLink">Upraviť (admin)</a>
+
                     <form method="POST" action="#" id="trainingUnregisterForm" class="m-0 d-none">
                         @csrf
                         @method('DELETE')
@@ -80,6 +82,8 @@
         window.trainingUnregisterRouteTemplate = @json(route('trainings.unregister', ['training' => '__ID__']));
         window.trainingEventsUrl = @json(route('training-calendar.events'));
         window.canRegisterForTrainings = @json(auth()->check() && auth()->user()->isRegularUser());
+        window.isAdminUser = @json(auth()->check() && auth()->user()->isAdmin());
+        window.adminTrainingEditRouteTemplate = @json(route('admin.trainings.edit', ['training' => '__ID__']));
     </script>
 
     <script src="{{ asset('js/training-calendar.js') }}"></script>

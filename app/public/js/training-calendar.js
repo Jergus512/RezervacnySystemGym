@@ -27,6 +27,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const registerRouteTemplate = window.trainingRegisterRouteTemplate || '';
     const unregisterRouteTemplate = window.trainingUnregisterRouteTemplate || '';
     const canRegisterForTrainings = Boolean(window.canRegisterForTrainings);
+    const isAdminUser = Boolean(window.isAdminUser);
+    const adminTrainingEditRouteTemplate = window.adminTrainingEditRouteTemplate || '';
 
     const showError = (message) => {
         const errEl = document.getElementById('trainingEventError');
@@ -123,6 +125,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const registerForm = document.getElementById('trainingRegisterForm');
             const unregisterBtn = document.getElementById('trainingEventUnregisterButton');
             const unregisterForm = document.getElementById('trainingUnregisterForm');
+            const adminEditLink = document.getElementById('trainingEventAdminEditLink');
 
             const capacity = Number(extended.capacity ?? 0);
             const registered = Number(extended.registered ?? 0);
@@ -166,6 +169,16 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
                 if (unregisterBtn) {
                     unregisterBtn.disabled = !unregisterRouteTemplate || !isRegistered;
+                }
+            }
+
+            if (adminEditLink) {
+                if (isAdminUser && adminTrainingEditRouteTemplate) {
+                    adminEditLink.href = adminTrainingEditRouteTemplate.replace('__ID__', String(event.id));
+                    adminEditLink.classList.remove('d-none');
+                } else {
+                    adminEditLink.classList.add('d-none');
+                    adminEditLink.href = '#';
                 }
             }
 
