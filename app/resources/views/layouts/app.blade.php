@@ -27,6 +27,22 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{{ route('dashboard') }}">Dashboard</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ route('training-calendar.index') }}">Kalendár tréningov</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ route('my-trainings.index') }}">Moje tréningy</a>
+                    </li>
+
+                    @if(auth()->user()->is_trainer)
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('trainer.trainings.create') }}">Vytvorenie tréningu</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('trainer.trainings.index') }}">Vytvorené tréningy</a>
+                        </li>
+                    @endif
+
                     @if(auth()->user()->is_admin)
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('admin.users.index') }}">Používatelia</a>
@@ -45,6 +61,9 @@
                     </li>
                 @else
                     <li class="nav-item d-flex align-items-center me-2">
+                        @if(auth()->user()->isRegularUser())
+                            <span class="badge text-bg-warning me-2" id="userCreditsBadge">Kredity: {{ auth()->user()->credits ?? 0 }}</span>
+                        @endif
                         <span class="navbar-text small text-white-50">{{ auth()->user()->name }}</span>
                     </li>
                     <li class="nav-item">

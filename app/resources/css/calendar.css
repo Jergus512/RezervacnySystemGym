@@ -1,0 +1,13 @@
+#training-calendar {
+    max-width: 100%;
+}
+
+.fc .fc-toolbar.fc-header-toolbar {
+    margin-bottom: 1.5rem;
+}
+
+.fc .fc-daygrid-event,
+.fc .fc-timegrid-event {
+    cursor: pointer;
+}
+

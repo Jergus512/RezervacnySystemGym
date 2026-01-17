@@ -1,0 +1,21 @@
+.idea/
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Node
+node_modules/
+
+# Laravel
+/app/vendor/
+/app/storage/*.key
+/app/storage/logs/
+/app/storage/framework/
+/app/bootstrap/cache/
+
+# Environment
+.env
+.env.*
+

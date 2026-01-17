@@ -46,11 +46,19 @@
                                class="form-control">
                     </div>
 
-                    <div class="form-check mb-3">
+                    <div class="form-check mb-2">
                         <input class="form-check-input" type="checkbox" value="1" id="is_admin" name="is_admin">
                         <label class="form-check-label" for="is_admin">
                             Admin používateľ
                         </label>
+                    </div>
+
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" value="1" id="is_trainer" name="is_trainer">
+                        <label class="form-check-label" for="is_trainer">
+                            Tréner
+                        </label>
+                        <div class="form-text">Admin a tréner sa nedajú kombinovať.</div>
                     </div>
 
                     <div class="d-flex justify-content-between">
@@ -63,4 +71,3 @@
     </div>
 </div>
 @endsection
-

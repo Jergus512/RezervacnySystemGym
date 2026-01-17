@@ -1,0 +1,44 @@
+/* Minimal FullCalendar v6 CSS bundle (core + daygrid + timegrid)
+   Source: FullCalendar v6 styles (MIT). Kept small to avoid external CDN dependency.
+*/
+
+:root{--fc-small-font-size:.85em;--fc-page-bg-color:#fff;--fc-neutral-bg-color:#f2f2f2;--fc-neutral-text-color:#808080;--fc-border-color:#ddd;--fc-button-text-color:#fff;--fc-button-bg-color:#2C3E50;--fc-button-border-color:#2C3E50;--fc-button-hover-bg-color:#1e2b37;--fc-button-hover-border-color:#1a252f;--fc-button-active-bg-color:#1a252f;--fc-button-active-border-color:#151e27;--fc-event-bg-color:#3788d8;--fc-event-border-color:#3788d8;--fc-event-text-color:#fff;--fc-event-selected-overlay-color:rgba(0,0,0,.25);--fc-more-link-bg-color:#d0d0d0;--fc-more-link-text-color:inherit;--fc-event-resizer-thickness:8px;--fc-event-resizer-dot-total-width:8px;--fc-event-resizer-dot-border-width:1px;--fc-non-business-color:rgba(215,215,215,.3);--fc-bg-event-color:#8fdf82;--fc-bg-event-opacity:.3;--fc-highlight-color:rgba(188,232,241,.3);--fc-today-bg-color:rgba(255,220,40,.15);--fc-now-indicator-color:red}
+
+.fc{direction:ltr;text-align:left}
+.fc .fc-scrollgrid, .fc .fc-scrollgrid table{width:100%;table-layout:fixed;border-collapse:collapse}
+.fc .fc-scrollgrid{border:1px solid var(--fc-border-color)}
+.fc .fc-scrollgrid-section>*{border:0}
+.fc .fc-scrollgrid td, .fc .fc-scrollgrid th{border:1px solid var(--fc-border-color)}
+.fc .fc-toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:1em}
+.fc .fc-toolbar-title{font-size:1.5em;margin:0}
+.fc .fc-button{display:inline-block;font-weight:400;line-height:1.5;text-align:center;vertical-align:middle;cursor:pointer;user-select:none;border:1px solid transparent;padding:.375rem .75rem;font-size:1rem;border-radius:.25rem;background-color:var(--fc-button-bg-color);border-color:var(--fc-button-border-color);color:var(--fc-button-text-color)}
+.fc .fc-button:disabled{opacity:.65;cursor:not-allowed}
+.fc .fc-button:not(:disabled):hover{background-color:var(--fc-button-hover-bg-color);border-color:var(--fc-button-hover-border-color)}
+.fc .fc-button:not(:disabled).fc-button-active,.fc .fc-button:not(:disabled):active{background-color:var(--fc-button-active-bg-color);border-color:var(--fc-button-active-border-color)}
+.fc .fc-button-group{display:inline-flex;position:relative;vertical-align:middle}
+.fc .fc-button-group>.fc-button{position:relative;flex:1 1 auto}
+.fc .fc-button-group>.fc-button:not(:first-child){margin-left:-1px}
+.fc .fc-button-group>.fc-button:first-child{border-top-right-radius:0;border-bottom-right-radius:0}
+.fc .fc-button-group>.fc-button:last-child{border-top-left-radius:0;border-bottom-left-radius:0}
+
+.fc .fc-daygrid-day{min-height:5em}
+.fc .fc-daygrid-day-number{padding:.25rem;z-index:4;position:relative}
+.fc .fc-daygrid-day-top{display:flex;flex-direction:row-reverse}
+.fc .fc-daygrid-event{margin-top:1px;z-index:6}
+.fc .fc-daygrid-event .fc-event-title{font-weight:600}
+
+.fc .fc-timegrid-slot{height:1.5em}
+.fc .fc-timegrid-slot-label{vertical-align:top}
+.fc .fc-timegrid-axis-cushion, .fc .fc-timegrid-slot-label-cushion{padding:.25rem}
+.fc .fc-timegrid-now-indicator-line{position:absolute;z-index:4;left:0;right:0;border-top:2px solid var(--fc-now-indicator-color)}
+
+.fc .fc-event{display:block;border:1px solid var(--fc-event-border-color);background-color:var(--fc-event-bg-color);color:var(--fc-event-text-color);border-radius:.25rem;padding:0 .25rem;overflow:hidden}
+.fc .fc-event:hover{text-decoration:none}
+.fc .fc-event .fc-event-main{position:relative;z-index:2}
+.fc .fc-event .fc-event-time{font-weight:700}
+
+.fc-theme-standard td, .fc-theme-standard th{border:1px solid var(--fc-border-color)}
+.fc-theme-standard .fc-scrollgrid{border:1px solid var(--fc-border-color)}
+
+@media (max-width: 576px){.fc .fc-toolbar{flex-wrap:wrap;gap:.5rem}.fc .fc-toolbar-title{font-size:1.25em}}
+

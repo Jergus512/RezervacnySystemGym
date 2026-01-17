@@ -28,13 +28,25 @@ class UserController extends Controller
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
             'is_admin' => ['sometimes', 'boolean'],
+            'is_trainer' => ['sometimes', 'boolean'],
         ]);
+
+        $isAdmin = $request->boolean('is_admin');
+        $isTrainer = $request->boolean('is_trainer');
+
+        // Keep roles mutually exclusive
+        if ($isAdmin && $isTrainer) {
+            $isTrainer = false;
+        }
 
         User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
-            'is_admin' => $request->boolean('is_admin'),
+            'is_admin' => $isAdmin,
+            'is_trainer' => $isTrainer,
+            // trainers (and admins) do not use credits
+            'credits' => ($isAdmin || $isTrainer) ? 0 : 0,
         ]);
 
         return redirect()->route('admin.users.index')->with('status', 'Používateľ bol vytvorený.');
@@ -52,11 +64,23 @@ class UserController extends Controller
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $user->id],
             'password' => ['nullable', 'string', 'min:8', 'confirmed'],
             'is_admin' => ['sometimes', 'boolean'],
+            'is_trainer' => ['sometimes', 'boolean'],
         ]);
+
+        $isAdmin = $request->boolean('is_admin');
+        $isTrainer = $request->boolean('is_trainer');
+        if ($isAdmin && $isTrainer) {
+            $isTrainer = false;
+        }
 
         $user->name = $validated['name'];
         $user->email = $validated['email'];
-        $user->is_admin = $request->boolean('is_admin');
+        $user->is_admin = $isAdmin;
+        $user->is_trainer = $isTrainer;
+
+        if ($user->isAdmin() || $user->isTrainer()) {
+            $user->credits = 0;
+        }
 
         if (! empty($validated['password'])) {
             $user->password = Hash::make($validated['password']);

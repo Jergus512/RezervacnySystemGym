@@ -23,6 +23,7 @@ class DatabaseSeeder extends Seeder
                 'name' => 'Administrator',
                 'password' => Hash::make('password'),
                 'is_admin' => true,
+                'credits' => 0,
                 'email_verified_at' => now(),
             ]
         );
@@ -38,7 +39,12 @@ class DatabaseSeeder extends Seeder
         if ($toCreate > 0) {
             User::factory()->count($toCreate)->create([
                 'is_admin' => false,
+                'credits' => 10,
             ]);
         }
+
+        $this->call([
+            TrainingSeeder::class,
+        ]);
     }
 }

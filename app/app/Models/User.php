@@ -6,6 +6,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class User extends Authenticatable
 {
@@ -22,6 +24,8 @@ class User extends Authenticatable
         'email',
         'password',
         'is_admin',
+        'is_trainer',
+        'credits',
     ];
 
     /**
@@ -35,6 +39,15 @@ class User extends Authenticatable
     ];
 
     /**
+     * Get the user's trainings.
+     */
+    public function trainings(): BelongsToMany
+    {
+        return $this->belongsToMany(Training::class, 'training_registrations')
+            ->withTimestamps();
+    }
+
+    /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>
@@ -45,6 +58,29 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'is_admin' => 'boolean',
+            'is_trainer' => 'boolean',
+            'credits' => 'integer',
         ];
+    }
+
+    public function isAdmin(): bool
+    {
+        return (bool) $this->is_admin;
+    }
+
+    public function isTrainer(): bool
+    {
+        return (bool) $this->is_trainer;
+    }
+
+    public function isRegularUser(): bool
+    {
+        // Regular users can buy/register for trainings.
+        return ! $this->isAdmin() && ! $this->isTrainer();
+    }
+
+    public function createdTrainings(): HasMany
+    {
+        return $this->hasMany(Training::class, 'created_by_user_id');
     }
 }

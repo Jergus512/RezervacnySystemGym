@@ -19,7 +19,7 @@
             <th>ID</th>
             <th>Meno</th>
             <th>Email</th>
-            <th>Admin</th>
+            <th>Typ</th>
             <th class="text-end">Akcie</th>
         </tr>
         </thead>
@@ -32,6 +32,8 @@
                 <td>
                     @if($user->is_admin)
                         <span class="badge bg-success">Admin</span>
+                    @elseif($user->is_trainer)
+                        <span class="badge bg-info text-dark">Tréner</span>
                     @else
                         <span class="badge bg-secondary">Bežný</span>
                     @endif
