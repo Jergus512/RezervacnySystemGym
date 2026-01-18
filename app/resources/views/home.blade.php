@@ -90,6 +90,28 @@
             margin-top: 1.25rem;
         }
 
+        .home-gallery .gallery-item {
+            display: block;
+            width: 100%;
+            aspect-ratio: 4 / 3;
+            border-radius: 1rem;
+            overflow: hidden;
+            box-shadow: 0 16px 44px rgba(0,0,0,.25);
+        }
+
+        .home-gallery .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: transform .18s ease, filter .18s ease;
+        }
+
+        .home-gallery .gallery-item:hover img {
+            transform: scale(1.03);
+            filter: saturate(1.03);
+        }
+
         /* Gallery lightbox */
         .gallery-lightbox {
             position: fixed;
