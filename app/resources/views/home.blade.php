@@ -90,26 +90,83 @@
             margin-top: 1.25rem;
         }
 
-        .home-gallery .gallery-item {
-            display: block;
-            width: 100%;
-            aspect-ratio: 4 / 3;
-            border-radius: 1rem;
-            overflow: hidden;
-            box-shadow: 0 16px 44px rgba(0,0,0,.25);
+        /* Gallery lightbox */
+        .gallery-lightbox {
+            position: fixed;
+            inset: 0;
+            z-index: 3000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            background: rgba(0, 0, 0, .82);
+            backdrop-filter: blur(2px);
         }
 
-        .home-gallery .gallery-item img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: block;
-            transition: transform .18s ease, filter .18s ease;
+        .gallery-lightbox.is-open {
+            display: flex;
         }
 
-        .home-gallery .gallery-item:hover img {
-            transform: scale(1.03);
-            filter: saturate(1.03);
+        .gallery-lightbox .lb-inner {
+            position: relative;
+            width: min(1100px, 94vw);
+            max-height: 88vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .gallery-lightbox img {
+            width: 100%;
+            height: auto;
+            max-height: 88vh;
+            object-fit: contain;
+            border-radius: 16px;
+            box-shadow: 0 24px 70px rgba(0,0,0,.55);
+            background: rgba(0,0,0,.2);
+        }
+
+        .gallery-lightbox .lb-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 48px;
+            height: 48px;
+            border-radius: 999px;
+            border: 1px solid rgba(255,255,255,.35);
+            background: rgba(0,0,0,.35);
+            color: #fff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            line-height: 1;
+            cursor: pointer;
+            user-select: none;
+            transition: transform .12s ease, background-color .12s ease, border-color .12s ease;
+        }
+
+        .gallery-lightbox .lb-btn:hover {
+            background: rgba(249, 115, 22, .22);
+            border-color: rgba(249, 115, 22, .65);
+            transform: translateY(-50%) scale(1.03);
+        }
+
+        .gallery-lightbox .lb-prev { left: -18px; }
+        .gallery-lightbox .lb-next { right: -18px; }
+
+        .gallery-lightbox .lb-close {
+            position: absolute;
+            top: -18px;
+            right: -18px;
+            transform: none;
+            font-size: 22px;
+        }
+
+        @media (max-width: 575.98px) {
+            .gallery-lightbox .lb-prev { left: 6px; }
+            .gallery-lightbox .lb-next { right: 6px; }
+            .gallery-lightbox .lb-close { top: 6px; right: 6px; }
         }
 
         .topbar {
@@ -482,41 +539,50 @@
                  <section class="home-gallery" aria-label="Galéria">
                      <div class="row g-3 mt-1">
                         <div class="col-6 col-md-4">
-                            <a class="gallery-item" href="{{ asset('img/galeria1.png') }}" target="_blank" rel="noopener" aria-label="Galéria obrázok 1">
-                                <img src="{{ asset('img/galeria1.png') }}" alt="Galéria 1" loading="lazy">
-                            </a>
+                            <a class="gallery-item js-gallery-item" href="{{ asset('img/galeria1.png') }}" data-gallery-src="{{ asset('img/galeria1.png') }}" aria-label="Galéria obrázok 1">
+                                 <img src="{{ asset('img/galeria1.png') }}" alt="Galéria 1" loading="lazy">
+                             </a>
                         </div>
                         <div class="col-6 col-md-4">
-                            <a class="gallery-item" href="{{ asset('img/galeria2.png') }}" target="_blank" rel="noopener" aria-label="Galéria obrázok 2">
-                                <img src="{{ asset('img/galeria2.png') }}" alt="Galéria 2" loading="lazy">
-                            </a>
+                            <a class="gallery-item js-gallery-item" href="{{ asset('img/galeria2.png') }}" data-gallery-src="{{ asset('img/galeria2.png') }}" aria-label="Galéria obrázok 2">
+                                 <img src="{{ asset('img/galeria2.png') }}" alt="Galéria 2" loading="lazy">
+                             </a>
                         </div>
                         <div class="col-6 col-md-4">
-                            <a class="gallery-item" href="{{ asset('img/galeria3.png') }}" target="_blank" rel="noopener" aria-label="Galéria obrázok 3">
-                                <img src="{{ asset('img/galeria3.png') }}" alt="Galéria 3" loading="lazy">
-                            </a>
+                            <a class="gallery-item js-gallery-item" href="{{ asset('img/galeria3.png') }}" data-gallery-src="{{ asset('img/galeria3.png') }}" aria-label="Galéria obrázok 3">
+                                 <img src="{{ asset('img/galeria3.png') }}" alt="Galéria 3" loading="lazy">
+                             </a>
                         </div>
                         <div class="col-6 col-md-4">
-                            <a class="gallery-item" href="{{ asset('img/galeria4.png') }}" target="_blank" rel="noopener" aria-label="Galéria obrázok 4">
-                                <img src="{{ asset('img/galeria4.png') }}" alt="Galéria 4" loading="lazy">
-                            </a>
+                            <a class="gallery-item js-gallery-item" href="{{ asset('img/galeria4.png') }}" data-gallery-src="{{ asset('img/galeria4.png') }}" aria-label="Galéria obrázok 4">
+                                 <img src="{{ asset('img/galeria4.png') }}" alt="Galéria 4" loading="lazy">
+                             </a>
                         </div>
                         <div class="col-6 col-md-4">
-                            <a class="gallery-item" href="{{ asset('img/galeria5.png') }}" target="_blank" rel="noopener" aria-label="Galéria obrázok 5">
-                                <img src="{{ asset('img/galeria5.png') }}" alt="Galéria 5" loading="lazy">
-                            </a>
+                            <a class="gallery-item js-gallery-item" href="{{ asset('img/galeria5.png') }}" data-gallery-src="{{ asset('img/galeria5.png') }}" aria-label="Galéria obrázok 5">
+                                 <img src="{{ asset('img/galeria5.png') }}" alt="Galéria 5" loading="lazy">
+                             </a>
                         </div>
                         <div class="col-6 col-md-4">
-                            <a class="gallery-item" href="{{ asset('img/galeria6.png') }}" target="_blank" rel="noopener" aria-label="Galéria obrázok 6">
-                                <img src="{{ asset('img/galeria6.png') }}" alt="Galéria 6" loading="lazy">
-                            </a>
+                            <a class="gallery-item js-gallery-item" href="{{ asset('img/galeria6.png') }}" data-gallery-src="{{ asset('img/galeria6.png') }}" aria-label="Galéria obrázok 6">
+                                 <img src="{{ asset('img/galeria6.png') }}" alt="Galéria 6" loading="lazy">
+                             </a>
                         </div>
                     </div>
-                </section>
-            </div>
-        </div>
+                 </section>
+             </div>
+         </div>
+     </div>
+ </main>
+
+ <div class="gallery-lightbox" id="galleryLightbox" aria-hidden="true">
+    <div class="lb-inner" role="dialog" aria-modal="true" aria-label="Galéria">
+        <button type="button" class="lb-btn lb-prev" id="galleryPrev" aria-label="Predchádzajúci">‹</button>
+        <img id="galleryLightboxImage" src="" alt="Zväčšený obrázok">
+        <button type="button" class="lb-btn lb-next" id="galleryNext" aria-label="Nasledujúci">›</button>
+        <button type="button" class="lb-btn lb-close" id="galleryClose" aria-label="Zavrieť">✕</button>
     </div>
-</main>
+</div>
 
 <footer class="home-footer">
     <div class="container">
@@ -583,5 +649,64 @@
     integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
     crossorigin="anonymous"
 ></script>
+<script>
+    (function () {
+        const items = Array.from(document.querySelectorAll('.js-gallery-item'));
+        if (!items.length) return;
+
+        const overlay = document.getElementById('galleryLightbox');
+        const img = document.getElementById('galleryLightboxImage');
+        const btnPrev = document.getElementById('galleryPrev');
+        const btnNext = document.getElementById('galleryNext');
+        const btnClose = document.getElementById('galleryClose');
+
+        let currentIndex = 0;
+
+        function setOpen(isOpen) {
+            overlay.classList.toggle('is-open', isOpen);
+            overlay.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
+            document.body.style.overflow = isOpen ? 'hidden' : '';
+        }
+
+        function showIndex(idx) {
+            currentIndex = (idx + items.length) % items.length;
+            const src = items[currentIndex].getAttribute('data-gallery-src') || items[currentIndex].getAttribute('href');
+            img.src = src;
+        }
+
+        function openAt(idx) {
+            showIndex(idx);
+            setOpen(true);
+        }
+
+        function close() {
+            setOpen(false);
+            img.src = '';
+        }
+
+        items.forEach((a, idx) => {
+            a.addEventListener('click', (e) => {
+                e.preventDefault();
+                openAt(idx);
+            });
+        });
+
+        btnPrev.addEventListener('click', () => showIndex(currentIndex - 1));
+        btnNext.addEventListener('click', () => showIndex(currentIndex + 1));
+        btnClose.addEventListener('click', close);
+
+        overlay.addEventListener('click', (e) => {
+            // click outside the image / controls closes
+            if (e.target === overlay) close();
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (!overlay.classList.contains('is-open')) return;
+            if (e.key === 'Escape') close();
+            if (e.key === 'ArrowLeft') showIndex(currentIndex - 1);
+            if (e.key === 'ArrowRight') showIndex(currentIndex + 1);
+        });
+    })();
+</script>
 </body>
 </html>
