@@ -29,6 +29,7 @@ class UserController extends Controller
             'password' => ['required', 'string', 'min:8', 'confirmed'],
             'is_admin' => ['sometimes', 'boolean'],
             'is_trainer' => ['sometimes', 'boolean'],
+            'credits' => ['nullable', 'integer', 'min:0'],
         ]);
 
         $isAdmin = $request->boolean('is_admin');
@@ -39,14 +40,18 @@ class UserController extends Controller
             $isTrainer = false;
         }
 
+        $credits = 0;
+        if (! $isAdmin && ! $isTrainer) {
+            $credits = (int) ($validated['credits'] ?? 0);
+        }
+
         User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
             'is_admin' => $isAdmin,
             'is_trainer' => $isTrainer,
-            // trainers (and admins) do not use credits
-            'credits' => ($isAdmin || $isTrainer) ? 0 : 0,
+            'credits' => $credits,
         ]);
 
         return redirect()->route('admin.users.index')->with('status', 'Používateľ bol vytvorený.');
@@ -65,6 +70,7 @@ class UserController extends Controller
             'password' => ['nullable', 'string', 'min:8', 'confirmed'],
             'is_admin' => ['sometimes', 'boolean'],
             'is_trainer' => ['sometimes', 'boolean'],
+            'credits' => ['nullable', 'integer', 'min:0'],
         ]);
 
         $isAdmin = $request->boolean('is_admin');
@@ -80,6 +86,9 @@ class UserController extends Controller
 
         if ($user->isAdmin() || $user->isTrainer()) {
             $user->credits = 0;
+        } else {
+            // regular user: allow admin to set credits
+            $user->credits = (int) ($validated['credits'] ?? $user->credits ?? 0);
         }
 
         if (! empty($validated['password'])) {

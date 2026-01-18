@@ -30,6 +30,7 @@ Route::middleware('auth')->group(function () {
         return view('dashboard');
     })->name('dashboard');
 
+
     // Training calendar - page
     Route::get('/kalendar-treningov', [TrainingCalendarController::class, 'index'])->name('training-calendar.index');
 

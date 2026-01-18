@@ -47,18 +47,28 @@
                     </div>
 
                     <div class="form-check mb-2">
-                        <input class="form-check-input" type="checkbox" value="1" id="is_admin" name="is_admin">
+                        <input class="form-check-input" type="checkbox" value="1" id="is_admin" name="is_admin" @checked(old('is_admin'))>
                         <label class="form-check-label" for="is_admin">
                             Admin používateľ
                         </label>
                     </div>
 
                     <div class="form-check mb-3">
-                        <input class="form-check-input" type="checkbox" value="1" id="is_trainer" name="is_trainer">
+                        <input class="form-check-input" type="checkbox" value="1" id="is_trainer" name="is_trainer" @checked(old('is_trainer'))>
                         <label class="form-check-label" for="is_trainer">
                             Tréner
                         </label>
                         <div class="form-text">Admin a tréner sa nedajú kombinovať.</div>
+                    </div>
+
+                    <div class="mb-3" id="creditsFieldWrapper">
+                        <label for="credits" class="form-label">Kredity</label>
+                        <input id="credits" type="number" min="0" name="credits" value="{{ old('credits', 0) }}"
+                               class="form-control @error('credits') is-invalid @enderror">
+                        @error('credits')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                        <div class="form-text">Zobrazí sa iba pre bežného používateľa (nie admin/tréner).</div>
                     </div>
 
                     <div class="d-flex justify-content-between">
@@ -70,4 +80,32 @@
         </div>
     </div>
 </div>
+
+<script>
+    (function () {
+        const adminCb = document.getElementById('is_admin');
+        const trainerCb = document.getElementById('is_trainer');
+        const creditsWrapper = document.getElementById('creditsFieldWrapper');
+        const creditsInput = document.getElementById('credits');
+
+        function syncCreditsVisibility() {
+            if (!adminCb || !trainerCb || !creditsWrapper) return;
+
+            // keep mutually exclusive in UI too
+            if (adminCb.checked && trainerCb.checked) {
+                trainerCb.checked = false;
+            }
+
+            const isRegular = !adminCb.checked && !trainerCb.checked;
+            creditsWrapper.classList.toggle('d-none', !isRegular);
+            if (!isRegular && creditsInput) {
+                creditsInput.value = 0;
+            }
+        }
+
+        if (adminCb) adminCb.addEventListener('change', syncCreditsVisibility);
+        if (trainerCb) trainerCb.addEventListener('change', syncCreditsVisibility);
+        syncCreditsVisibility();
+    })();
+</script>
 @endsection

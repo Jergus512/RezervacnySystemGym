@@ -26,7 +26,10 @@ class TrainingEventCreatorTest extends TestCase
             'is_active' => true,
         ]);
 
-        $events = $this->get(route('training-calendar.events'))
+        $viewer = User::factory()->create(['is_admin' => false, 'is_trainer' => false]);
+
+        $events = $this->actingAs($viewer)
+            ->get(route('training-calendar.events'))
             ->assertOk()
             ->json();
 
@@ -36,4 +39,3 @@ class TrainingEventCreatorTest extends TestCase
         $this->assertSame($trainer->name, $e['creator']['name']);
     }
 }
-

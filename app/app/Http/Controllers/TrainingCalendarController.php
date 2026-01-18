@@ -15,8 +15,15 @@ class TrainingCalendarController extends Controller
 
     public function events(Request $request)
     {
-        $start = Carbon::parse($request->query('start', now()->startOfWeek()));
-        $end = Carbon::parse($request->query('end', now()->endOfWeek()));
+        // When FullCalendar calls this endpoint, it usually sends `start` and `end`.
+        // In tests or other callers, those may be absent; use a wider default range.
+        if ($request->query('start') && $request->query('end')) {
+            $start = Carbon::parse($request->query('start'));
+            $end = Carbon::parse($request->query('end'));
+        } else {
+            $start = now()->subDays(30);
+            $end = now()->addDays(30);
+        }
 
         $userId = $request->user()?->id;
 
