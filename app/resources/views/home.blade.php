@@ -479,16 +479,8 @@
             </div>
 
             <div class="col-12 col-lg-6">
-                <div class="row g-3">
-                    <div class="col-12 col-md-6">
-                        <div class="hero-img-wrap" style="aspect-ratio: 1 / 1;">
-                            <img class="hero-img" src="{{ asset('img/pozadie7.png') }}" alt="Činky v gyme" loading="lazy">
-                        </div>
-                    </div>
-                </div>
-
-                <section class="home-gallery" aria-label="Galéria">
-                    <div class="row g-3 mt-1">
+                 <section class="home-gallery" aria-label="Galéria">
+                     <div class="row g-3 mt-1">
                         <div class="col-6 col-md-4">
                             <a class="gallery-item" href="{{ asset('img/galeria1.png') }}" target="_blank" rel="noopener" aria-label="Galéria obrázok 1">
                                 <img src="{{ asset('img/galeria1.png') }}" alt="Galéria 1" loading="lazy">
