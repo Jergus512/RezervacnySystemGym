@@ -29,6 +29,13 @@
 
         body.no-topbar {
             padding-top: 0;
+
+            /* Full-page background image for auth pages */
+            background-image: url("{{ asset('img/pozadie1.jpg') }}");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
         }
 
         /* Center auth pages (no topbar) */

@@ -20,6 +20,25 @@
             overflow-x: hidden;
         }
 
+        /* Orange CTA button (match auth forms) */
+        .btn-orange {
+            background: #f97316;
+            border-color: #f97316;
+            color: #fff;
+        }
+
+        .btn-orange:hover,
+        .btn-orange:focus {
+            background: #ea6a0f;
+            border-color: #ea6a0f;
+            color: #fff;
+        }
+
+        /* Optional: make outline-light a bit clearer on dark bg */
+        .btn-outline-light:hover {
+            color: #000;
+        }
+
         .hero {
             position: relative;
             overflow: hidden;
@@ -105,6 +124,8 @@
             max-width: 100%;
             display: block;
             filter: drop-shadow(0 8px 18px rgba(0,0,0,.35));
+            /* Nudge logo up a bit without changing topbar height */
+            transform: translateY(-6px);
         }
 
         .topbar-actions {
@@ -124,6 +145,8 @@
 
             .topbar-logo {
                 height: 92px;
+                /* Keep similar nudge on desktop */
+                transform: translateY(-6px);
             }
 
             .topbar-actions {
@@ -241,7 +264,7 @@
                     </form>
                 @else
                     <a href="{{ route('login') }}" class="btn btn-outline-light btn-sm">Prihlásiť sa</a>
-                    <a href="{{ route('register') }}" class="btn btn-primary btn-sm">Registrácia</a>
+                    <a href="{{ route('register') }}" class="btn btn-orange btn-sm">Registrácia</a>
                 @endauth
             </div>
         </div>
@@ -274,7 +297,7 @@
 
                 @guest
                     <div class="d-flex flex-column flex-sm-row gap-2 mb-4">
-                        <a href="{{ route('register') }}" class="btn btn-primary btn-lg px-4">Začať (Registrácia)</a>
+                        <a href="{{ route('register') }}" class="btn btn-orange btn-lg px-4">Začať (Registrácia)</a>
                         <a href="{{ route('login') }}" class="btn btn-outline-light btn-lg px-4">Prihlásiť sa</a>
                     </div>
                 @else
