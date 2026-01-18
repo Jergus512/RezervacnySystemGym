@@ -3,9 +3,9 @@
 @section('title', 'Správa používateľov')
 
 @section('content')
-<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+<div class="pt-3 d-flex justify-content-between align-items-center mb-3 flex-wrap gap-3">
     <h4 class="mb-0">Používatelia</h4>
-    <a href="{{ route('admin.users.create') }}" class="btn btn-primary btn-sm">+ Nový používateľ</a>
+    <a href="{{ route('admin.users.create') }}" class="btn btn-primary btn-sm ms-sm-2">+ Nový používateľ</a>
 </div>
 
 @if(session('status'))
@@ -34,6 +34,8 @@
                         <span class="badge bg-success">Admin</span>
                     @elseif($user->is_trainer)
                         <span class="badge bg-info text-dark">Tréner</span>
+                    @elseif($user->is_reception)
+                        <span class="badge bg-warning text-dark">Recepcia</span>
                     @else
                         <span class="badge bg-secondary">Bežný</span>
                     @endif
@@ -61,6 +63,6 @@
 </div>
 
 <div class="mt-3">
-    {{ $users->links() }}
+    {{ $users->links('partials.pagination-no-arrows') }}
 </div>
 @endsection

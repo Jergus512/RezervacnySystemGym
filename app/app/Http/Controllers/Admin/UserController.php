@@ -29,19 +29,25 @@ class UserController extends Controller
             'password' => ['required', 'string', 'min:8', 'confirmed'],
             'is_admin' => ['sometimes', 'boolean'],
             'is_trainer' => ['sometimes', 'boolean'],
+            'is_reception' => ['sometimes', 'boolean'],
             'credits' => ['nullable', 'integer', 'min:0'],
         ]);
 
         $isAdmin = $request->boolean('is_admin');
         $isTrainer = $request->boolean('is_trainer');
+        $isReception = $request->boolean('is_reception');
 
         // Keep roles mutually exclusive
-        if ($isAdmin && $isTrainer) {
+        if ($isAdmin) {
             $isTrainer = false;
+            $isReception = false;
+        }
+        if ($isTrainer) {
+            $isReception = false;
         }
 
         $credits = 0;
-        if (! $isAdmin && ! $isTrainer) {
+        if (! $isAdmin && ! $isTrainer && ! $isReception) {
             $credits = (int) ($validated['credits'] ?? 0);
         }
 
@@ -51,6 +57,7 @@ class UserController extends Controller
             'password' => Hash::make($validated['password']),
             'is_admin' => $isAdmin,
             'is_trainer' => $isTrainer,
+            'is_reception' => $isReception,
             'credits' => $credits,
         ]);
 
@@ -70,21 +77,30 @@ class UserController extends Controller
             'password' => ['nullable', 'string', 'min:8', 'confirmed'],
             'is_admin' => ['sometimes', 'boolean'],
             'is_trainer' => ['sometimes', 'boolean'],
+            'is_reception' => ['sometimes', 'boolean'],
             'credits' => ['nullable', 'integer', 'min:0'],
         ]);
 
         $isAdmin = $request->boolean('is_admin');
         $isTrainer = $request->boolean('is_trainer');
-        if ($isAdmin && $isTrainer) {
+        $isReception = $request->boolean('is_reception');
+
+        // Keep roles mutually exclusive
+        if ($isAdmin) {
             $isTrainer = false;
+            $isReception = false;
+        }
+        if ($isTrainer) {
+            $isReception = false;
         }
 
         $user->name = $validated['name'];
         $user->email = $validated['email'];
         $user->is_admin = $isAdmin;
         $user->is_trainer = $isTrainer;
+        $user->is_reception = $isReception;
 
-        if ($user->isAdmin() || $user->isTrainer()) {
+        if ($user->isAdmin() || $user->isTrainer() || $user->isReception()) {
             $user->credits = 0;
         } else {
             // regular user: allow admin to set credits

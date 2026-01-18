@@ -53,12 +53,19 @@
                         </label>
                     </div>
 
-                    <div class="form-check mb-3">
+                    <div class="form-check mb-2">
                         <input class="form-check-input" type="checkbox" value="1" id="is_trainer" name="is_trainer" @checked(old('is_trainer'))>
                         <label class="form-check-label" for="is_trainer">
                             Tréner
                         </label>
-                        <div class="form-text">Admin a tréner sa nedajú kombinovať.</div>
+                    </div>
+
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" value="1" id="is_reception" name="is_reception" @checked(old('is_reception'))>
+                        <label class="form-check-label" for="is_reception">
+                            Recepcia
+                        </label>
+                        <div class="form-text">Admin, tréner a recepcia sa nedajú kombinovať.</div>
                     </div>
 
                     <div class="mb-3" id="creditsFieldWrapper">
@@ -85,26 +92,47 @@
     (function () {
         const adminCb = document.getElementById('is_admin');
         const trainerCb = document.getElementById('is_trainer');
+        const receptionCb = document.getElementById('is_reception');
         const creditsWrapper = document.getElementById('creditsFieldWrapper');
         const creditsInput = document.getElementById('credits');
 
-        function syncCreditsVisibility() {
-            if (!adminCb || !trainerCb || !creditsWrapper) return;
-
-            // keep mutually exclusive in UI too
-            if (adminCb.checked && trainerCb.checked) {
-                trainerCb.checked = false;
-            }
-
-            const isRegular = !adminCb.checked && !trainerCb.checked;
-            creditsWrapper.classList.toggle('d-none', !isRegular);
-            if (!isRegular && creditsInput) {
-                creditsInput.value = 0;
-            }
+        function setRole(role) {
+            if (!adminCb || !trainerCb || !receptionCb) return;
+            adminCb.checked = role === 'admin';
+            trainerCb.checked = role === 'trainer';
+            receptionCb.checked = role === 'reception';
         }
 
-        if (adminCb) adminCb.addEventListener('change', syncCreditsVisibility);
-        if (trainerCb) trainerCb.addEventListener('change', syncCreditsVisibility);
+        function currentRole() {
+            if (adminCb?.checked) return 'admin';
+            if (trainerCb?.checked) return 'trainer';
+            if (receptionCb?.checked) return 'reception';
+            return null;
+        }
+
+        function syncCreditsVisibility() {
+            if (!creditsWrapper) return;
+            const role = currentRole();
+            const isRegular = role === null;
+            creditsWrapper.classList.toggle('d-none', !isRegular);
+            if (!isRegular && creditsInput) creditsInput.value = 0;
+        }
+
+        function onRoleClick(clicked) {
+            // allow turning role off by clicking the already-selected one
+            const roleBefore = currentRole();
+            if (roleBefore === clicked) {
+                setRole(null);
+            } else {
+                setRole(clicked);
+            }
+            syncCreditsVisibility();
+        }
+
+        if (adminCb) adminCb.addEventListener('click', (e) => { e.preventDefault(); onRoleClick('admin'); });
+        if (trainerCb) trainerCb.addEventListener('click', (e) => { e.preventDefault(); onRoleClick('trainer'); });
+        if (receptionCb) receptionCb.addEventListener('click', (e) => { e.preventDefault(); onRoleClick('reception'); });
+
         syncCreditsVisibility();
     })();
 </script>

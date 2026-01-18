@@ -28,7 +28,20 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->intended(route('dashboard'));
+        $user = $request->user();
+
+        // If user was trying to access a protected page, intended() will still win.
+        // Otherwise, send them to their role's start page.
+        $default = route('training-calendar.index');
+        if ($user?->isAdmin()) {
+            $default = route('admin.users.index');
+        } elseif ($user?->isTrainer()) {
+            $default = route('trainer.trainings.index');
+        } elseif ($user?->isReception()) {
+            $default = route('reception.calendar');
+        }
+
+        return redirect()->intended($default);
     }
 
     public function destroy(Request $request)

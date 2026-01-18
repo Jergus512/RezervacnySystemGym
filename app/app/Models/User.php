@@ -25,6 +25,7 @@ class User extends Authenticatable
         'password',
         'is_admin',
         'is_trainer',
+        'is_reception',
         'credits',
     ];
 
@@ -59,6 +60,7 @@ class User extends Authenticatable
             'password' => 'hashed',
             'is_admin' => 'boolean',
             'is_trainer' => 'boolean',
+            'is_reception' => 'boolean',
             'credits' => 'integer',
         ];
     }
@@ -73,10 +75,15 @@ class User extends Authenticatable
         return (bool) $this->is_trainer;
     }
 
+    public function isReception(): bool
+    {
+        return (bool) $this->is_reception;
+    }
+
     public function isRegularUser(): bool
     {
         // Regular users can buy/register for trainings.
-        return ! $this->isAdmin() && ! $this->isTrainer();
+        return ! $this->isAdmin() && ! $this->isTrainer() && ! $this->isReception();
     }
 
     public function createdTrainings(): HasMany

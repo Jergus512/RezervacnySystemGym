@@ -1,27 +1,51 @@
-<!DOCTYPE html>
-<html lang="sk">
-<head>
-    <meta charset="UTF-8">
-    <title>Rezervačný systém - Gym</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+@extends('layouts.app')
 
-    <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
-        rel="stylesheet"
-        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
-        crossorigin="anonymous"
-    >
+@section('title', 'Rezervačný systém - Gym')
 
+@php($overlayTopbar = true)
+
+@section('content')
     <style>
-        /* Ensure the page starts at the very top with no default browser spacing */
+        /* Home page styles scoped to this view */
+
+        /* Home only: page background should match footer (dark) */
         html, body {
-            margin: 0;
-            padding: 0;
+            background: #1f1f1f;
             overflow-x: hidden;
-            background: #1f1f1f; /* match footer to avoid white overscroll area */
         }
 
-        /* Orange CTA button (match auth forms) */
+        /* Prefer clip where supported to avoid horizontal scrollbar without affecting vertical scrolling */
+        @supports (overflow-x: clip) {
+            html, body { overflow-x: clip; }
+        }
+
+        /* Home feature cards (3 blocks) */
+        .home-feature-card {
+            height: 100%;
+            min-height: 92px;
+            background: #fff;
+            border: 1px solid rgba(0,0,0,.08);
+            box-shadow: 0 10px 30px rgba(0,0,0,.08);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: .25rem;
+        }
+
+        .home-feature-card .fw-semibold {
+            line-height: 1.15;
+        }
+
+        .home-feature-card .text-muted.small {
+            line-height: 1.25;
+            margin-bottom: 0;
+        }
+
+        @media (min-width: 768px) {
+            .home-feature-card { min-height: 104px; }
+        }
+
+        /* Keep the actual content area under hero white */
         .btn-orange {
             background: #f97316;
             border-color: #f97316;
@@ -35,11 +59,6 @@
             color: #fff;
         }
 
-        /* Optional: make outline-light a bit clearer on dark bg */
-        .btn-outline-light:hover {
-            color: #000;
-        }
-
         /* Home: make “Prihlásiť sa” button visible on light background */
         .btn-outline-home {
             color: #000;
@@ -49,47 +68,69 @@
         .btn-outline-home:hover,
         .btn-outline-home:focus {
             color: #000;
-            background-color: #e9ecef; /* light gray */
+            background-color: #e9ecef;
             border-color: #000;
         }
 
-        .hero {
+        /* Full-bleed hero image right under the top bar */
+        .home-hero-bleed {
             position: relative;
+            width: 100vw;
+            margin-left: calc(50% - 50vw);
+            margin-right: calc(50% - 50vw);
             overflow: hidden;
-            background: #fff;
-            color: #111;
+            margin-top: 0;
+            padding-top: 0;
         }
 
-        .hero::after {
-            content: none;
-        }
-
-        .hero-card {
-            background: #fff;
-            border: 1px solid rgba(0,0,0,.08);
-            box-shadow: 0 10px 30px rgba(0,0,0,.08);
-            backdrop-filter: none;
-        }
-
-        .hero-img {
+        .home-hero-bleed-img {
             width: 100%;
-            height: 100%;
+            height: min(62vh, 720px);
             object-fit: cover;
-            border-radius: 1rem;
+            object-position: left top;
+            display: block;
         }
 
-        .hero-img-wrap {
-            position: relative;
-            border-radius: 1rem;
-            overflow: hidden;
-            box-shadow: 0 18px 50px rgba(0,0,0,.45);
+        .home-hero-bleed-title {
+            position: absolute;
+            inset: 0;
+            z-index: 2;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 1.25rem;
+            padding-top: 6.1rem;
+            pointer-events: none;
+            text-align: center;
         }
 
-        /* Home gallery (under hero images) */
-        .home-gallery {
-            margin-top: 1.25rem;
+        .home-hero-bleed-title h1 {
+            margin: 0;
+            color: #fff;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            text-shadow: 0 10px 30px rgba(0,0,0,.55);
+            font-size: clamp(3.6rem, 9vw, 7.2rem);
+            line-height: 1.02;
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
         }
 
+        @media (min-width: 768px) {
+            .home-hero-bleed-title { padding-top: 6.9rem; }
+        }
+
+        @media (min-width: 992px) {
+            .home-hero-bleed-img { height: min(70vh, 820px); }
+            .home-hero-bleed-title { padding-top: 7.4rem; }
+        }
+
+        .cap {
+            display: inline-block;
+            font-size: 1.18em;
+            line-height: 1;
+        }
+
+        /* Home gallery */
         .home-gallery .gallery-item {
             display: block;
             width: 100%;
@@ -125,9 +166,7 @@
             backdrop-filter: blur(2px);
         }
 
-        .gallery-lightbox.is-open {
-            display: flex;
-        }
+        .gallery-lightbox.is-open { display: flex; }
 
         .gallery-lightbox .lb-inner {
             position: relative;
@@ -191,178 +230,14 @@
             .gallery-lightbox .lb-close { top: 6px; right: 6px; }
         }
 
-        .topbar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 20;
-            background: rgba(0,0,0,.55);
-            backdrop-filter: blur(10px);
-            border-bottom: 0;
-            margin: 0;
-            padding: 0;
-        }
-
-        .topbar-inner {
-            padding-top: .35rem;
-            padding-bottom: .35rem;
-        }
-
-        .topbar-brand {
-            width: 100%;
-            display: flex;
-            justify-content: center;
-        }
-
-        .topbar-logo {
-            height: 76px;
-            width: auto;
-            max-width: 100%;
-            display: block;
-            filter: drop-shadow(0 8px 18px rgba(0,0,0,.35));
-            /* Nudge logo up a bit without changing topbar height */
-            transform: translateY(-6px);
-        }
-
-        .topbar-actions {
-            width: 100%;
-            display: flex;
-            justify-content: center;
-            gap: .5rem;
-            margin-top: .2rem;
-            flex-wrap: wrap;
-        }
-
-        @media (min-width: 768px) {
-            .topbar-inner {
-                padding-top: .5rem;
-                padding-bottom: .5rem;
-            }
-
-            .topbar-logo {
-                height: 92px;
-                /* Keep similar nudge on desktop */
-                transform: translateY(-6px);
-            }
-
-            .topbar-actions {
-                justify-content: flex-end;
-                margin-top: 0;
-                width: auto;
-            }
-
-            .topbar-row {
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                gap: 1rem;
-            }
-
-            .topbar-brand {
-                justify-content: flex-start;
-                width: auto;
-            }
-        }
-
-        /* Mobile (vertical) optical alignment: nudge logo slightly to the right */
-        @media (max-width: 767.98px) {
-            .topbar-logo {
-                transform: translate(6px, -6px);
-            }
-        }
-
-        /* Full-bleed hero image right under the top bar */
-        .hero-bleed {
-            position: relative;
-            width: 100%;
-            max-width: none;
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-        }
-
-        .hero-bleed-img {
-            width: 100%;
-            height: min(62vh, 720px);
-            object-fit: cover;
-            object-position: left top;
-            display: block;
-            margin: 0;
-            /* Fix rare subpixel gaps on the right edge */
-            transform: translateZ(0);
-        }
-
-        /* Small safety cover for subpixel seams */
-        .hero-bleed::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            right: 0;
-            bottom: 0;
-            width: 1px;
-            background: #000;
-            z-index: 1;
-            pointer-events: none;
-        }
-
-        /* Big title overlay on the hero image */
-        .hero-bleed-title {
-            position: absolute;
-            inset: 0;
-            z-index: 2;
-            display: flex;
-            align-items: flex-start;
-            justify-content: center;
-            padding: 1.25rem;
-            padding-top: 8.25rem; /* more space under topbar on mobile */
-            pointer-events: none;
-            text-align: center;
-        }
-
-        .hero-bleed-title h1 {
-            margin: 0;
-            color: #fff;
-            font-weight: 800;
-            letter-spacing: -0.02em;
-            text-shadow: 0 10px 30px rgba(0,0,0,.55);
-            font-size: clamp(3.6rem, 9vw, 7.2rem);
-            line-height: 1.02;
-
-            /* Default font */
-            font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
-        }
-
-        @media (min-width: 768px) {
-            .hero-bleed-title {
-                padding-top: 8.5rem;
-            }
-        }
-
-        @media (min-width: 992px) {
-            .hero-bleed-img {
-                height: min(70vh, 820px);
-            }
-            .hero-bleed-overlay {
-                padding: 2.5rem;
-            }
-            .hero-bleed-title {
-                padding-top: 9.25rem;
-            }
-        }
-
-        .cap {
-            display: inline-block;
-            font-size: 1.18em;
-            line-height: 1;
-            transform: none;
-        }
-
-        /* Home footer (inspired by provided design) */
+        /* Home footer */
         .home-footer {
             background: #1f1f1f;
             color: rgba(255,255,255,.8);
             padding: 4rem 0 0;
+            width: 100vw;
+            margin-left: calc(50% - 50vw);
+            margin-right: calc(50% - 50vw);
         }
 
         .home-footer .footer-title {
@@ -445,11 +320,8 @@
             display: block;
         }
 
-        /* Mobile footer alignment: center everything on narrow screens */
         @media (max-width: 991.98px) {
-            .home-footer {
-                text-align: center;
-            }
+            .home-footer { text-align: center; }
 
             .home-footer .footer-logo {
                 margin-left: auto;
@@ -471,264 +343,283 @@
                 justify-content: center !important;
             }
         }
+
+        /* Ensure no white strip above the hero on Home */
+        .home-footer-wrap {
+            background: #1f1f1f;
+            width: 100vw;
+            margin-left: calc(50% - 50vw);
+            margin-right: calc(50% - 50vw);
+        }
+
+        /* Extend dark background past footer content area */
+        .home-footer-wrap,
+        .home-footer {
+            background: #1f1f1f;
+        }
+
+        /* Home main section full-width background */
+        .home-main-bleed {
+            position: relative;
+            width: 100vw;
+            margin-left: calc(50% - 50vw);
+            margin-right: calc(50% - 50vw);
+            overflow: hidden;
+            padding-top: 0;
+            background: #fff;
+        }
     </style>
-</head>
-<body>
-<header class="topbar">
-    <div class="container topbar-inner">
-        <div class="topbar-row">
-            <div class="topbar-brand">
-                <a href="{{ url('/') }}" class="d-inline-flex align-items-center text-decoration-none">
-                    <img class="topbar-logo" src="{{ asset('img/logo1.png') }}" alt="Super Gym logo" loading="eager">
-                </a>
-            </div>
 
-            <div class="topbar-actions">
-                @auth
-                    <a href="{{ route('dashboard') }}" class="btn btn-success btn-sm">Dashboard</a>
-                    <form method="POST" action="{{ route('logout') }}" class="m-0">
-                        @csrf
-                        <button type="submit" class="btn btn-outline-light btn-sm">Odhlásiť</button>
-                    </form>
-                @else
-                    <a href="{{ route('login') }}" class="btn btn-outline-light btn-sm">Prihlásiť sa</a>
-                    <a href="{{ route('register') }}" class="btn btn-orange btn-sm">Registrácia</a>
-                @endauth
+    {{-- Big full-width image under the top bar (edge-to-edge) --}}
+    <section class="home-hero-bleed">
+        <img class="home-hero-bleed-img" src="{{ asset('img/pozadie7.png') }}" alt="Činky" loading="eager">
+        <div class="home-hero-bleed-title">
+            <div class="container">
+                <h1><span class="cap">S</span>UPER <span class="cap">G</span>YM</h1>
             </div>
         </div>
-    </div>
-</header>
+    </section>
 
-{{-- Big full-width image under the top bar (edge-to-edge) --}}
-<section class="hero-bleed">
-    <img class="hero-bleed-img" src="{{ asset('img/pozadie7.png') }}" alt="Činky" loading="eager">
-    <div class="hero-bleed-title">
-        <div class="container">
-            <h1><span class="cap">S</span>UPER <span class="cap">G</span>YM</h1>
-        </div>
-    </div>
-</section>
+    <section class="home-main-bleed">
+        <div class="container py-5">
+            <div class="row align-items-center g-4">
+                <div class="col-12 col-lg-6">
+                    <div class="mb-4">
+                        <span class="badge" style="background:#111;color:#fff;">Kalendár • Kredity • Rezervácie</span>
+                    </div>
 
-<main class="hero py-5">
-    <div class="container hero-content">
-        <div class="row align-items-center g-4">
-            <div class="col-12 col-lg-6">
-                <div class="mb-4">
-                    <span class="badge hero-badge">Kalendár • Kredity • Rezervácie</span>
+                    <h1 class="display-5 fw-bold mb-3">Rezervuj si tréning jednoducho.</h1>
+                    <p class="lead text-muted mb-4">
+                        Prehľadný systém pre klientov, trénerov, adminov a recepciu. Sleduj tréningy v kalendári, spravuj kapacity,
+                        kredity a registrácie bez chaosu.
+                    </p>
+
+                    @guest
+                        <div class="d-flex flex-column flex-sm-row gap-2 mb-4">
+                            <a href="{{ route('register') }}" class="btn btn-orange btn-lg px-4">Začať (Registrácia)</a>
+                            <a href="{{ route('login') }}" class="btn btn-outline-home btn-lg px-4">Prihlásiť sa</a>
+                        </div>
+                    @else
+                        <div class="d-flex flex-column flex-sm-row gap-2 mb-4">
+                            @if(auth()->user()->isAdmin())
+                                <a href="{{ route('admin.users.index') }}" class="btn btn-orange btn-lg px-4">Správa používateľov</a>
+                                <a href="{{ route('admin.trainings.index') }}" class="btn btn-outline-dark btn-lg px-4">Editácia tréningov</a>
+                            @elseif(auth()->user()->isTrainer())
+                                <a href="{{ route('trainer.trainings.index') }}" class="btn btn-orange btn-lg px-4">Vytvorené tréningy</a>
+                                <a href="{{ route('trainer.trainings.create') }}" class="btn btn-outline-dark btn-lg px-4">Vytvoriť tréning</a>
+                            @elseif(auth()->user()->isReception())
+                                <a href="{{ route('reception.calendar') }}" class="btn btn-orange btn-lg px-4">Kalendár tréningov</a>
+                                <a href="{{ route('reception.credits.create') }}" class="btn btn-outline-dark btn-lg px-4">Pridanie kreditov</a>
+                            @else
+                                <a href="{{ route('training-calendar.index') }}" class="btn btn-orange btn-lg px-4">Otvoriť kalendár</a>
+                            @endif
+                        </div>
+                    @endguest
+
+                    <div class="row g-3 align-items-stretch">
+                        <div class="col-12 col-md-4">
+                            <div class="home-feature-card p-3 rounded-3 h-100 d-flex flex-column">
+                                <div class="fw-semibold">Kalendár</div>
+                                <div class="text-muted small">Rýchly prehľad tréningov.</div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <div class="home-feature-card p-3 rounded-3 h-100 d-flex flex-column">
+                                <div class="fw-semibold">Kredity</div>
+                                <div class="text-muted small">Platby tréningov kreditmi.</div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <div class="home-feature-card p-3 rounded-3 h-100 d-flex flex-column">
+                                <div class="fw-semibold">Správa</div>
+                                <div class="text-muted small">Admin, tréner a recepcia nástroje.</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                <h1 class="display-5 fw-bold mb-3">Rezervuj si tréning jednoducho.</h1>
-                <p class="lead text-muted mb-4">
-                    Prehľadný systém pre klientov, trénerov a adminov. Sleduj tréningy v kalendári, spravuj kapacity,
-                    kredity a registrácie bez chaosu.
-                </p>
-
-                @guest
-                    <div class="d-flex flex-column flex-sm-row gap-2 mb-4">
-                        <a href="{{ route('register') }}" class="btn btn-orange btn-lg px-4">Začať (Registrácia)</a>
-                        <a href="{{ route('login') }}" class="btn btn-outline-home btn-lg px-4">Prihlásiť sa</a>
-                    </div>
-                @else
-                    <div class="d-flex flex-column flex-sm-row gap-2 mb-4">
-                        <a href="{{ route('training-calendar.index') }}" class="btn btn-orange btn-lg px-4">Otvoriť kalendár</a>
-                        <a href="{{ route('dashboard') }}" class="btn btn-outline-light btn-lg px-4">Dashboard</a>
-                    </div>
-                @endguest
-
-                <div class="row g-3">
-                    <div class="col-12 col-md-4">
-                        <div class="p-3 rounded-3 hero-card h-100">
-                            <div class="fw-semibold">Kalendár</div>
-                            <div class="text-muted small">Rýchly prehľad tréningov.</div>
+                <div class="col-12 col-lg-6">
+                    <section class="home-gallery" aria-label="Galéria">
+                        <div class="row g-3 mt-1">
+                            <div class="col-6 col-md-4">
+                                <a class="gallery-item js-gallery-item" href="{{ asset('img/galeria1.png') }}" data-gallery-src="{{ asset('img/galeria1.png') }}" aria-label="Galéria obrázok 1">
+                                    <img src="{{ asset('img/galeria1.png') }}" alt="Galéria 1" loading="lazy">
+                                </a>
+                            </div>
+                            <div class="col-6 col-md-4">
+                                <a class="gallery-item js-gallery-item" href="{{ asset('img/galeria2.png') }}" data-gallery-src="{{ asset('img/galeria2.png') }}" aria-label="Galéria obrázok 2">
+                                    <img src="{{ asset('img/galeria2.png') }}" alt="Galéria 2" loading="lazy">
+                                </a>
+                            </div>
+                            <div class="col-6 col-md-4">
+                                <a class="gallery-item js-gallery-item" href="{{ asset('img/galeria3.png') }}" data-gallery-src="{{ asset('img/galeria3.png') }}" aria-label="Galéria obrázok 3">
+                                    <img src="{{ asset('img/galeria3.png') }}" alt="Galéria 3" loading="lazy">
+                                </a>
+                            </div>
+                            <div class="col-6 col-md-4">
+                                <a class="gallery-item js-gallery-item" href="{{ asset('img/galeria4.png') }}" data-gallery-src="{{ asset('img/galeria4.png') }}" aria-label="Galéria obrázok 4">
+                                    <img src="{{ asset('img/galeria4.png') }}" alt="Galéria 4" loading="lazy">
+                                </a>
+                            </div>
+                            <div class="col-6 col-md-4">
+                                <a class="gallery-item js-gallery-item" href="{{ asset('img/galeria5.png') }}" data-gallery-src="{{ asset('img/galeria5.png') }}" aria-label="Galéria obrázok 5">
+                                    <img src="{{ asset('img/galeria5.png') }}" alt="Galéria 5" loading="lazy">
+                                </a>
+                            </div>
+                            <div class="col-6 col-md-4">
+                                <a class="gallery-item js-gallery-item" href="{{ asset('img/galeria6.png') }}" data-gallery-src="{{ asset('img/galeria6.png') }}" aria-label="Galéria obrázok 6">
+                                    <img src="{{ asset('img/galeria6.png') }}" alt="Galéria 6" loading="lazy">
+                                </a>
+                            </div>
                         </div>
-                    </div>
-                    <div class="col-12 col-md-4">
-                        <div class="p-3 rounded-3 hero-card h-100">
-                            <div class="fw-semibold">Kredity</div>
-                            <div class="text-muted small">Platby tréningov kreditmi.</div>
-                        </div>
-                    </div>
-                    <div class="col-12 col-md-4">
-                        <div class="p-3 rounded-3 hero-card h-100">
-                            <div class="fw-semibold">Správa</div>
-                            <div class="text-muted small">Admin a tréner nástroje.</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-12 col-lg-6">
-                 <section class="home-gallery" aria-label="Galéria">
-                     <div class="row g-3 mt-1">
-                        <div class="col-6 col-md-4">
-                            <a class="gallery-item js-gallery-item" href="{{ asset('img/galeria1.png') }}" data-gallery-src="{{ asset('img/galeria1.png') }}" aria-label="Galéria obrázok 1">
-                                 <img src="{{ asset('img/galeria1.png') }}" alt="Galéria 1" loading="lazy">
-                             </a>
-                        </div>
-                        <div class="col-6 col-md-4">
-                            <a class="gallery-item js-gallery-item" href="{{ asset('img/galeria2.png') }}" data-gallery-src="{{ asset('img/galeria2.png') }}" aria-label="Galéria obrázok 2">
-                                 <img src="{{ asset('img/galeria2.png') }}" alt="Galéria 2" loading="lazy">
-                             </a>
-                        </div>
-                        <div class="col-6 col-md-4">
-                            <a class="gallery-item js-gallery-item" href="{{ asset('img/galeria3.png') }}" data-gallery-src="{{ asset('img/galeria3.png') }}" aria-label="Galéria obrázok 3">
-                                 <img src="{{ asset('img/galeria3.png') }}" alt="Galéria 3" loading="lazy">
-                             </a>
-                        </div>
-                        <div class="col-6 col-md-4">
-                            <a class="gallery-item js-gallery-item" href="{{ asset('img/galeria4.png') }}" data-gallery-src="{{ asset('img/galeria4.png') }}" aria-label="Galéria obrázok 4">
-                                 <img src="{{ asset('img/galeria4.png') }}" alt="Galéria 4" loading="lazy">
-                             </a>
-                        </div>
-                        <div class="col-6 col-md-4">
-                            <a class="gallery-item js-gallery-item" href="{{ asset('img/galeria5.png') }}" data-gallery-src="{{ asset('img/galeria5.png') }}" aria-label="Galéria obrázok 5">
-                                 <img src="{{ asset('img/galeria5.png') }}" alt="Galéria 5" loading="lazy">
-                             </a>
-                        </div>
-                        <div class="col-6 col-md-4">
-                            <a class="gallery-item js-gallery-item" href="{{ asset('img/galeria6.png') }}" data-gallery-src="{{ asset('img/galeria6.png') }}" aria-label="Galéria obrázok 6">
-                                 <img src="{{ asset('img/galeria6.png') }}" alt="Galéria 6" loading="lazy">
-                             </a>
-                        </div>
-                    </div>
-                 </section>
-             </div>
-         </div>
-     </div>
- </main>
-
- <div class="gallery-lightbox" id="galleryLightbox" aria-hidden="true">
-    <div class="lb-inner" role="dialog" aria-modal="true" aria-label="Galéria">
-        <button type="button" class="lb-btn lb-prev" id="galleryPrev" aria-label="Predchádzajúci">‹</button>
-        <img id="galleryLightboxImage" src="" alt="Zväčšený obrázok">
-        <button type="button" class="lb-btn lb-next" id="galleryNext" aria-label="Nasledujúci">›</button>
-        <button type="button" class="lb-btn lb-close" id="galleryClose" aria-label="Zavrieť">✕</button>
-    </div>
-</div>
-
-<footer class="home-footer">
-    <div class="container">
-        <div class="row g-4 align-items-start">
-            <div class="col-12 col-lg-3">
-                <img class="footer-logo" src="{{ asset('img/logo1.png') }}" alt="Super Gym logo" loading="lazy">
-            </div>
-
-            <div class="col-12 col-md-6 col-lg-3">
-                <div class="footer-title">Kontakt</div>
-                <div class="footer-meta">
-                    <div class="mb-2"><span class="accent">Tel:</span> +421 900 000 000</div>
-                    <div class="mb-2"><span class="accent">Email:</span> info@supergym.sk</div>
-                    <div class="footer-title mt-4">Nájdete nás na adrese</div>
-                    <div>Žilina, Vysokoškolákov</div>
-                </div>
-            </div>
-
-            <div class="col-12 col-md-6 col-lg-3">
-                <div class="footer-title">Navigácia</div>
-                <div>
-                    <a class="footer-link" href="{{ url('/') }}">Domov</a><br>
-                    <a class="footer-link" href="{{ route('training-calendar.index') }}">Rozvrh cvičení</a><br>
-                    <a class="footer-link" href="{{ route('register') }}">Registrácia</a><br>
-                    <a class="footer-link" href="{{ route('login') }}">Prihlásenie</a><br>
-                    @auth
-                        <a class="footer-link" href="{{ route('dashboard') }}">Dashboard</a><br>
-                    @endauth
-                </div>
-            </div>
-
-            <div class="col-12 col-lg-3">
-                <div class="footer-title">Otváracie hodiny</div>
-                <div class="footer-meta">
-                    <div class="d-flex justify-content-between"><span>Pon – Pia</span><span>06:00 – 22:00</span></div>
-                    <div class="d-flex justify-content-between"><span>So – Ne</span><span>07:00 – 22:00</span></div>
-                </div>
-
-                <div class="footer-title mt-4">Sociálne siete</div>
-                <div class="d-flex gap-2 social-wrap">
-                    <a class="social-link" href="#" aria-label="Facebook" title="Facebook">
-                        <img class="social-icon" src="{{ asset('img/fb-ikonka.webp') }}" alt="Facebook" loading="lazy">
-                    </a>
-                    <a class="social-link" href="#" aria-label="Instagram" title="Instagram">
-                        <img class="social-icon" src="{{ asset('img/instagram-ikonka.png') }}" alt="Instagram" loading="lazy">
-                    </a>
-                    <a class="social-link" href="#" aria-label="YouTube" title="YouTube">
-                        <img class="social-icon" src="{{ asset('img/youtube-ikonka.png') }}" alt="YouTube" loading="lazy">
-                    </a>
+                    </section>
                 </div>
             </div>
         </div>
+    </section>
 
-        <div class="footer-divider"></div>
-
-        <div class="footer-bottom text-center">
-            © <span class="accent">SUPER GYM</span> {{ date('Y') }} – Všetky práva vyhradené.
+    <div class="gallery-lightbox" id="galleryLightbox" aria-hidden="true">
+        <div class="lb-inner" role="dialog" aria-modal="true" aria-label="Galéria">
+            <button type="button" class="lb-btn lb-prev" id="galleryPrev" aria-label="Predchádzajúci">‹</button>
+            <img id="galleryLightboxImage" src="" alt="Zväčšený obrázok">
+            <button type="button" class="lb-btn lb-next" id="galleryNext" aria-label="Nasledujúci">›</button>
+            <button type="button" class="lb-btn lb-close" id="galleryClose" aria-label="Zavrieť">✕</button>
         </div>
     </div>
-</footer>
 
-<script
-    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
-    integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
-    crossorigin="anonymous"
-></script>
-<script>
-    (function () {
-        const items = Array.from(document.querySelectorAll('.js-gallery-item'));
-        if (!items.length) return;
+    <div class="home-footer-wrap">
+        <footer class="home-footer">
+            <div class="container">
+                <div class="row g-4 align-items-start">
+                    <div class="col-12 col-lg-3">
+                        <img class="footer-logo" src="{{ asset('img/logo1.png') }}" alt="Super Gym logo" loading="lazy">
+                    </div>
 
-        const overlay = document.getElementById('galleryLightbox');
-        const img = document.getElementById('galleryLightboxImage');
-        const btnPrev = document.getElementById('galleryPrev');
-        const btnNext = document.getElementById('galleryNext');
-        const btnClose = document.getElementById('galleryClose');
+                    <div class="col-12 col-md-6 col-lg-3">
+                        <div class="footer-title">Kontakt</div>
+                        <div class="footer-meta">
+                            <div class="mb-2"><span class="accent">Tel:</span> +421 900 000 000</div>
+                            <div class="mb-2"><span class="accent">Email:</span> info@supergym.sk</div>
+                            <div class="footer-title mt-4">Nájdete nás na adrese</div>
+                            <div>Žilina, Vysokoškolákov</div>
+                        </div>
+                    </div>
 
-        let currentIndex = 0;
+                    <div class="col-12 col-md-6 col-lg-3">
+                        <div class="footer-title">Navigácia</div>
+                        <div>
+                            <a class="footer-link" href="{{ url('/') }}">Domov</a><br>
+                            <a class="footer-link" href="{{ route('training-calendar.index') }}">Rozvrh cvičení</a><br>
+                            <a class="footer-link" href="{{ route('register') }}">Registrácia</a><br>
+                            <a class="footer-link" href="{{ route('login') }}">Prihlásenie</a><br>
+                            @auth
+                                @if(auth()->user()->isAdmin())
+                                    <a class="footer-link" href="{{ route('admin.users.index') }}">Admin</a><br>
+                                @elseif(auth()->user()->isTrainer())
+                                    <a class="footer-link" href="{{ route('trainer.trainings.index') }}">Tréner</a><br>
+                                @elseif(auth()->user()->isReception())
+                                    <a class="footer-link" href="{{ route('reception.calendar') }}">Recepcia</a><br>
+                                @else
+                                    <a class="footer-link" href="{{ route('training-calendar.index') }}">Kalendár tréningov</a><br>
+                                @endif
+                            @endauth
+                        </div>
+                    </div>
 
-        function setOpen(isOpen) {
-            overlay.classList.toggle('is-open', isOpen);
-            overlay.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
-            document.body.style.overflow = isOpen ? 'hidden' : '';
-        }
+                    <div class="col-12 col-lg-3">
+                        <div class="footer-title">Otváracie hodiny</div>
+                        <div class="footer-meta">
+                            <div class="d-flex justify-content-between"><span>Pon – Pia</span><span>06:00 – 22:00</span></div>
+                            <div class="d-flex justify-content-between"><span>So – Ne</span><span>07:00 – 22:00</span></div>
+                        </div>
 
-        function showIndex(idx) {
-            currentIndex = (idx + items.length) % items.length;
-            const src = items[currentIndex].getAttribute('data-gallery-src') || items[currentIndex].getAttribute('href');
-            img.src = src;
-        }
+                        <div class="footer-title mt-4">Sociálne siete</div>
+                        <div class="d-flex gap-2 social-wrap">
+                            <a class="social-link" href="#" aria-label="Facebook" title="Facebook">
+                                <img class="social-icon" src="{{ asset('img/fb-ikonka.webp') }}" alt="Facebook" loading="lazy">
+                            </a>
+                            <a class="social-link" href="#" aria-label="Instagram" title="Instagram">
+                                <img class="social-icon" src="{{ asset('img/instagram-ikonka.png') }}" alt="Instagram" loading="lazy">
+                            </a>
+                            <a class="social-link" href="#" aria-label="YouTube" title="YouTube">
+                                <img class="social-icon" src="{{ asset('img/youtube-ikonka.png') }}" alt="YouTube" loading="lazy">
+                            </a>
+                        </div>
+                    </div>
+                </div>
 
-        function openAt(idx) {
-            showIndex(idx);
-            setOpen(true);
-        }
+                <div class="footer-divider"></div>
 
-        function close() {
-            setOpen(false);
-            img.src = '';
-        }
+                <div class="footer-bottom text-center">
+                    © <span class="accent">SUPER GYM</span> {{ date('Y') }} – Všetky práva vyhradené.
+                </div>
+            </div>
+        </footer>
+    </div>
 
-        items.forEach((a, idx) => {
-            a.addEventListener('click', (e) => {
-                e.preventDefault();
-                openAt(idx);
+
+    <!--suppress HtmlUnknownTarget -->
+    <script
+        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+        crossorigin="anonymous"
+    ></script>
+    <script>
+        (function () {
+            const items = Array.from(document.querySelectorAll('.js-gallery-item'));
+            if (!items.length) return;
+
+            const overlay = document.getElementById('galleryLightbox');
+            const img = document.getElementById('galleryLightboxImage');
+            const btnPrev = document.getElementById('galleryPrev');
+            const btnNext = document.getElementById('galleryNext');
+            const btnClose = document.getElementById('galleryClose');
+
+            let currentIndex = 0;
+
+            function setOpen(isOpen) {
+                overlay.classList.toggle('is-open', isOpen);
+                overlay.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
+                document.body.style.overflow = isOpen ? 'hidden' : '';
+            }
+
+            function showIndex(idx) {
+                currentIndex = (idx + items.length) % items.length;
+                img.src = items[currentIndex].getAttribute('data-gallery-src') || items[currentIndex].getAttribute('href') || '';
+            }
+
+            function openAt(idx) {
+                showIndex(idx);
+                setOpen(true);
+            }
+
+            function close() {
+                setOpen(false);
+                img.src = '';
+            }
+
+            items.forEach((a, idx) => {
+                a.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    openAt(idx);
+                });
             });
-        });
 
-        btnPrev.addEventListener('click', () => showIndex(currentIndex - 1));
-        btnNext.addEventListener('click', () => showIndex(currentIndex + 1));
-        btnClose.addEventListener('click', close);
+            btnPrev.addEventListener('click', () => showIndex(currentIndex - 1));
+            btnNext.addEventListener('click', () => showIndex(currentIndex + 1));
+            btnClose.addEventListener('click', close);
 
-        overlay.addEventListener('click', (e) => {
-            // click outside the image / controls closes
-            if (e.target === overlay) close();
-        });
+            overlay.addEventListener('click', (e) => {
+                // click outside the image / controls closes
+                if (e.target === overlay) close();
+            });
 
-        document.addEventListener('keydown', (e) => {
-            if (!overlay.classList.contains('is-open')) return;
-            if (e.key === 'Escape') close();
-            if (e.key === 'ArrowLeft') showIndex(currentIndex - 1);
-            if (e.key === 'ArrowRight') showIndex(currentIndex + 1);
-        });
-    })();
-</script>
-</body>
-</html>
+            document.addEventListener('keydown', (e) => {
+                if (!overlay.classList.contains('is-open')) return;
+                if (e.key === 'Escape') close();
+                if (e.key === 'ArrowLeft') showIndex(currentIndex - 1);
+                if (e.key === 'ArrowRight') showIndex(currentIndex + 1);
+            });
+        })();
+    </script>
+@endsection

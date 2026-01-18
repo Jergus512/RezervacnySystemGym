@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\MyTrainingsController;
+use App\Http\Controllers\Reception\CreditsController as ReceptionCreditsController;
 use App\Http\Controllers\Trainer\TrainingManageController;
 use App\Http\Controllers\TrainingCalendarController;
 use App\Http\Controllers\TrainingRegistrationController;
@@ -26,10 +27,6 @@ Route::post('/login', [AuthenticatedSessionController::class, 'store']);
 Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
 
 Route::middleware('auth')->group(function () {
-    Route::get('/dashboard', function () {
-        return view('dashboard');
-    })->name('dashboard');
-
     // Training calendar - page
     Route::get('/kalendar-treningov', [TrainingCalendarController::class, 'index'])->name('training-calendar.index');
 
@@ -45,9 +42,28 @@ Route::middleware('auth')->group(function () {
     Route::get('/moje-treningy', [MyTrainingsController::class, 'index'])
         ->name('my-trainings.index');
 
+    Route::prefix('reception')->name('reception.')->middleware('reception')->group(function () {
+        // No separate receptionist dashboard; navigation is in the shared topbar.
+        Route::get('/', function () {
+            return redirect()->route('reception.calendar');
+        })->name('home');
+
+        // Read-only calendar
+        Route::get('/kalendar-treningov', function () {
+            return view('training.calendar');
+        })->name('calendar');
+
+        Route::get('/pridanie-kreditov', [ReceptionCreditsController::class, 'create'])->name('credits.create');
+        Route::get('/pridanie-kreditov/search', [ReceptionCreditsController::class, 'search'])->name('credits.search');
+        Route::post('/pridanie-kreditov', [ReceptionCreditsController::class, 'store'])->name('credits.store');
+    });
+
     Route::prefix('admin')->name('admin.')->group(function () {
         Route::group(['middleware' => function ($request, $next) {
-            if (! auth()->user() || ! auth()->user()->is_admin) {
+            /** @var \App\Models\User|null $user */
+            $user = auth()->user();
+
+            if (! $user || ! $user->isAdmin()) {
                 abort(403);
             }
 
