@@ -91,4 +91,3 @@ class TrainerCreateTrainingTest extends TestCase
             ->assertForbidden();
     }
 }
-

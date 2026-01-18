@@ -1,14 +1,14 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Admin\TrainingController as AdminTrainingController;
+use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
-use App\Http\Controllers\Admin\UserController as AdminUserController;
-use App\Http\Controllers\TrainingCalendarController;
-use App\Http\Controllers\TrainingRegistrationController;
 use App\Http\Controllers\MyTrainingsController;
 use App\Http\Controllers\Trainer\TrainingManageController;
-use App\Http\Controllers\Admin\TrainingController as AdminTrainingController;
+use App\Http\Controllers\TrainingCalendarController;
+use App\Http\Controllers\TrainingRegistrationController;
+use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('home');
@@ -30,7 +30,6 @@ Route::middleware('auth')->group(function () {
         return view('dashboard');
     })->name('dashboard');
 
-
     // Training calendar - page
     Route::get('/kalendar-treningov', [TrainingCalendarController::class, 'index'])->name('training-calendar.index');
 
@@ -51,6 +50,7 @@ Route::middleware('auth')->group(function () {
             if (! auth()->user() || ! auth()->user()->is_admin) {
                 abort(403);
             }
+
             return $next($request);
         }], function () {
             Route::resource('users', AdminUserController::class)->except(['show']);

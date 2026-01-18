@@ -38,8 +38,8 @@ class TrainingEventColorTest extends TestCase
         $e1 = collect($eventsForU1)->firstWhere('id', $training->id);
         $e2 = collect($eventsForU2)->firstWhere('id', $training->id);
 
-        $this->assertNotNull($e1, 'Expected training event missing for u1. Events: ' . json_encode($eventsForU1));
-        $this->assertNotNull($e2, 'Expected training event missing for u2. Events: ' . json_encode($eventsForU2));
+        $this->assertNotNull($e1, 'Expected training event missing for u1. Events: '.json_encode($eventsForU1));
+        $this->assertNotNull($e2, 'Expected training event missing for u2. Events: '.json_encode($eventsForU2));
 
         $this->assertSame('#198754', $e1['backgroundColor']);
         $this->assertNull($e2['backgroundColor']);
@@ -54,7 +54,7 @@ class TrainingEventColorTest extends TestCase
             ->json();
 
         $e1After = collect($eventsForU1After)->firstWhere('id', $training->id);
-        $this->assertNotNull($e1After, 'Expected training event missing for u1 after unregister. Events: ' . json_encode($eventsForU1After));
+        $this->assertNotNull($e1After, 'Expected training event missing for u1 after unregister. Events: '.json_encode($eventsForU1After));
         $this->assertNull($e1After['backgroundColor']);
     }
 

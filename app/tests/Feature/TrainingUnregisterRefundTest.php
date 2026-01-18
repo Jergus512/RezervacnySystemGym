@@ -49,4 +49,3 @@ class TrainingUnregisterRefundTest extends TestCase
         $this->assertSame(10, $user->refresh()->credits);
     }
 }
-

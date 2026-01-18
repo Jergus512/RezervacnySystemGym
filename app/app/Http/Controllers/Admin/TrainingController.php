@@ -27,8 +27,8 @@ class TrainingController extends Controller
             ->with('creator:id,name')
             ->when($q !== '', function ($query) use ($q) {
                 $query->where(function ($w) use ($q) {
-                    $w->where('title', 'like', '%' . $q . '%')
-                        ->orWhere('description', 'like', '%' . $q . '%');
+                    $w->where('title', 'like', '%'.$q.'%')
+                        ->orWhere('description', 'like', '%'.$q.'%');
                 });
             })
             ->orderByDesc('start_at')
@@ -90,4 +90,3 @@ class TrainingController extends Controller
             ->with('status', 'Tréning bol odstránený (admin).');
     }
 }
-

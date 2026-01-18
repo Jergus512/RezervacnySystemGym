@@ -34,4 +34,3 @@ class RegisteredUserController extends Controller
         return redirect()->route('dashboard');
     }
 }
-

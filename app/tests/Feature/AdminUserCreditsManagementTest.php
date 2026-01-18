@@ -110,4 +110,3 @@ class AdminUserCreditsManagementTest extends TestCase
         $this->assertSame(0, $trainer->refresh()->credits);
     }
 }
-
