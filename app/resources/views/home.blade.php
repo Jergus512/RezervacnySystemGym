@@ -3,6 +3,7 @@
 @section('title', 'Rezervačný systém - Gym')
 
 @php($overlayTopbar = true)
+@php($homeAuthBurger = auth()->check())
 
 @section('content')
     <style>

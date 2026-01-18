@@ -19,53 +19,8 @@
             --brand-orange: #f97316;
         }
 
-        /* Home (overlay) on mobile: no burger, show menu items stacked and centered */
-        @media (max-width: 991.98px) {
-            body.overlay-topbar .app-topbar .navbar-toggler {
-                display: none;
-            }
-
-            body.overlay-topbar .app-topbar .navbar-collapse {
-                display: block !important; /* override .collapse on mobile */
-            }
-
-            body.overlay-topbar .app-topbar .container {
-                flex-direction: column;
-                align-items: center;
-                gap: .35rem;
-            }
-
-            body.overlay-topbar .app-topbar .navbar-brand {
-                margin-right: 0;
-            }
-
-            body.overlay-topbar .app-topbar .navbar-nav {
-                width: 100%;
-                align-items: center;
-                justify-content: center;
-                text-align: center;
-            }
-
-            body.overlay-topbar .app-topbar .navbar-nav.me-auto,
-            body.overlay-topbar .app-topbar .navbar-nav.ms-auto {
-                margin: 0 !important;
-            }
-
-            body.overlay-topbar .app-topbar .navbar-nav .nav-item {
-                width: 100%;
-            }
-
-            body.overlay-topbar .app-topbar .navbar-nav .nav-link,
-            body.overlay-topbar .app-topbar .navbar-nav .topbar-btn-orange {
-                justify-content: center;
-            }
-
-            /* Home mobile: nudge the "Registrácia" button slightly to the left */
-            body.overlay-topbar .app-topbar .navbar-nav.ms-auto .nav-item.ms-2 {
-                margin-left: 0 !important;
-                transform: translateX(-1px);
-            }
-        }
+        /* Home overlay-topbar: keep default Bootstrap behavior (no forced open/closed).
+           We only do mobile centering when the burger menu is actually expanded. */
 
         @media (min-width: 768px) {
             :root {
@@ -189,6 +144,89 @@
                 height: 70px;
             }
         }
+
+        /* Mobile burger menu: center items when expanded (no flicker) */
+        @media (max-width: 991.98px) {
+            /* Keep the collapsed area text-centered at all times to avoid left->center flicker.
+               Do NOT touch display/visibility here; Bootstrap controls that. */
+            .app-topbar .navbar-collapse {
+                text-align: center;
+            }
+
+            /* Bootstrap uses .collapsing during the open/close animation.
+               Apply the same layout rules there to avoid the text jumping left/right. */
+            .app-topbar .navbar-collapse.show,
+            .app-topbar .navbar-collapse.collapsing {
+                padding-top: .75rem;
+            }
+
+            /* Stack and center both nav groups when expanded OR animating */
+            .app-topbar .navbar-collapse.show .navbar-nav,
+            .app-topbar .navbar-collapse.collapsing .navbar-nav {
+                width: 100%;
+                align-items: center;
+                justify-content: center;
+                text-align: center;
+            }
+
+            .app-topbar .navbar-collapse.show .navbar-nav.me-auto,
+            .app-topbar .navbar-collapse.show .navbar-nav.ms-auto,
+            .app-topbar .navbar-collapse.collapsing .navbar-nav.me-auto,
+            .app-topbar .navbar-collapse.collapsing .navbar-nav.ms-auto {
+                flex-direction: column;
+                margin-left: 0 !important;
+                margin-right: 0 !important;
+            }
+
+            /* Optional separator before account/actions */
+            .app-topbar .navbar-collapse.show .navbar-nav.ms-auto,
+            .app-topbar .navbar-collapse.collapsing .navbar-nav.ms-auto {
+                margin-top: .5rem;
+                padding-top: .5rem;
+                border-top: 1px solid rgba(255,255,255,.15);
+            }
+
+            /* One item per line, centered */
+            .app-topbar .navbar-collapse.show .navbar-nav .nav-item,
+            .app-topbar .navbar-collapse.collapsing .navbar-nav .nav-item {
+                width: 100%;
+                display: flex;
+                justify-content: center;
+            }
+
+            .app-topbar .navbar-collapse.show .navbar-nav .nav-link,
+            .app-topbar .navbar-collapse.show .navbar-nav .btn,
+            .app-topbar .navbar-collapse.collapsing .navbar-nav .nav-link,
+            .app-topbar .navbar-collapse.collapsing .navbar-nav .btn {
+                width: 100%;
+                justify-content: center;
+                text-align: center;
+                white-space: nowrap;
+            }
+
+            /* Center the user info row (name/credits) */
+            .app-topbar .navbar-collapse.show .navbar-nav .nav-item.d-flex,
+            .app-topbar .navbar-collapse.collapsing .navbar-nav .nav-item.d-flex {
+                flex-direction: column;
+                align-items: center;
+                gap: .35rem;
+            }
+
+            /* Remove desktop spacing helpers on mobile expanded menu */
+            .app-topbar .navbar-collapse.show .navbar-nav .nav-item.ms-2,
+            .app-topbar .navbar-collapse.show .navbar-nav .nav-item.me-2,
+            .app-topbar .navbar-collapse.collapsing .navbar-nav .nav-item.ms-2,
+            .app-topbar .navbar-collapse.collapsing .navbar-nav .nav-item.me-2 {
+                margin-left: 0 !important;
+                margin-right: 0 !important;
+            }
+
+            .app-topbar .navbar-collapse.show .navbar-nav .badge,
+            .app-topbar .navbar-collapse.collapsing .navbar-nav .badge {
+                margin-left: 0 !important;
+                margin-right: 0 !important;
+            }
+        }
     </style>
 </head>
 <body class="@if(!empty($hideTopbar)) no-topbar @elseif(!empty($overlayTopbar)) overlay-topbar @endif">
@@ -301,5 +339,54 @@
     integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
     crossorigin="anonymous"
 ></script>
+
+<script>
+    // Ensure the burger icon always toggles the menu (open/close) reliably.
+    (function () {
+        const toggler = document.querySelector('.app-topbar .navbar-toggler');
+        const collapseEl = document.getElementById('navbarSupportedContent');
+        if (!toggler || !collapseEl || typeof bootstrap === 'undefined') return;
+
+        // Add missing ARIA attributes for better Bootstrap/AT interoperability.
+        toggler.setAttribute('aria-controls', 'navbarSupportedContent');
+        toggler.setAttribute('aria-expanded', 'false');
+        toggler.setAttribute('aria-label', 'Toggle navigation');
+
+        // Disable Bootstrap's data-api toggle to avoid double toggles.
+        toggler.removeAttribute('data-bs-toggle');
+        toggler.removeAttribute('data-bs-target');
+
+        const collapse = bootstrap.Collapse.getOrCreateInstance(collapseEl, { toggle: false });
+
+        // Explicitly toggle on burger click (1st click opens, 2nd click closes).
+        toggler.addEventListener('click', function (e) {
+            e.preventDefault();
+            if (collapseEl.classList.contains('show')) {
+                collapse.hide();
+            } else {
+                collapse.show();
+            }
+        });
+
+        // Keep ARIA in sync.
+        collapseEl.addEventListener('shown.bs.collapse', function () {
+            toggler.setAttribute('aria-expanded', 'true');
+        });
+
+        collapseEl.addEventListener('hidden.bs.collapse', function () {
+            toggler.setAttribute('aria-expanded', 'false');
+        });
+
+        // Auto-close the menu when clicking a link inside the expanded collapse (mobile UX).
+        collapseEl.addEventListener('click', function (e) {
+            const link = e.target.closest('a');
+            if (!link) return;
+
+            if (collapseEl.classList.contains('show')) {
+                collapse.hide();
+            }
+        });
+    })();
+</script>
 </body>
 </html>
