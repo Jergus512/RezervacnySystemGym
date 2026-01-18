@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@php($hideTopbar = true)
+
 @section('title', 'Registrácia - Rezervačný systém')
 
 @section('content')
@@ -56,4 +58,3 @@
     </div>
 </div>
 @endsection
-
