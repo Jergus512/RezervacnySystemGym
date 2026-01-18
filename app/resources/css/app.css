@@ -9,3 +9,23 @@
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
+
+/* Auth pages (login/register): ensure inputs are readable on light card background */
+.auth-card .form-control {
+    color: #000;
+    background-color: #fff;
+    border: 1px solid #000;
+}
+
+.auth-card .form-control::placeholder {
+    color: rgba(0, 0, 0, 0.55);
+}
+
+.auth-card .form-control:focus {
+    color: #000;
+    background-color: #fff;
+    border-color: #000;
+    outline: 2px solid #000;
+    outline-offset: 0;
+    box-shadow: none;
+}

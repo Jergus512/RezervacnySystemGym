@@ -7,7 +7,7 @@
 @section('content')
 <div class="row justify-content-center">
     <div class="col-12 col-md-6 col-lg-4">
-        <div class="p-4 p-md-5 rounded-4 shadow-lg"
+        <div class="p-4 p-md-5 rounded-4 shadow-lg auth-card"
              style="background: rgba(255,255,255,.92); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);">
             <div class="text-center mb-4">
                 <h3 class="mb-1 fw-semibold">Prihlásenie</h3>

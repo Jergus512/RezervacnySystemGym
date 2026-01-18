@@ -18,6 +18,7 @@
             margin: 0;
             padding: 0;
             overflow-x: hidden;
+            background: #1f1f1f; /* match footer to avoid white overscroll area */
         }
 
         /* Orange CTA button (match auth forms) */
@@ -39,32 +40,35 @@
             color: #000;
         }
 
+        /* Home: make “Prihlásiť sa” button visible on light background */
+        .btn-outline-home {
+            color: #000;
+            border-color: #000;
+        }
+
+        .btn-outline-home:hover,
+        .btn-outline-home:focus {
+            color: #000;
+            background-color: #e9ecef; /* light gray */
+            border-color: #000;
+        }
+
         .hero {
             position: relative;
             overflow: hidden;
-            background: radial-gradient(1200px circle at 20% 10%, rgba(13,110,253,.15), transparent 45%),
-                        radial-gradient(900px circle at 80% 0%, rgba(25,135,84,.12), transparent 40%),
-                        linear-gradient(180deg, #0b1220, #0a0f1c);
-            color: #fff;
+            background: #fff;
+            color: #111;
         }
 
         .hero::after {
-            content: "";
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(90deg, rgba(0,0,0,.65), rgba(0,0,0,.25));
-            pointer-events: none;
-        }
-
-        .hero-content {
-            position: relative;
-            z-index: 2;
+            content: none;
         }
 
         .hero-card {
-            background: rgba(255,255,255,.08);
-            border: 1px solid rgba(255,255,255,.12);
-            backdrop-filter: blur(10px);
+            background: #fff;
+            border: 1px solid rgba(0,0,0,.08);
+            box-shadow: 0 10px 30px rgba(0,0,0,.08);
+            backdrop-filter: none;
         }
 
         .hero-img {
@@ -168,6 +172,13 @@
             }
         }
 
+        /* Mobile (vertical) optical alignment: nudge logo slightly to the right */
+        @media (max-width: 767.98px) {
+            .topbar-logo {
+                transform: translate(6px, -6px);
+            }
+        }
+
         /* Full-bleed hero image right under the top bar */
         .hero-bleed {
             position: relative;
@@ -211,7 +222,7 @@
             align-items: flex-start;
             justify-content: center;
             padding: 1.25rem;
-            padding-top: 7.25rem; /* push title below the overlaid topbar */
+            padding-top: 8.25rem; /* more space under topbar on mobile */
             pointer-events: none;
             text-align: center;
         }
@@ -222,8 +233,11 @@
             font-weight: 800;
             letter-spacing: -0.02em;
             text-shadow: 0 10px 30px rgba(0,0,0,.55);
-            font-size: clamp(3rem, 8vw, 6rem);
+            font-size: clamp(3.6rem, 9vw, 7.2rem);
             line-height: 1.02;
+
+            /* Default font */
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
         }
 
         @media (min-width: 768px) {
@@ -243,9 +257,130 @@
                 padding-top: 9.25rem;
             }
         }
+
+        .cap {
+            display: inline-block;
+            font-size: 1.18em;
+            line-height: 1;
+            transform: none;
+        }
+
+        /* Home footer (inspired by provided design) */
+        .home-footer {
+            background: #1f1f1f;
+            color: rgba(255,255,255,.8);
+            padding: 4rem 0 0;
+        }
+
+        .home-footer .footer-title {
+            color: #f97316;
+            font-weight: 800;
+            letter-spacing: .02em;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            font-size: .95rem;
+        }
+
+        .home-footer .footer-link {
+            color: rgba(255,255,255,.85);
+            text-decoration: none;
+            display: inline-block;
+            padding: .25rem 0;
+        }
+
+        .home-footer .footer-link:hover {
+            color: #f97316;
+            text-decoration: underline;
+        }
+
+        .home-footer .footer-meta {
+            color: rgba(255,255,255,.75);
+            font-size: .95rem;
+            line-height: 1.45;
+        }
+
+        .home-footer .footer-logo {
+            max-width: 210px;
+            width: 210px;
+            height: auto;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            transform: translateY(-30px);
+        }
+
+        .home-footer .footer-divider {
+            border-top: 1px solid rgba(255,255,255,.18);
+            margin-top: 2.5rem;
+        }
+
+        .home-footer .footer-bottom {
+            padding: 1rem 0;
+            color: rgba(255,255,255,.55);
+            font-size: .9rem;
+        }
+
+        .home-footer .accent {
+            color: #f97316;
+            font-weight: 700;
+        }
+
+        .home-footer .social-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            background: transparent;
+            border: 1px solid rgba(255,255,255,.22);
+            transition: transform .12s ease, filter .12s ease, background-color .12s ease, border-color .12s ease;
+            text-decoration: none;
+        }
+
+        .home-footer .social-link:hover {
+            background: rgba(249, 115, 22, .14);
+            border-color: rgba(249, 115, 22, .7);
+            transform: translateY(-1px);
+            filter: brightness(1.02);
+        }
+
+        .home-footer .social-icon {
+            width: 22px;
+            height: 22px;
+            object-fit: contain;
+            display: block;
+        }
+
+        /* Mobile footer alignment: center everything on narrow screens */
+        @media (max-width: 991.98px) {
+            .home-footer {
+                text-align: center;
+            }
+
+            .home-footer .footer-logo {
+                margin-left: auto;
+                margin-right: auto;
+                transform: translate(20px, -30px);
+            }
+
+            .home-footer .footer-meta .d-flex {
+                justify-content: center !important;
+                gap: 1.25rem;
+            }
+
+            .home-footer .footer-meta .d-flex > span {
+                display: inline-block;
+                min-width: 0;
+            }
+
+            .home-footer .social-wrap {
+                justify-content: center !important;
+            }
+        }
     </style>
 </head>
-<body class="bg-light">
+<body>
 <header class="topbar">
     <div class="container topbar-inner">
         <div class="topbar-row">
@@ -272,11 +407,12 @@
 </header>
 
 {{-- Big full-width image under the top bar (edge-to-edge) --}}
+@php($heroImage = 'img/pozadie7.png')
 <section class="hero-bleed">
-    <img class="hero-bleed-img" src="{{ asset('img/hero-gym-1.png') }}" alt="Činky" loading="eager">
+    <img class="hero-bleed-img" src="{{ asset($heroImage) }}" alt="Činky" loading="eager">
     <div class="hero-bleed-title">
         <div class="container">
-            <h1>Super Gym</h1>
+            <h1><span class="cap">S</span>UPER <span class="cap">G</span>YM</h1>
         </div>
     </div>
 </section>
@@ -290,7 +426,7 @@
                 </div>
 
                 <h1 class="display-5 fw-bold mb-3">Rezervuj si tréning jednoducho.</h1>
-                <p class="lead text-white-50 mb-4">
+                <p class="lead text-muted mb-4">
                     Prehľadný systém pre klientov, trénerov a adminov. Sleduj tréningy v kalendári, spravuj kapacity,
                     kredity a registrácie bez chaosu.
                 </p>
@@ -298,11 +434,11 @@
                 @guest
                     <div class="d-flex flex-column flex-sm-row gap-2 mb-4">
                         <a href="{{ route('register') }}" class="btn btn-orange btn-lg px-4">Začať (Registrácia)</a>
-                        <a href="{{ route('login') }}" class="btn btn-outline-light btn-lg px-4">Prihlásiť sa</a>
+                        <a href="{{ route('login') }}" class="btn btn-outline-home btn-lg px-4">Prihlásiť sa</a>
                     </div>
                 @else
                     <div class="d-flex flex-column flex-sm-row gap-2 mb-4">
-                        <a href="{{ route('training-calendar.index') }}" class="btn btn-primary btn-lg px-4">Otvoriť kalendár</a>
+                        <a href="{{ route('training-calendar.index') }}" class="btn btn-orange btn-lg px-4">Otvoriť kalendár</a>
                         <a href="{{ route('dashboard') }}" class="btn btn-outline-light btn-lg px-4">Dashboard</a>
                     </div>
                 @endguest
@@ -311,19 +447,19 @@
                     <div class="col-12 col-md-4">
                         <div class="p-3 rounded-3 hero-card h-100">
                             <div class="fw-semibold">Kalendár</div>
-                            <div class="text-white-50 small">Rýchly prehľad tréningov.</div>
+                            <div class="text-muted small">Rýchly prehľad tréningov.</div>
                         </div>
                     </div>
                     <div class="col-12 col-md-4">
                         <div class="p-3 rounded-3 hero-card h-100">
                             <div class="fw-semibold">Kredity</div>
-                            <div class="text-white-50 small">Platby tréningov kreditmi.</div>
+                            <div class="text-muted small">Platby tréningov kreditmi.</div>
                         </div>
                     </div>
                     <div class="col-12 col-md-4">
                         <div class="p-3 rounded-3 hero-card h-100">
                             <div class="fw-semibold">Správa</div>
-                            <div class="text-white-50 small">Admin a tréner nástroje.</div>
+                            <div class="text-muted small">Admin a tréner nástroje.</div>
                         </div>
                     </div>
                 </div>
@@ -338,13 +474,13 @@
                     </div>
                     <div class="col-12 col-md-6">
                         <div class="hero-img-wrap" style="aspect-ratio: 1 / 1;">
-                            <img class="hero-img" src="{{ asset('img/hero-gym-1.png') }}" alt="Činky v gyme" loading="lazy">
+                            <img class="hero-img" src="{{ asset($heroImage) }}" alt="Činky v gyme" loading="lazy">
                         </div>
                     </div>
                     <div class="col-12 col-md-6">
                         <div class="p-4 rounded-4 hero-card h-100">
                             <h2 class="h5 fw-semibold">Čo tu nájdeš</h2>
-                            <ul class="text-white-50 mb-0">
+                            <ul class="text-muted mb-0">
                                 <li>Registrácia na tréningy jedným klikom</li>
                                 <li>Kapacita, cena a zoznam prihlásených</li>
                                 <li>Admin editácia tréningov aj používateľov</li>
@@ -353,18 +489,71 @@
                     </div>
                 </div>
 
-                <p class="text-white-50 small mt-3 mb-0">
-                    Tip: Ak chceš zmeniť obrázky, nahraj ich do <code class="text-white">public/img</code> a uprav názvy v šablóne.
+                <p class="text-muted small mt-3 mb-0">
+                    Tip: Ak chceš zmeniť obrázky, nahraj ich do <code>public/img</code> a uprav názvy v šablóne.
                 </p>
             </div>
         </div>
     </div>
 </main>
 
-<footer class="py-4 bg-dark text-white-50">
-    <div class="container d-flex flex-column flex-md-row justify-content-between gap-2">
-        <div>© {{ date('Y') }} Rezervačný systém Gym</div>
-        <div class="small">Vytvorené pre prezentáciu • Laravel</div>
+<footer class="home-footer">
+    <div class="container">
+        <div class="row g-4 align-items-start">
+            <div class="col-12 col-lg-3">
+                <img class="footer-logo" src="{{ asset('img/logo1.png') }}" alt="Super Gym logo" loading="lazy">
+            </div>
+
+            <div class="col-12 col-md-6 col-lg-3">
+                <div class="footer-title">Kontakt</div>
+                <div class="footer-meta">
+                    <div class="mb-2"><span class="accent">Tel:</span> +421 900 000 000</div>
+                    <div class="mb-2"><span class="accent">Email:</span> info@supergym.sk</div>
+                    <div class="footer-title mt-4">Nájdete nás na adrese</div>
+                    <div>Žilina, Vysokoškolákov</div>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-6 col-lg-3">
+                <div class="footer-title">Navigácia</div>
+                <div>
+                    <a class="footer-link" href="{{ url('/') }}">Domov</a><br>
+                    <a class="footer-link" href="{{ route('training-calendar.index') }}">Rozvrh cvičení</a><br>
+                    <a class="footer-link" href="{{ route('register') }}">Registrácia</a><br>
+                    <a class="footer-link" href="{{ route('login') }}">Prihlásenie</a><br>
+                    @auth
+                        <a class="footer-link" href="{{ route('dashboard') }}">Dashboard</a><br>
+                    @endauth
+                </div>
+            </div>
+
+            <div class="col-12 col-lg-3">
+                <div class="footer-title">Otváracie hodiny</div>
+                <div class="footer-meta">
+                    <div class="d-flex justify-content-between"><span>Pon – Pia</span><span>06:00 – 22:00</span></div>
+                    <div class="d-flex justify-content-between"><span>So – Ne</span><span>07:00 – 22:00</span></div>
+                </div>
+
+                <div class="footer-title mt-4">Sociálne siete</div>
+                <div class="d-flex gap-2 social-wrap">
+                    <a class="social-link" href="#" aria-label="Facebook" title="Facebook">
+                        <img class="social-icon" src="{{ asset('img/fb-ikonka.webp') }}" alt="Facebook" loading="lazy">
+                    </a>
+                    <a class="social-link" href="#" aria-label="Instagram" title="Instagram">
+                        <img class="social-icon" src="{{ asset('img/instagram-ikonka.png') }}" alt="Instagram" loading="lazy">
+                    </a>
+                    <a class="social-link" href="#" aria-label="YouTube" title="YouTube">
+                        <img class="social-icon" src="{{ asset('img/youtube-ikonka.png') }}" alt="YouTube" loading="lazy">
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-divider"></div>
+
+        <div class="footer-bottom text-center">
+            © <span class="accent">SUPER GYM</span> {{ date('Y') }} – Všetky práva vyhradené.
+        </div>
     </div>
 </footer>
 
