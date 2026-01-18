@@ -85,17 +85,31 @@
             box-shadow: 0 18px 50px rgba(0,0,0,.45);
         }
 
-        .hero-img-wrap::after {
-            content: "";
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(180deg, rgba(0,0,0,.0), rgba(0,0,0,.35));
-            pointer-events: none;
+        /* Home gallery (under hero images) */
+        .home-gallery {
+            margin-top: 1.25rem;
         }
 
-        .hero-badge {
-            background: rgba(255,255,255,.12);
-            border: 1px solid rgba(255,255,255,.18);
+        .home-gallery .gallery-item {
+            display: block;
+            width: 100%;
+            aspect-ratio: 4 / 3;
+            border-radius: 1rem;
+            overflow: hidden;
+            box-shadow: 0 16px 44px rgba(0,0,0,.25);
+        }
+
+        .home-gallery .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: transform .18s ease, filter .18s ease;
+        }
+
+        .home-gallery .gallery-item:hover img {
+            transform: scale(1.03);
+            filter: saturate(1.03);
         }
 
         .topbar {
@@ -407,9 +421,8 @@
 </header>
 
 {{-- Big full-width image under the top bar (edge-to-edge) --}}
-@php($heroImage = 'img/pozadie7.png')
 <section class="hero-bleed">
-    <img class="hero-bleed-img" src="{{ asset($heroImage) }}" alt="Činky" loading="eager">
+    <img class="hero-bleed-img" src="{{ asset('img/pozadie7.png') }}" alt="Činky" loading="eager">
     <div class="hero-bleed-title">
         <div class="container">
             <h1><span class="cap">S</span>UPER <span class="cap">G</span>YM</h1>
@@ -467,31 +480,47 @@
 
             <div class="col-12 col-lg-6">
                 <div class="row g-3">
-                    <div class="col-12">
-                        <div class="hero-img-wrap" style="aspect-ratio: 16/9;">
-                            <img class="hero-img" src="{{ asset('img/hero-gym-2.png') }}" alt="Gym interiér" loading="lazy">
-                        </div>
-                    </div>
                     <div class="col-12 col-md-6">
                         <div class="hero-img-wrap" style="aspect-ratio: 1 / 1;">
-                            <img class="hero-img" src="{{ asset($heroImage) }}" alt="Činky v gyme" loading="lazy">
-                        </div>
-                    </div>
-                    <div class="col-12 col-md-6">
-                        <div class="p-4 rounded-4 hero-card h-100">
-                            <h2 class="h5 fw-semibold">Čo tu nájdeš</h2>
-                            <ul class="text-muted mb-0">
-                                <li>Registrácia na tréningy jedným klikom</li>
-                                <li>Kapacita, cena a zoznam prihlásených</li>
-                                <li>Admin editácia tréningov aj používateľov</li>
-                            </ul>
+                            <img class="hero-img" src="{{ asset('img/pozadie7.png') }}" alt="Činky v gyme" loading="lazy">
                         </div>
                     </div>
                 </div>
 
-                <p class="text-muted small mt-3 mb-0">
-                    Tip: Ak chceš zmeniť obrázky, nahraj ich do <code>public/img</code> a uprav názvy v šablóne.
-                </p>
+                <section class="home-gallery" aria-label="Galéria">
+                    <div class="row g-3 mt-1">
+                        <div class="col-6 col-md-4">
+                            <a class="gallery-item" href="{{ asset('img/galeria1.png') }}" target="_blank" rel="noopener" aria-label="Galéria obrázok 1">
+                                <img src="{{ asset('img/galeria1.png') }}" alt="Galéria 1" loading="lazy">
+                            </a>
+                        </div>
+                        <div class="col-6 col-md-4">
+                            <a class="gallery-item" href="{{ asset('img/galeria2.png') }}" target="_blank" rel="noopener" aria-label="Galéria obrázok 2">
+                                <img src="{{ asset('img/galeria2.png') }}" alt="Galéria 2" loading="lazy">
+                            </a>
+                        </div>
+                        <div class="col-6 col-md-4">
+                            <a class="gallery-item" href="{{ asset('img/galeria3.png') }}" target="_blank" rel="noopener" aria-label="Galéria obrázok 3">
+                                <img src="{{ asset('img/galeria3.png') }}" alt="Galéria 3" loading="lazy">
+                            </a>
+                        </div>
+                        <div class="col-6 col-md-4">
+                            <a class="gallery-item" href="{{ asset('img/galeria4.png') }}" target="_blank" rel="noopener" aria-label="Galéria obrázok 4">
+                                <img src="{{ asset('img/galeria4.png') }}" alt="Galéria 4" loading="lazy">
+                            </a>
+                        </div>
+                        <div class="col-6 col-md-4">
+                            <a class="gallery-item" href="{{ asset('img/galeria5.png') }}" target="_blank" rel="noopener" aria-label="Galéria obrázok 5">
+                                <img src="{{ asset('img/galeria5.png') }}" alt="Galéria 5" loading="lazy">
+                            </a>
+                        </div>
+                        <div class="col-6 col-md-4">
+                            <a class="gallery-item" href="{{ asset('img/galeria6.png') }}" target="_blank" rel="noopener" aria-label="Galéria obrázok 6">
+                                <img src="{{ asset('img/galeria6.png') }}" alt="Galéria 6" loading="lazy">
+                            </a>
+                        </div>
+                    </div>
+                </section>
             </div>
         </div>
     </div>
