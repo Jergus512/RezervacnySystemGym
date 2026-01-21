@@ -15,6 +15,19 @@
                 @method('PUT')
 
                 <div class="mb-3">
+                    <label for="training_type_id" class="form-label">Typ tréningu</label>
+                    <select id="training_type_id" name="training_type_id" class="form-select @error('training_type_id') is-invalid @enderror">
+                        <option value="">— bez typu —</option>
+                        @foreach(($trainingTypes ?? []) as $tt)
+                            <option value="{{ $tt->id }}" @selected((string) old('training_type_id', $training->training_type_id) === (string) $tt->id)>
+                                {{ $tt->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                    @error('training_type_id')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                </div>
+
+                <div class="mb-3">
                     <label for="title" class="form-label">Názov (title)</label>
                     <input id="title" name="title" type="text" value="{{ old('title', $training->title) }}" required
                            class="form-control @error('title') is-invalid @enderror">

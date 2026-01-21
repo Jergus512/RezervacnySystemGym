@@ -12,6 +12,7 @@ class Training extends Model
     use HasFactory;
 
     protected $fillable = [
+        'training_type_id',
         'created_by_user_id',
         'title',
         'description',
@@ -39,5 +40,10 @@ class Training extends Model
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by_user_id');
+    }
+
+    public function trainingType(): BelongsTo
+    {
+        return $this->belongsTo(TrainingType::class);
     }
 }

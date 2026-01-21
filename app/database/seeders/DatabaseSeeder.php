@@ -44,6 +44,7 @@ class DatabaseSeeder extends Seeder
         }
 
         $this->call([
+            TrainingTypeSeeder::class,
             TrainingSeeder::class,
         ]);
     }

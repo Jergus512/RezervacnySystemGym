@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Trainer;
 
 use App\Http\Controllers\Controller;
 use App\Models\Training;
+use App\Models\TrainingType;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -33,7 +34,9 @@ class TrainingManageController extends Controller
     {
         $this->requireTrainer($request);
 
-        return view('trainer.trainings.create');
+        $trainingTypes = TrainingType::query()->orderBy('name')->get(['id', 'name']);
+
+        return view('trainer.trainings.create', compact('trainingTypes'));
     }
 
     public function store(Request $request): RedirectResponse
@@ -41,6 +44,7 @@ class TrainingManageController extends Controller
         $this->requireTrainer($request);
 
         $validated = $request->validate([
+            'training_type_id' => ['nullable', 'integer', 'exists:training_types,id'],
             'title' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
             'start_at' => ['required', 'date'],
@@ -70,6 +74,7 @@ class TrainingManageController extends Controller
 
                 Training::create([
                     'created_by_user_id' => $request->user()->id,
+                    'training_type_id' => $validated['training_type_id'] ?? null,
                     'title' => $validated['title'],
                     'description' => $validated['description'] ?? null,
                     'start_at' => $startAt,
@@ -97,7 +102,9 @@ class TrainingManageController extends Controller
             abort(403);
         }
 
-        return view('trainer.trainings.edit', compact('training'));
+        $trainingTypes = TrainingType::query()->orderBy('name')->get(['id', 'name']);
+
+        return view('trainer.trainings.edit', compact('training', 'trainingTypes'));
     }
 
     public function update(Request $request, Training $training): RedirectResponse
@@ -109,6 +116,7 @@ class TrainingManageController extends Controller
         }
 
         $validated = $request->validate([
+            'training_type_id' => ['nullable', 'integer', 'exists:training_types,id'],
             'title' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
             'start_at' => ['required', 'date'],
@@ -119,6 +127,7 @@ class TrainingManageController extends Controller
         ]);
 
         $training->update([
+            'training_type_id' => $validated['training_type_id'] ?? null,
             'title' => $validated['title'],
             'description' => $validated['description'] ?? null,
             'start_at' => $validated['start_at'],

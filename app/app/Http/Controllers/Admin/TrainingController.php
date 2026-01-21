@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Training;
+use App\Models\TrainingType;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -72,7 +73,9 @@ class TrainingController extends Controller
             ->orderBy('name')
             ->get(['id', 'name']);
 
-        return view('admin.trainings.edit', compact('training', 'trainers'));
+        $trainingTypes = TrainingType::query()->orderBy('name')->get(['id', 'name']);
+
+        return view('admin.trainings.edit', compact('training', 'trainers', 'trainingTypes'));
     }
 
     public function update(Request $request, Training $training): RedirectResponse
@@ -80,6 +83,7 @@ class TrainingController extends Controller
         $this->requireAdmin($request);
 
         $validated = $request->validate([
+            'training_type_id' => ['nullable', 'integer', 'exists:training_types,id'],
             'title' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
             'start_at' => ['required', 'date'],
@@ -91,6 +95,7 @@ class TrainingController extends Controller
         ]);
 
         $training->update([
+            'training_type_id' => $validated['training_type_id'] ?? null,
             'title' => $validated['title'],
             'description' => $validated['description'] ?? null,
             'start_at' => $validated['start_at'],
