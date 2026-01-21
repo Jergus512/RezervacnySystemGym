@@ -682,10 +682,24 @@
                     if (badgeMobile) badgeMobile.textContent = `Kredity: ${value}`;
                 }
 
+                // React to programmatic updates from other scripts (e.g. training-calendar.js)
+                try {
+                    window.addEventListener('credits:updated', function (ev) {
+                        try {
+                            const v = ev?.detail?.credits;
+                            if (typeof v !== 'undefined') setBadgeCredits(v);
+                        } catch (e) { /* ignore */ }
+                    });
+                } catch (e) {
+                    // ignore
+                }
+
                 async function pollMyCredits() {
                     try {
-                        const url = new URL(@json(route('me.credits')), window.location.origin);
-                        const res = await fetch(url.toString(), {
+                        const routeUrl = @json(route('me.credits'));
+                        if (!routeUrl) return;
+                        console.debug('pollMyCredits: fetching', routeUrl);
+                        const res = await fetch(routeUrl, {
                             headers: {
                                 'Accept': 'application/json',
                                 'X-Requested-With': 'XMLHttpRequest'
@@ -707,6 +721,8 @@
                     }
                 }
 
+                // Run once immediately so mobile users see their credits without waiting 5s
+                pollMyCredits();
                 // Poll every 5 seconds
                 setInterval(pollMyCredits, 5000);
             })();

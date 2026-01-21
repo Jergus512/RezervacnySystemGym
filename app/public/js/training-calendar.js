@@ -265,6 +265,37 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     const form = document.getElementById('trainingRegisterForm');
+
+    // Helper: refresh credits from server and update both desktop and mobile badges
+    async function refreshCreditsBadgeFromServer() {
+        try {
+            const res = await fetch('/me/credits', {
+                headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                credentials: 'same-origin',
+            });
+            if (!res.ok) return;
+            const payload = await res.json().catch(() => null);
+            if (!payload || typeof payload.credits === 'undefined') return;
+
+            console.debug('refreshCreditsBadgeFromServer: credits=', payload.credits);
+
+            const desktop = document.getElementById('userCreditsBadge');
+            const mobile = document.getElementById('userCreditsBadgeMobile');
+            const text = `Kredity: ${payload.credits}`;
+            if (desktop) desktop.textContent = text;
+            if (mobile) mobile.textContent = text;
+
+            // Broadcast the new credits so other parts of the UI can react
+            try {
+                window.dispatchEvent(new CustomEvent('credits:updated', { detail: { credits: payload.credits } }));
+            } catch (e) {
+                // ignore
+            }
+        } catch (e) {
+            // ignore network errors
+        }
+    }
+
     if (form) {
         form.addEventListener('submit', function (e) {
             e.preventDefault();
@@ -308,22 +339,8 @@ document.addEventListener('DOMContentLoaded', function () {
                     // refresh events so event changes color to green for this user
                     calendar.refetchEvents();
 
-                    // update credits badge in navbar (optional)
-                    const creditsBadge = document.getElementById('userCreditsBadge');
-                    if (creditsBadge) {
-                        // naive refresh: fetch the page fragment via reload-less approach is complex, so we just decrement visually
-                        // If the modal has a price, subtract it.
-                        const priceEl = document.getElementById('trainingEventPrice');
-                        const price = Number(priceEl?.textContent ?? 0);
-                        if (Number.isFinite(price) && price > 0) {
-                            const m = creditsBadge.textContent.match(/(\d+)/);
-                            if (m) {
-                                const cur = Number(m[1]);
-                                const next = Math.max(0, cur - price);
-                                creditsBadge.textContent = `Kredity: ${next}`;
-                            }
-                        }
-                    }
+                    // Update credits badges (desktop + mobile) from server so both stay in sync
+                    refreshCreditsBadgeFromServer();
 
                     // close modal
                     const modalEl = document.getElementById('trainingEventModal');
@@ -382,20 +399,8 @@ document.addEventListener('DOMContentLoaded', function () {
                     // refresh events so event changes color back to default (blue)
                     calendar.refetchEvents();
 
-                    // visually refund credits badge
-                    const creditsBadge = document.getElementById('userCreditsBadge');
-                    if (creditsBadge) {
-                        const priceEl = document.getElementById('trainingEventPrice');
-                        const price = Number(priceEl?.textContent ?? 0);
-                        if (Number.isFinite(price) && price > 0) {
-                            const m = creditsBadge.textContent.match(/(\d+)/);
-                            if (m) {
-                                const cur = Number(m[1]);
-                                const next = cur + price;
-                                creditsBadge.textContent = `Kredity: ${next}`;
-                            }
-                        }
-                    }
+                    // Update credits badges (desktop + mobile) from server so both stay in sync
+                    refreshCreditsBadgeFromServer();
 
                     // close modal
                     const modalEl = document.getElementById('trainingEventModal');
