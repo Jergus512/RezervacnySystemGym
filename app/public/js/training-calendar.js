@@ -45,6 +45,13 @@ document.addEventListener('DOMContentLoaded', function () {
     const calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'timeGridWeek',
         locale: 'sk',
+        buttonText: {
+            today: 'Dnes',
+            month: 'Mesiac',
+            week: 'Týždeň',
+            day: 'Deň',
+            list: 'Zoznam',
+        },
         slotMinTime: '06:00:00',
         slotMaxTime: '22:00:00',
         allDaySlot: false,
@@ -54,6 +61,23 @@ document.addEventListener('DOMContentLoaded', function () {
             center: 'title',
             right: 'dayGridMonth,timeGridWeek,timeGridDay',
         },
+
+        // In month view, make events render as full "block" bars (not dot/list style)
+        eventDisplay: 'block',
+        displayEventTime: true,
+
+        eventClassNames: function (arg) {
+            const ext = arg.event.extendedProps || {};
+            const isPast = Boolean(ext.is_past);
+            const isActive = Boolean(ext.is_active ?? true);
+            const isRegistered = Boolean(ext.is_registered);
+
+            const classes = [];
+            if (isPast || !isActive) classes.push('gym-event-not-current');
+            if (isRegistered) classes.push('gym-event-registered');
+            return classes;
+        },
+
         events: function (fetchInfo, successCallback, failureCallback) {
             fetch(eventsUrl + '?start=' + encodeURIComponent(fetchInfo.startStr) + '&end=' + encodeURIComponent(fetchInfo.endStr), {
                 headers: { 'Accept': 'application/json' },
@@ -74,6 +98,56 @@ document.addEventListener('DOMContentLoaded', function () {
                     showLoadError('Nepodarilo sa načítať tréningy: ' + (err?.message || err));
                     failureCallback(err);
                 });
+        },
+        eventDidMount: function (info) {
+            // Keep inline painting as a fallback.
+            const ext = info.event.extendedProps || {};
+            const isPast = Boolean(ext.is_past);
+            const isActive = Boolean(ext.is_active ?? true);
+            const isRegistered = Boolean(ext.is_registered);
+
+            let bg = null;
+            let border = null;
+            let text = null;
+
+            if (isPast || !isActive) {
+                bg = '#e9ecef';
+                border = '#ced4da';
+                text = '#6c757d';
+            } else if (isRegistered) {
+                bg = '#198754';
+                border = '#198754';
+                text = '#ffffff';
+            }
+
+            if (bg) {
+                // Paint multiple possible elements because FullCalendar renders differently in dayGrid month.
+                const els = [
+                    info.el,
+                    info.el?.querySelector?.('.fc-daygrid-event'),
+                    info.el?.querySelector?.('.fc-event-main'),
+                    info.el?.querySelector?.('.fc-event-main-frame'),
+                    info.el?.querySelector?.('.fc-list-event'),
+                    info.el?.querySelector?.('.fc-daygrid-event-harness'),
+                ].filter(Boolean);
+
+                els.forEach((el) => {
+                    try {
+                        el.style.backgroundColor = bg;
+                        el.style.borderColor = border || bg;
+                        if (text) el.style.color = text;
+                    } catch (_) {
+                        // ignore
+                    }
+                });
+
+                // If FC renders a dot (list-item), color the dot too
+                const dot = info.el?.querySelector?.('.fc-daygrid-event-dot');
+                if (dot) {
+                    dot.style.borderColor = bg;
+                    dot.style.backgroundColor = bg;
+                }
+            }
         },
         eventClick: function (info) {
             const event = info.event;

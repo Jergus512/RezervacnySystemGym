@@ -6,7 +6,7 @@
     <div class="d-flex justify-content-between align-items-center mb-3">
         <div>
             <h1 class="h3 mb-0">Archív oznamov</h1>
-            <div class="text-muted small">Zobrazujú sa iba neaktívne oznamy (po dátume, alebo vypnuté).</div>
+            <div class="text-muted small">Zobrazujú sa iba neaktívne oznamy (po dátume).</div>
         </div>
         <div class="d-flex gap-2">
             <a href="{{ route('admin.announcements.index') }}" class="btn btn-outline-secondary">Aktuálne oznamy</a>
@@ -85,4 +85,3 @@
         {{ $announcements->links() }}
     </div>
 @endsection
-

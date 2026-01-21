@@ -11,3 +11,15 @@
     cursor: pointer;
 }
 
+/* FullCalendar: current time indicator ("now" line) in brand orange */
+.fc {
+    --fc-now-indicator-color: #f97316;
+}
+
+.fc .fc-timegrid-now-indicator-line {
+    border-top-color: #f97316;
+}
+
+.fc .fc-timegrid-now-indicator-arrow {
+    border-color: #f97316;
+}

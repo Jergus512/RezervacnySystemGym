@@ -32,6 +32,10 @@ class TrainingCalendarController extends Controller
         $trainings = Training::query()
             ->where('start_at', '<', $end)
             ->where('end_at', '>', $start)
+            ->where(function ($q) {
+                // Show both upcoming and past trainings; only hide ones that are explicitly inactive.
+                $q->whereNull('is_active')->orWhere('is_active', true);
+            })
             ->withCount('users')
             ->with(['users:id,name', 'creator:id,name'])
             ->when($forRegistrationUser && $userId, function ($q) use ($userId) {
@@ -46,17 +50,17 @@ class TrainingCalendarController extends Controller
             $isRegistered = (bool) ($t->is_registered ?? false);
             $isActive = (bool) ($t->is_active ?? true);
 
-            // Consider a training "not current" if it already ended, or was explicitly deactivated
+            // Training is past if it already ended (or, as fallback, if it already started).
             $isPast = $t->end_at ? $t->end_at->isPast() : ($t->start_at?->isPast() ?? false);
-            $isNotCurrent = ! $isActive || $isPast;
 
             // Styling rules:
-            // - Past/inactive: light grey (regardless of registration)
-            // - Upcoming + registered: green
+            // - Past trainings: light grey
+            // - Inactive (explicitly deactivated): light grey
+            // - Upcoming + registered: green (full event)
             // - Upcoming + not registered: default (blue)
             $bg = null;
             $border = null;
-            if ($isNotCurrent) {
+            if ($isPast || ! $isActive) {
                 $bg = '#e9ecef';
                 $border = '#ced4da';
             } elseif ($isRegistered) {

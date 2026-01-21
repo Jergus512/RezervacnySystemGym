@@ -6,6 +6,73 @@
     {{-- FullCalendar CSS (lokálne, aby sme neboli závislí od CDN) --}}
     <link rel="stylesheet" href="{{ asset('fullcalendar/fullcalendar.min.css') }}">
 
+    <style>
+        /* FullCalendar: current time indicator ("now" line) in brand orange */
+        .fc {
+            --fc-now-indicator-color: #f97316;
+            --fc-today-bg-color: rgba(249,115,22,.12);
+        }
+
+        .fc .fc-timegrid-now-indicator-line {
+            border-top-color: #f97316 !important;
+            border-color: #f97316 !important;
+        }
+
+        .fc .fc-timegrid-now-indicator-arrow {
+            border-color: #f97316 !important;
+        }
+
+        /* Month view: always show events as full bars (not dot/list-item)
+           FullCalendar uses `eventDisplay: 'auto'` by default and may render list-items with a dot.
+           These overrides make the bar visible and let per-event backgroundColor fill the block. */
+        .fc .fc-daygrid-event {
+            display: block;
+            border-radius: 4px;
+        }
+
+        .fc .fc-daygrid-event-dot {
+            display: none !important;
+        }
+
+        .fc .fc-daygrid-event .fc-event-time,
+        .fc .fc-daygrid-event .fc-event-title {
+            padding-left: 0.25rem;
+            padding-right: 0.25rem;
+        }
+
+        /* Ensure inner container doesn't stay transparent */
+        .fc .fc-daygrid-event .fc-event-main {
+            background: transparent;
+        }
+
+        /* Our semantic coloring. Needs high specificity to override FullCalendar defaults in dayGridMonth. */
+        .fc .gym-event-not-current,
+        .fc .gym-event-not-current .fc-event-main,
+        .fc .gym-event-not-current .fc-event-main-frame {
+            background-color: #e9ecef !important;
+            border-color: #ced4da !important;
+            color: #6c757d !important;
+        }
+
+        .fc .gym-event-not-current .fc-daygrid-event-dot {
+            border-color: #ced4da !important;
+            background-color: #ced4da !important;
+        }
+
+        .fc .gym-event-registered,
+        .fc .gym-event-registered .fc-event-main,
+        .fc .gym-event-registered .fc-event-main-frame {
+            background-color: #198754 !important;
+            border-color: #198754 !important;
+            color: #ffffff !important;
+        }
+
+        .fc .gym-event-registered .fc-daygrid-event-dot {
+            border-color: #198754 !important;
+            background-color: #198754 !important;
+        }
+    </style>
+
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h1 class="h3 mb-0">Kalendár tréningov</h1>
     </div>
@@ -73,6 +140,7 @@
 
     {{-- FullCalendar JS (CDN; lokálne súbory v public/fullcalendar sú placeholdery) --}}
     <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.15/index.global.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.15/locales-all.global.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/daygrid@6.1.15/index.global.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/timegrid@6.1.15/index.global.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/interaction@6.1.15/index.global.min.js"></script>

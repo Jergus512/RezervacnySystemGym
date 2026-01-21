@@ -226,6 +226,117 @@
                 margin-left: 0 !important;
                 margin-right: 0 !important;
             }
+
+            /* Mobile: nicer sub-menu card styling */
+            .app-topbar .mobile-submenu {
+                width: 100%;
+                max-width: none;
+                padding: .25rem 0;
+            }
+
+            .app-topbar .mobile-submenu .nav-link {
+                width: 100%;
+                border-radius: 10px;
+                padding: .55rem .75rem;
+            }
+
+            /* Keep the same centering as other links in the expanded burger menu */
+            .app-topbar .mobile-submenu .nav-link {
+                justify-content: center;
+                text-align: center;
+            }
+
+            .app-topbar .mobile-submenu .nav-link.active {
+                background: rgba(249,115,22,.22);
+                border: 1px solid rgba(249,115,22,.42);
+            }
+
+            /* Mobile: keep the Oznamy toggle centered like other nav links */
+            .app-topbar .mobile-collapse-toggle {
+                position: relative;
+                width: 100%;
+                justify-content: center !important;
+                text-align: center;
+            }
+
+            .app-topbar .mobile-collapse-toggle .caret {
+                position: static;
+                transform: none;
+                opacity: .9;
+                transition: transform .15s ease;
+            }
+
+            /* Rotate caret when expanded */
+            .app-topbar .mobile-collapse-toggle[aria-expanded="true"] .caret {
+                transform: rotate(180deg);
+            }
+
+            /* Oznamy (mobile): stack toggle + submenu vertically within the same nav item */
+            .app-topbar .nav-item.d-lg-none {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            /* Ensure the collapse container takes full width so submenu never flows next to the toggle */
+            .app-topbar #announcementsMobile {
+                width: 100%;
+            }
+
+            /* Make submenu a real vertical block under the Oznamy toggle */
+            .app-topbar #announcementsMobile .mobile-submenu {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                width: 100%;
+            }
+
+            .app-topbar #announcementsMobile .mobile-submenu .nav-link {
+                width: 100%;
+                justify-content: center;
+                text-align: center;
+            }
+
+            /* Remove inline margin helpers inside the submenu (mt-1 would otherwise shift layout oddly) */
+            .app-topbar #announcementsMobile .mobile-submenu .nav-link.mt-1 {
+                margin-top: .25rem !important;
+            }
+
+            /* When Oznamy is a <button>, reset default button styles so it's centered like links */
+            .app-topbar button.mobile-collapse-toggle {
+                background: transparent;
+                border: 0;
+                padding: .5rem var(--bs-navbar-nav-link-padding-x, 0.5rem);
+                color: inherit;
+                font: inherit;
+                line-height: inherit;
+                cursor: pointer;
+                appearance: none;
+                -webkit-appearance: none;
+            }
+
+            .app-topbar button.mobile-collapse-toggle:focus {
+                outline: none;
+                box-shadow: none;
+            }
+
+            /* Make sure the button text is centered (some browsers treat buttons differently) */
+            .app-topbar button.mobile-collapse-toggle {
+                text-align: center;
+            }
+
+            /* Fix: button-based Oznamy toggle was rendering as default (black) in some browsers */
+            .app-topbar button.mobile-collapse-toggle {
+                color: var(--bs-navbar-color) !important;
+            }
+
+            .app-topbar button.mobile-collapse-toggle:hover,
+            .app-topbar button.mobile-collapse-toggle:focus {
+                color: var(--bs-navbar-hover-color) !important;
+            }
+
+            .app-topbar button.mobile-collapse-toggle.active {
+                color: var(--bs-navbar-active-color) !important;
+            }
         }
 
         /* Brand orange text color (sýta oranžová) */
@@ -283,20 +394,104 @@
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ route('admin.users.index') }}">Používatelia</a>
                             </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ route('admin.trainings.index') }}">Správa aktuálnych tréningov</a>
+
+                            @php
+                                $trainOpen = request()->routeIs('admin.trainings.*');
+                            @endphp
+
+                            {{-- Tréningy: desktop dropdown + mobile collapse (no duplicates). --}}
+                            <li class="nav-item dropdown d-none d-lg-block">
+                                <a class="nav-link dropdown-toggle {{ $trainOpen ? 'active' : '' }}"
+                                   href="#"
+                                   id="trainingsDropdown"
+                                   role="button"
+                                   data-bs-toggle="dropdown"
+                                   aria-expanded="false">
+                                    Tréningy
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-dark shadow" aria-labelledby="trainingsDropdown">
+                                    <li>
+                                        <a class="dropdown-item {{ request()->routeIs('admin.trainings.index') ? 'active' : '' }}" href="{{ route('admin.trainings.index') }}">
+                                            Správa aktuálnych tréningov
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item {{ request()->routeIs('admin.trainings.archive') ? 'active' : '' }}" href="{{ route('admin.trainings.archive') }}">
+                                            Archív tréningov
+                                        </a>
+                                    </li>
+                                </ul>
                             </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ route('admin.trainings.archive') }}">Archív tréningov</a>
+
+                            <li class="nav-item d-lg-none">
+                                <button class="nav-link d-flex align-items-center mobile-collapse-toggle {{ $trainOpen ? 'active' : '' }}"
+                                        type="button"
+                                        data-bs-toggle="collapse"
+                                        data-bs-target="#trainingsMobile"
+                                        aria-expanded="{{ $trainOpen ? 'true' : 'false' }}"
+                                        aria-controls="trainingsMobile">
+                                    <span>Tréningy</span>
+                                    <span class="caret">▾</span>
+                                </button>
+                                <div class="collapse {{ $trainOpen ? 'show' : '' }}" id="trainingsMobile">
+                                    <div class="mobile-submenu">
+                                        <a class="nav-link {{ request()->routeIs('admin.trainings.index') ? 'active' : '' }}" href="{{ route('admin.trainings.index') }}">Správa aktuálnych tréningov</a>
+                                        <a class="nav-link mt-1 {{ request()->routeIs('admin.trainings.archive') ? 'active' : '' }}" href="{{ route('admin.trainings.archive') }}">Archív tréningov</a>
+                                    </div>
+                                </div>
                             </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ route('admin.announcements.index') }}">Správa oznamov</a>
+
+                            @php
+                                $annOpen = request()->routeIs('admin.announcements.*') || request()->routeIs('announcements.*');
+                            @endphp
+
+                            {{-- Desktop/tablet: dropdown. Mobile: inline submenu. --}}
+                            <li class="nav-item dropdown d-none d-lg-block">
+                                <a class="nav-link dropdown-toggle {{ $annOpen ? 'active' : '' }}"
+                                   href="#"
+                                   id="announcementsDropdown"
+                                   role="button"
+                                   data-bs-toggle="dropdown"
+                                   aria-expanded="false">
+                                    Oznamy
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-dark shadow" aria-labelledby="announcementsDropdown">
+                                    <li>
+                                        <a class="dropdown-item {{ request()->routeIs('admin.announcements.index') ? 'active' : '' }}" href="{{ route('admin.announcements.index') }}">
+                                            Správa oznamov
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item {{ request()->routeIs('admin.announcements.archive') ? 'active' : '' }}" href="{{ route('admin.announcements.archive') }}">
+                                            Archív oznamov
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <a class="dropdown-item {{ request()->routeIs('announcements.index') ? 'active' : '' }}" href="{{ route('announcements.index') }}">
+                                            Oznamy (zobrazenie)
+                                        </a>
+                                    </li>
+                                </ul>
                             </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ route('admin.announcements.archive') }}">Archív oznamov</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ route('announcements.index') }}">Oznamy</a>
+
+                            <li class="nav-item d-lg-none">
+                                <button class="nav-link d-flex align-items-center mobile-collapse-toggle {{ $annOpen ? 'active' : '' }}"
+                                        type="button"
+                                        data-bs-toggle="collapse"
+                                        data-bs-target="#announcementsMobile"
+                                        aria-expanded="{{ $annOpen ? 'true' : 'false' }}"
+                                        aria-controls="announcementsMobile">
+                                    <span>Oznamy</span>
+                                    <span class="caret">▾</span>
+                                </button>
+                                <div class="collapse {{ $annOpen ? 'show' : '' }}" id="announcementsMobile">
+                                    <div class="mobile-submenu">
+                                        <a class="nav-link {{ request()->routeIs('admin.announcements.index') ? 'active' : '' }}" href="{{ route('admin.announcements.index') }}">Správa oznamov</a>
+                                        <a class="nav-link mt-1 {{ request()->routeIs('admin.announcements.archive') ? 'active' : '' }}" href="{{ route('admin.announcements.archive') }}">Archív oznamov</a>
+                                        <a class="nav-link mt-1 {{ request()->routeIs('announcements.index') ? 'active' : '' }}" href="{{ route('announcements.index') }}">Oznamy (zobrazenie)</a>
+                                    </div>
+                                </div>
                             </li>
                         @else
                             <li class="nav-item">
@@ -398,10 +593,17 @@
             toggler.setAttribute('aria-expanded', 'false');
         });
 
-        // Auto-close the menu when clicking a link inside the expanded collapse (mobile UX).
+        // Auto-close the menu when clicking a real navigation link inside the expanded collapse (mobile UX).
+        // Do NOT close when user clicks collapse toggles like "Oznamy".
         collapseEl.addEventListener('click', function (e) {
             const link = e.target.closest('a');
             if (!link) return;
+
+            // If the link toggles a collapse section, don’t auto-close the whole menu.
+            if (link.getAttribute('data-bs-toggle') === 'collapse') return;
+
+            // If it's a dummy dropdown toggle (href="#"), also don't close.
+            if ((link.getAttribute('href') || '') === '#') return;
 
             if (collapseEl.classList.contains('show')) {
                 collapse.hide();

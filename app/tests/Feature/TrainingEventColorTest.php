@@ -77,7 +77,9 @@ class TrainingEventColorTest extends TestCase
             ->json();
 
         $e = collect($events)->firstWhere('id', $past->id);
-        $this->assertNotNull($e);
+
+        $this->assertNotNull($e, 'Expected past training event missing. Events: '.json_encode($events));
         $this->assertSame('#e9ecef', $e['backgroundColor']);
+        $this->assertSame('#ced4da', $e['borderColor']);
     }
 }
