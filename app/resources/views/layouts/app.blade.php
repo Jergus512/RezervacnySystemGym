@@ -356,13 +356,21 @@
         .text-brand-orange {
             color: var(--brand-orange) !important;
         }
+
+        /* Homepage-only: ensure topbar dropdowns/submenus appear above everything */
+        body.homepage .app-topbar .dropdown-menu,
+        body.homepage .app-topbar .mobile-submenu,
+        body.homepage .dropdown-menu {
+            z-index: 99999999 !important;
+        }
     </style>
 </head>
-<body class="@if(!empty($hideTopbar)) no-topbar @elseif(!empty($overlayTopbar)) overlay-topbar @endif">
+<body class="{{ url()->current() === url('/') ? 'homepage' : '' }}">
 
 @if(empty($hideTopbar))
-<nav class="navbar navbar-expand-lg navbar-dark app-topbar">
+<nav class="app-topbar navbar navbar-dark navbar-expand-lg">
     <div class="container app-topbar-inner">
+
          <a class="navbar-brand d-inline-flex align-items-center" href="{{ url('/') }}">
              <img class="app-logo" src="{{ asset('img/logo1.png') }}" alt="Super Gym logo" loading="eager">
          </a>
@@ -633,6 +641,26 @@
             if (collapseEl.classList.contains('show')) {
                 collapse.hide();
             }
+        });
+    })();
+
+    // Fallback: ensure any .dropdown-toggle in the topbar reliably opens its menu (fixes homepage overlay/blocking cases)
+    (function () {
+        document.addEventListener('click', function (e) {
+            const toggle = e.target.closest('.app-topbar .dropdown-toggle');
+            if (!toggle) return;
+
+            const menu = document.getElementById(toggle.getAttribute('aria-controls')) || toggle.nextElementSibling;
+            if (!menu) return;
+
+            // Let Bootstrap's native handler run first. If it didn't open the menu, open it ourselves.
+            // Use a microtask so we don't interfere with event order.
+            Promise.resolve().then(function () {
+                if (!menu.classList.contains('show')) {
+                    const dd = bootstrap.Dropdown.getOrCreateInstance(toggle);
+                    dd.toggle();
+                }
+            });
         });
     })();
 </script>
