@@ -9,11 +9,46 @@ use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::orderBy('name')->paginate(10);
+        $q = trim((string) $request->query('q', ''));
+        $role = (string) $request->query('role', 'all');
 
-        return view('admin.users.index', compact('users'));
+        $usersQuery = User::query();
+
+        if ($q !== '') {
+            $usersQuery->where(function ($sub) use ($q) {
+                $sub->where('name', 'like', '%'.$q.'%')
+                    ->orWhere('email', 'like', '%'.$q.'%');
+            });
+        }
+
+        // Role filter
+        switch ($role) {
+            case 'admin':
+                $usersQuery->where('is_admin', true);
+                break;
+            case 'trainer':
+                $usersQuery->where('is_trainer', true);
+                break;
+            case 'reception':
+                $usersQuery->where('is_reception', true);
+                break;
+            case 'regular':
+                $usersQuery->where('is_admin', false)
+                    ->where('is_trainer', false)
+                    ->where('is_reception', false);
+                break;
+            case 'all':
+            default:
+                // no filter
+                $role = 'all';
+                break;
+        }
+
+        $users = $usersQuery->orderBy('name')->paginate(10)->withQueryString();
+
+        return view('admin.users.index', compact('users', 'q', 'role'));
     }
 
     public function create()
@@ -46,7 +81,7 @@ class UserController extends Controller
             $isReception = false;
         }
 
-        $credits = 0;
+        $credits = null;
         if (! $isAdmin && ! $isTrainer && ! $isReception) {
             $credits = (int) ($validated['credits'] ?? 0);
         }
@@ -101,7 +136,7 @@ class UserController extends Controller
         $user->is_reception = $isReception;
 
         if ($user->isAdmin() || $user->isTrainer() || $user->isReception()) {
-            $user->credits = 0;
+            $user->credits = null;
         } else {
             // regular user: allow admin to set credits
             $user->credits = (int) ($validated['credits'] ?? $user->credits ?? 0);
@@ -125,5 +160,70 @@ class UserController extends Controller
         $user->delete();
 
         return redirect()->route('admin.users.index')->with('status', 'Používateľ bol vymazaný.');
+    }
+
+    public function autocomplete(Request $request)
+    {
+        $q = trim((string) $request->query('q', ''));
+        $role = (string) $request->query('role', 'all');
+
+        if ($q === '') {
+            return response()->json([]);
+        }
+
+        $usersQuery = User::query();
+
+        // Role filter (same as index)
+        switch ($role) {
+            case 'admin':
+                $usersQuery->where('is_admin', true);
+                break;
+            case 'trainer':
+                $usersQuery->where('is_trainer', true);
+                break;
+            case 'reception':
+                $usersQuery->where('is_reception', true);
+                break;
+            case 'regular':
+                $usersQuery->where('is_admin', false)
+                    ->where('is_trainer', false)
+                    ->where('is_reception', false);
+                break;
+            case 'all':
+            default:
+                $role = 'all';
+                break;
+        }
+
+        $users = $usersQuery
+            ->where(function ($sub) use ($q) {
+                $sub->where('email', 'like', $q.'%')
+                    ->orWhere('name', 'like', $q.'%')
+                    ->orWhere('email', 'like', '%'.$q.'%')
+                    ->orWhere('name', 'like', '%'.$q.'%');
+            })
+            ->orderBy('name')
+            ->limit(10)
+            ->get(['id', 'name', 'email', 'is_admin', 'is_trainer', 'is_reception']);
+
+        $payload = $users->map(function (User $u) {
+            $type = 'Bežný';
+            if ($u->is_admin) {
+                $type = 'Admin';
+            } elseif ($u->is_trainer) {
+                $type = 'Tréner';
+            } elseif ($u->is_reception) {
+                $type = 'Recepcia';
+            }
+
+            return [
+                'id' => $u->id,
+                'name' => $u->name,
+                'email' => $u->email,
+                'type' => $type,
+            ];
+        })->values();
+
+        return response()->json($payload);
     }
 }

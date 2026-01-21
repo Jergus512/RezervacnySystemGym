@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\AnnouncementController as AdminAnnouncementContro
 use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\MeController;
 use App\Http\Controllers\MyTrainingsController;
 use App\Http\Controllers\Reception\CreditsController as ReceptionCreditsController;
 use App\Http\Controllers\Trainer\TrainingManageController;
@@ -48,6 +49,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/oznamy', [AnnouncementController::class, 'index'])->name('announcements.index');
     Route::get('/oznamy/current.json', [AnnouncementController::class, 'current'])->name('announcements.current');
 
+    // Current user (regular user) JSON endpoints
+    Route::get('/me/credits', [MeController::class, 'credits'])->name('me.credits');
+
     Route::prefix('reception')->name('reception.')->middleware('reception')->group(function () {
         // No separate receptionist dashboard; navigation is in the shared topbar.
         Route::get('/', function () {
@@ -62,6 +66,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/pridanie-kreditov', [ReceptionCreditsController::class, 'create'])->name('credits.create');
         Route::get('/pridanie-kreditov/search', [ReceptionCreditsController::class, 'search'])->name('credits.search');
         Route::post('/pridanie-kreditov', [ReceptionCreditsController::class, 'store'])->name('credits.store');
+        Route::get('/pridanie-kreditov/{user}/credits', [ReceptionCreditsController::class, 'credits'])->name('credits.current');
     });
 
     Route::prefix('admin')->name('admin.')->group(function () {
@@ -75,6 +80,7 @@ Route::middleware('auth')->group(function () {
 
             return $next($request);
         }], function () {
+            Route::get('users/autocomplete', [AdminUserController::class, 'autocomplete'])->name('users.autocomplete');
             Route::resource('users', AdminUserController::class)->except(['show']);
 
             // Admin training management

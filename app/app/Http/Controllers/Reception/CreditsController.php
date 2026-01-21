@@ -23,9 +23,12 @@ class CreditsController extends Controller
 
         $users = User::query()
             ->where('email', 'like', $q.'%')
+            ->where('is_admin', false)
+            ->where('is_trainer', false)
+            ->where('is_reception', false)
             ->orderBy('email')
             ->limit(10)
-            ->get(['id', 'name', 'email', 'credits', 'is_admin', 'is_trainer', 'is_reception']);
+            ->get(['id', 'name', 'email', 'credits']);
 
         return response()->json($users);
     }
@@ -39,11 +42,52 @@ class CreditsController extends Controller
 
         $creditsToAdd = (int) $validated['credits_to_add'];
 
-        DB::transaction(function () use ($validated, $creditsToAdd) {
+        /** @var \App\Models\User|null $updatedUser */
+        $updatedUser = null;
+
+        DB::transaction(function () use ($validated, $creditsToAdd, &$updatedUser) {
             $user = User::query()->whereKey($validated['user_id'])->lockForUpdate()->firstOrFail();
+
+            if (! $user->isRegularUser()) {
+                abort(422, 'Kredity sa dajú pripisovať iba bežným používateľom.');
+            }
+
+            if ($user->credits === null) {
+                $user->credits = 0;
+                $user->save();
+            }
+
             $user->increment('credits', $creditsToAdd);
+
+            $updatedUser = $user->refresh();
         });
 
+        if ($request->expectsJson()) {
+            return response()->json([
+                'status' => 'ok',
+                'message' => 'Kredity boli pripísané.',
+                'user' => [
+                    'id' => $updatedUser?->id,
+                    'name' => $updatedUser?->name,
+                    'email' => $updatedUser?->email,
+                    'credits' => $updatedUser?->credits,
+                ],
+            ]);
+        }
+
         return back()->with('status', 'Kredity boli pripísané, počet kreditov: '.$creditsToAdd.'.');
+    }
+
+    public function credits(Request $request, User $user)
+    {
+        // Only regular users can have credits.
+        if (! $user->isRegularUser()) {
+            abort(404);
+        }
+
+        return response()->json([
+            'id' => $user->id,
+            'credits' => (int) ($user->credits ?? 0),
+        ]);
     }
 }

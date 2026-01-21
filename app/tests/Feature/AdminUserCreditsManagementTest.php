@@ -48,7 +48,7 @@ class AdminUserCreditsManagementTest extends TestCase
 
         $createdAdmin = User::query()->where('email', 'admin2@example.com')->firstOrFail();
         $this->assertTrue($createdAdmin->isAdmin());
-        $this->assertSame(0, $createdAdmin->credits);
+        $this->assertNull($createdAdmin->credits);
 
         $this->actingAs($admin)
             ->post(route('admin.users.store'), [
@@ -63,7 +63,7 @@ class AdminUserCreditsManagementTest extends TestCase
 
         $createdTrainer = User::query()->where('email', 'trainer2@example.com')->firstOrFail();
         $this->assertTrue($createdTrainer->isTrainer());
-        $this->assertSame(0, $createdTrainer->credits);
+        $this->assertNull($createdTrainer->credits);
     }
 
     public function test_admin_can_update_credits_for_regular_user_only(): void
@@ -71,7 +71,7 @@ class AdminUserCreditsManagementTest extends TestCase
         $admin = User::factory()->create(['is_admin' => true]);
 
         $regular = User::factory()->create(['is_admin' => false, 'is_trainer' => false, 'credits' => 10]);
-        $trainer = User::factory()->create(['is_admin' => false, 'is_trainer' => true, 'credits' => 0]);
+        $trainer = User::factory()->create(['is_admin' => false, 'is_trainer' => true, 'credits' => null]);
 
         $this->actingAs($admin)
             ->put(route('admin.users.update', $regular), [
@@ -83,7 +83,7 @@ class AdminUserCreditsManagementTest extends TestCase
 
         $this->assertSame(77, $regular->refresh()->credits);
 
-        // If admin flips regular user to trainer/admin, credits must become 0 regardless of submitted credits
+        // If admin flips regular user to trainer/admin, credits must become null regardless of submitted credits
         $this->actingAs($admin)
             ->put(route('admin.users.update', $regular), [
                 'name' => $regular->name,
@@ -95,9 +95,9 @@ class AdminUserCreditsManagementTest extends TestCase
 
         $regular->refresh();
         $this->assertTrue($regular->isTrainer());
-        $this->assertSame(0, $regular->credits);
+        $this->assertNull($regular->credits);
 
-        // trainer stays at 0 even if credits are submitted
+        // trainer stays at null even if credits are submitted
         $this->actingAs($admin)
             ->put(route('admin.users.update', $trainer), [
                 'name' => $trainer->name,
@@ -107,6 +107,6 @@ class AdminUserCreditsManagementTest extends TestCase
             ])
             ->assertRedirect(route('admin.users.index'));
 
-        $this->assertSame(0, $trainer->refresh()->credits);
+        $this->assertNull($trainer->refresh()->credits);
     }
 }

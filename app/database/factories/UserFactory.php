@@ -32,7 +32,7 @@ class UserFactory extends Factory
             'is_admin' => false,
             'is_trainer' => false,
             'is_reception' => false,
-            'credits' => 0,
+            'credits' => null,
         ];
     }
 

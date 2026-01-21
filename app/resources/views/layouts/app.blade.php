@@ -337,6 +337,19 @@
             .app-topbar button.mobile-collapse-toggle.active {
                 color: var(--bs-navbar-active-color) !important;
             }
+
+        }
+
+        /* Mobile-only: keep credits badge fixed in the topbar near the burger icon (never inside the collapse layout) */
+        @media (max-width: 991.98px) {
+            .app-topbar #userCreditsBadgeMobile {
+                position: fixed;
+                top: calc(var(--topbar-height) / 2 + 20px);
+                transform: translateY(-50%);
+                right: 76px; /* sits just left of burger icon */
+                z-index: 1032;
+                pointer-events: none; /* never block tapping the burger icon */
+            }
         }
 
         /* Brand orange text color (sýta oranžová) */
@@ -350,16 +363,27 @@
 @if(empty($hideTopbar))
 <nav class="navbar navbar-expand-lg navbar-dark app-topbar">
     <div class="container app-topbar-inner">
-        <a class="navbar-brand d-inline-flex align-items-center" href="{{ url('/') }}">
-            <img class="app-logo" src="{{ asset('img/logo1.png') }}" alt="Super Gym logo" loading="eager">
-        </a>
+         <a class="navbar-brand d-inline-flex align-items-center" href="{{ url('/') }}">
+             <img class="app-logo" src="{{ asset('img/logo1.png') }}" alt="Super Gym logo" loading="eager">
+         </a>
+
+        {{-- Mobile-only credits badge (positioned next to burger via CSS) --}}
+        @auth
+            @php
+                /** @var \App\Models\User $user */
+                $user = auth()->user();
+            @endphp
+            @if($user && $user->isRegularUser())
+                <span class="badge topbar-credits d-lg-none" id="userCreditsBadgeMobile">Kredity: {{ $user->credits ?? 0 }}</span>
+            @endif
+        @endauth
 
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent">
             <span class="navbar-toggler-icon"></span>
         </button>
 
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+         <div class="collapse navbar-collapse" id="navbarSupportedContent">
+             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                 @auth
                     @php
                         /** @var \App\Models\User $user */
@@ -526,7 +550,8 @@
                     @endphp
                     <li class="nav-item d-flex align-items-center me-2">
                         @if($user->isRegularUser())
-                            <span class="badge topbar-credits me-2" id="userCreditsBadge">Kredity: {{ $user->credits ?? 0 }}</span>
+                            {{-- Desktop-only: on mobile we show credits next to the burger icon, so don't duplicate inside the expanded menu. --}}
+                            <span class="badge topbar-credits me-2 d-none d-lg-inline-flex" id="userCreditsBadge">Kredity: {{ $user->credits ?? 0 }}</span>
                         @endif
                         <span class="navbar-text small text-white-50">{{ $user->name }}</span>
                     </li>
@@ -611,5 +636,54 @@
         });
     })();
 </script>
+
+@auth
+    @php
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+    @endphp
+    @if($user && $user->isRegularUser())
+        <script>
+            (function(){
+                const badge = document.getElementById('userCreditsBadge');
+                const badgeMobile = document.getElementById('userCreditsBadgeMobile');
+                if (!badge && !badgeMobile) return;
+
+                function setBadgeCredits(value) {
+                    if (badge) badge.textContent = `Kredity: ${value}`;
+                    if (badgeMobile) badgeMobile.textContent = `Kredity: ${value}`;
+                }
+
+                async function pollMyCredits() {
+                    try {
+                        const url = new URL(@json(route('me.credits')), window.location.origin);
+                        const res = await fetch(url.toString(), {
+                            headers: {
+                                'Accept': 'application/json',
+                                'X-Requested-With': 'XMLHttpRequest'
+                            },
+                            credentials: 'same-origin'
+                        });
+                        if (!res.ok) return;
+
+                        const data = await res.json().catch(() => null);
+                        if (!data || typeof data.credits === 'undefined') return;
+
+                        const sourceText = (badge?.textContent || badgeMobile?.textContent || '');
+                        const current = parseInt(sourceText.replace(/\D+/g, ''), 10) || 0;
+                        if (data.credits !== current) {
+                            setBadgeCredits(data.credits);
+                        }
+                    } catch (e) {
+                        // ignore transient network errors
+                    }
+                }
+
+                // Poll every 5 seconds
+                setInterval(pollMyCredits, 5000);
+            })();
+        </script>
+    @endif
+@endauth
 </body>
 </html>
