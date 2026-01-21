@@ -12,10 +12,12 @@ class AnnouncementController extends Controller
     public function index(Request $request)
     {
         $q = trim((string) $request->query('q', ''));
+        $now = now();
 
+        // Currently active announcements (visible now)
         $announcements = Announcement::query()
             ->with('creator:id,name')
-            ->currentlyActive()
+            ->currentlyActive($now)
             ->when($q !== '', function ($query) use ($q) {
                 $query->where(function ($w) use ($q) {
                     $w->where('title', 'like', '%'.$q.'%')
@@ -27,7 +29,25 @@ class AnnouncementController extends Controller
             ->paginate(15)
             ->withQueryString();
 
-        return view('admin.announcements.index', compact('announcements', 'q'));
+        // Upcoming announcements: scheduled to become active in the future (active_from > now)
+        $upcoming = Announcement::query()
+            ->with('creator:id,name')
+            ->where('is_active', true)
+            ->whereNotNull('active_from')
+            ->where('active_from', '>', $now)
+            ->when($q !== '', function ($query) use ($q) {
+                $query->where(function ($w) use ($q) {
+                    $w->where('title', 'like', '%'.$q.'%')
+                        ->orWhere('content', 'like', '%'.$q.'%');
+                });
+            })
+            ->orderBy('active_from')
+            ->orderByDesc('created_at')
+            // use a different page query param to avoid colliding with the main paginator
+            ->paginate(10, ['*'], 'upcoming_page')
+            ->withQueryString();
+
+        return view('admin.announcements.index', compact('announcements', 'upcoming', 'q'));
     }
 
     public function archive(Request $request)

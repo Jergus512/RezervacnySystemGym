@@ -406,6 +406,9 @@
                             <a class="nav-link" href="{{ route('reception.calendar') }}">Kalendár tréningov</a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link" href="{{ route('announcements.index') }}">Oznamy</a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link" href="{{ route('reception.credits.create') }}">Pridanie kreditov</a>
                         </li>
                     @else
