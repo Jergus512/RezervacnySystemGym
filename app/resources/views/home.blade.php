@@ -405,7 +405,7 @@
                         <div class="d-flex flex-column flex-sm-row gap-2 mb-4">
                             @if(auth()->user()->isAdmin())
                                 <a href="{{ route('admin.users.index') }}" class="btn btn-orange btn-lg px-4">Správa používateľov</a>
-                                <a href="{{ route('admin.trainings.index') }}" class="btn btn-outline-dark btn-lg px-4">Editácia tréningov</a>
+                                <a href="{{ route('admin.trainings.index') }}" class="btn btn-outline-dark btn-lg px-4">Správa aktuálnych tréningov</a>
                             @elseif(auth()->user()->isTrainer())
                                 <a href="{{ route('trainer.trainings.index') }}" class="btn btn-orange btn-lg px-4">Vytvorené tréningy</a>
                                 <a href="{{ route('trainer.trainings.create') }}" class="btn btn-outline-dark btn-lg px-4">Vytvoriť tréning</a>

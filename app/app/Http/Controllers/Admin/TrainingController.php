@@ -22,9 +22,34 @@ class TrainingController extends Controller
         $this->requireAdmin($request);
 
         $q = trim((string) $request->query('q', ''));
+        $now = now();
 
         $trainings = Training::query()
             ->with('creator:id,name')
+            ->where('start_at', '>=', $now)
+            ->when($q !== '', function ($query) use ($q) {
+                $query->where(function ($w) use ($q) {
+                    $w->where('title', 'like', '%'.$q.'%')
+                        ->orWhere('description', 'like', '%'.$q.'%');
+                });
+            })
+            ->orderBy('start_at')
+            ->paginate(15)
+            ->withQueryString();
+
+        return view('admin.trainings.index', compact('trainings', 'q'));
+    }
+
+    public function archive(Request $request)
+    {
+        $this->requireAdmin($request);
+
+        $q = trim((string) $request->query('q', ''));
+        $now = now();
+
+        $trainings = Training::query()
+            ->with('creator:id,name')
+            ->where('start_at', '<', $now)
             ->when($q !== '', function ($query) use ($q) {
                 $query->where(function ($w) use ($q) {
                     $w->where('title', 'like', '%'.$q.'%')
@@ -35,7 +60,7 @@ class TrainingController extends Controller
             ->paginate(15)
             ->withQueryString();
 
-        return view('admin.trainings.index', compact('trainings', 'q'));
+        return view('admin.trainings.archive', compact('trainings', 'q'));
     }
 
     public function edit(Request $request, Training $training)

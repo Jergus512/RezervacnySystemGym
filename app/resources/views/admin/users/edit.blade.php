@@ -98,41 +98,44 @@
         const creditsWrapper = document.getElementById('creditsFieldWrapper');
         const creditsInput = document.getElementById('credits');
 
-        function setRole(role) {
-            if (!adminCb || !trainerCb || !receptionCb) return;
-            adminCb.checked = role === 'admin';
-            trainerCb.checked = role === 'trainer';
-            receptionCb.checked = role === 'reception';
-        }
-
-        function currentRole() {
-            if (adminCb?.checked) return 'admin';
-            if (trainerCb?.checked) return 'trainer';
-            if (receptionCb?.checked) return 'reception';
-            return null;
-        }
-
         function syncCreditsVisibility() {
             if (!creditsWrapper) return;
-            const role = currentRole();
-            const isRegular = role === null;
-            creditsWrapper.classList.toggle('d-none', !isRegular);
-            if (!isRegular && creditsInput) creditsInput.value = 0;
+
+            const isRole = (adminCb?.checked || trainerCb?.checked || receptionCb?.checked);
+            creditsWrapper.classList.toggle('d-none', isRole);
+
+            if (isRole && creditsInput) {
+                creditsInput.value = 0;
+            }
         }
 
-        function onRoleClick(clicked) {
-            const roleBefore = currentRole();
-            if (roleBefore === clicked) {
-                setRole(null);
-            } else {
-                setRole(clicked);
+        function enforceExclusive(changed) {
+            if (!changed?.checked) {
+                syncCreditsVisibility();
+                return;
             }
+
+            if (changed === adminCb) {
+                if (trainerCb) trainerCb.checked = false;
+                if (receptionCb) receptionCb.checked = false;
+            }
+
+            if (changed === trainerCb) {
+                if (adminCb) adminCb.checked = false;
+                if (receptionCb) receptionCb.checked = false;
+            }
+
+            if (changed === receptionCb) {
+                if (adminCb) adminCb.checked = false;
+                if (trainerCb) trainerCb.checked = false;
+            }
+
             syncCreditsVisibility();
         }
 
-        if (adminCb) adminCb.addEventListener('click', (e) => { e.preventDefault(); onRoleClick('admin'); });
-        if (trainerCb) trainerCb.addEventListener('click', (e) => { e.preventDefault(); onRoleClick('trainer'); });
-        if (receptionCb) receptionCb.addEventListener('click', (e) => { e.preventDefault(); onRoleClick('reception'); });
+        if (adminCb) adminCb.addEventListener('change', () => enforceExclusive(adminCb));
+        if (trainerCb) trainerCb.addEventListener('change', () => enforceExclusive(trainerCb));
+        if (receptionCb) receptionCb.addEventListener('change', () => enforceExclusive(receptionCb));
 
         syncCreditsVisibility();
     })();

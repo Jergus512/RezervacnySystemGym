@@ -7,8 +7,6 @@
         <h1 class="h3 mb-0">Vytvorenie tréningu</h1>
     </div>
 
-    <p class="text-muted mb-3">Vyplň parametre tréningu podľa tabuľky <code>trainings</code>.</p>
-
     @if (session('status'))
         <div class="alert alert-success">{{ session('status') }}</div>
     @endif

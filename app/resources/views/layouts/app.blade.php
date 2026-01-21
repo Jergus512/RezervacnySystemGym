@@ -227,6 +227,11 @@
                 margin-right: 0 !important;
             }
         }
+
+        /* Brand orange text color (sýta oranžová) */
+        .text-brand-orange {
+            color: var(--brand-orange) !important;
+        }
     </style>
 </head>
 <body class="@if(!empty($hideTopbar)) no-topbar @elseif(!empty($overlayTopbar)) overlay-topbar @endif">
@@ -273,6 +278,31 @@
                                 <a class="nav-link" href="{{ route('my-trainings.index') }}">Moje tréningy</a>
                             </li>
                         @endif
+
+                        @if($user->isAdmin())
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('admin.users.index') }}">Používatelia</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('admin.trainings.index') }}">Správa aktuálnych tréningov</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('admin.trainings.archive') }}">Archív tréningov</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('admin.announcements.index') }}">Správa oznamov</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('admin.announcements.archive') }}">Archív oznamov</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('announcements.index') }}">Oznamy</a>
+                            </li>
+                        @else
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('announcements.index') }}">Oznamy</a>
+                            </li>
+                        @endif
                     @endif
 
                     @if($user->isTrainer())
@@ -281,15 +311,6 @@
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('trainer.trainings.index') }}">Vytvorené tréningy</a>
-                        </li>
-                    @endif
-
-                    @if($user->isAdmin())
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('admin.users.index') }}">Používatelia</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('admin.trainings.index') }}">Editácia tréningov</a>
                         </li>
                     @endif
                 @endauth
@@ -328,7 +349,7 @@
 @endif
 
 <main class="@if(!empty($overlayTopbar)) p-0 @else py-4 @endif">
-    <div class="container">
+    <div class="container" @if(empty($overlayTopbar)) style="padding-top:20px;" @endif>
         @yield('content')
     </div>
 </main>

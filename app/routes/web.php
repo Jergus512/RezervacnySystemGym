@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\Admin\TrainingController as AdminTrainingController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
+use App\Http\Controllers\Admin\AnnouncementController as AdminAnnouncementController;
+use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\MyTrainingsController;
@@ -42,6 +44,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/moje-treningy', [MyTrainingsController::class, 'index'])
         ->name('my-trainings.index');
 
+    // Oznamy (pre všetkých prihlásených)
+    Route::get('/oznamy', [AnnouncementController::class, 'index'])->name('announcements.index');
+    Route::get('/oznamy/current.json', [AnnouncementController::class, 'current'])->name('announcements.current');
+
     Route::prefix('reception')->name('reception.')->middleware('reception')->group(function () {
         // No separate receptionist dashboard; navigation is in the shared topbar.
         Route::get('/', function () {
@@ -73,9 +79,15 @@ Route::middleware('auth')->group(function () {
 
             // Admin training management
             Route::get('trainings', [AdminTrainingController::class, 'index'])->name('trainings.index');
+            Route::get('trainings/archive', [AdminTrainingController::class, 'archive'])->name('trainings.archive');
             Route::get('trainings/{training}/edit', [AdminTrainingController::class, 'edit'])->name('trainings.edit');
             Route::put('trainings/{training}', [AdminTrainingController::class, 'update'])->name('trainings.update');
             Route::delete('trainings/{training}', [AdminTrainingController::class, 'destroy'])->name('trainings.destroy');
+
+            // Admin oznamy
+            Route::get('announcements/archive', [AdminAnnouncementController::class, 'archive'])
+                ->name('announcements.archive');
+            Route::resource('announcements', AdminAnnouncementController::class)->except(['show']);
         });
     });
 
