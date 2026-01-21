@@ -365,7 +365,7 @@
         }
     </style>
 </head>
-<body class="{{ url()->current() === url('/') ? 'homepage' : '' }}">
+<body class="{{ url()->current() === url('/') ? 'homepage' : '' }} @if(!empty($hideTopbar)) no-topbar @elseif(!empty($overlayTopbar)) overlay-topbar @endif">
 
 @if(empty($hideTopbar))
 <nav class="app-topbar navbar navbar-dark navbar-expand-lg">
