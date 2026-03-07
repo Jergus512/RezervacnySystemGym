@@ -14,49 +14,18 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.4'
-          tools: composer
-          coverage: none
-
-      - name: Install PHP dependencies
-        working-directory: ./app
-        run: composer install --no-dev --optimize-autoloader
-
       - name: Install lftp
         run: |
           sudo apt-get update
           sudo apt-get install -y lftp
 
-      - name: Create production index.php
-        run: |
-          cat > /tmp/index.php <<'PHP'
-          <?php
-
-          use Illuminate\Foundation\Application;
-          use Illuminate\Http\Request;
-
-          define('LARAVEL_START', microtime(true));
-
-          if (file_exists($maintenance = __DIR__.'/storage/framework/maintenance.php')) {
-              require $maintenance;
-          }
-
-          require __DIR__.'/vendor/autoload.php';
-
-          $app = require_once __DIR__.'/bootstrap/app.php';
-
-          $app->handleRequest(Request::capture());
-          PHP
-
-      - name: Deploy Laravel core without public and storage
+      - name: Deploy app to Websupport without touching DB
         env:
           FTP_HOST: ${{ secrets.FTP_HOST }}
           FTP_USER: ${{ secrets.FTP_USER }}
           FTP_PASS: ${{ secrets.FTP_PASS }}
           FTP_PORT: ${{ secrets.FTP_PORT }}
+          FTP_PATH: ${{ secrets.FTP_PATH }}
         run: |
           lftp -u "$FTP_USER","$FTP_PASS" sftp://$FTP_HOST:$FTP_PORT <<EOF
           set sftp:auto-confirm yes
@@ -65,49 +34,25 @@ jobs:
           set net:reconnect-interval-base 5
           set net:reconnect-interval-max 10
 
-          mirror -R ./app/ . \
+          mirror -R ./app/ "$FTP_PATH" \
             --delete \
             --verbose \
             --parallel=2 \
             --no-perms \
             --exclude-glob .env \
+            --exclude-glob .env.* \
             --exclude-glob node_modules \
             --exclude-glob node_modules/** \
-            --exclude-glob tests \
-            --exclude-glob tests/** \
-            --exclude-glob storage \
-            --exclude-glob storage/** \
-            --exclude-glob public \
-            --exclude-glob public/** \
+            --exclude-glob vendor \
+            --exclude-glob vendor/** \
             --exclude-glob .git* \
             --exclude-glob .github \
             --exclude-glob .github/** \
             --exclude-glob .idea \
-            --exclude-glob .idea/**
-
-          bye
-          EOF
-
-      - name: Deploy public files into root
-        env:
-          FTP_HOST: ${{ secrets.FTP_HOST }}
-          FTP_USER: ${{ secrets.FTP_USER }}
-          FTP_PASS: ${{ secrets.FTP_PASS }}
-          FTP_PORT: ${{ secrets.FTP_PORT }}
-        run: |
-          lftp -u "$FTP_USER","$FTP_PASS" sftp://$FTP_HOST:$FTP_PORT <<EOF
-          set sftp:auto-confirm yes
-          set net:max-retries 2
-          set net:timeout 20
-          set net:reconnect-interval-base 5
-          set net:reconnect-interval-max 10
-
-          mirror -R ./app/public/ . \
-            --verbose \
-            --parallel=2 \
-            --no-perms
-
-          put /tmp/index.php -o index.php
+            --exclude-glob .idea/** \
+            --exclude-glob database/database.sqlite \
+            --exclude-glob storage \
+            --exclude-glob storage/**
 
           bye
           EOF
