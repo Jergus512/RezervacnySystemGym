@@ -7,8 +7,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  deploy_core:
-    name: Deploy Laravel core
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
@@ -20,69 +19,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y lftp
 
-      - name: Deploy Laravel core to laravel/supergym
-        env:
-          FTP_HOST: ${{ secrets.FTP_HOST }}
-          FTP_USER: ${{ secrets.FTP_USER }}
-          FTP_PASS: ${{ secrets.FTP_PASS }}
-          FTP_PORT: ${{ secrets.FTP_PORT }}
-        run: |
-          lftp -u "$FTP_USER","$FTP_PASS" sftp://$FTP_HOST:$FTP_PORT <<EOF
-          set sftp:auto-confirm yes
-          set net:max-retries 2
-          set net:timeout 20
-          set net:reconnect-interval-base 5
-          set net:reconnect-interval-max 10
-
-          mkdir -p laravel/supergym
-          mkdir -p laravel/supergym/storage
-          mkdir -p laravel/supergym/storage/app
-          mkdir -p laravel/supergym/storage/app/public
-          mkdir -p laravel/supergym/storage/framework
-          mkdir -p laravel/supergym/storage/framework/cache
-          mkdir -p laravel/supergym/storage/framework/sessions
-          mkdir -p laravel/supergym/storage/framework/views
-          mkdir -p laravel/supergym/storage/logs
-          mkdir -p laravel/supergym/bootstrap/cache
-
-          mirror -R ./app/ laravel/supergym \
-            --delete \
-            --verbose \
-            --parallel=2 \
-            --no-perms \
-            --exclude-glob public \
-            --exclude-glob public/** \
-            --exclude-glob .env \
-            --exclude-glob node_modules \
-            --exclude-glob node_modules/** \
-            --exclude-glob .git* \
-            --exclude-glob .github \
-            --exclude-glob .github/** \
-            --exclude-glob .idea \
-            --exclude-glob .idea/** \
-            --exclude-glob tests \
-            --exclude-glob tests/** \
-            --exclude-glob storage \
-            --exclude-glob storage/**
-
-          bye
-          EOF
-
-  deploy_public:
-    name: Deploy Laravel public
-    runs-on: ubuntu-latest
-    needs: deploy_core
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Install lftp
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y lftp
-
-      - name: Create Websupport index.php for split Laravel layout
+      - name: Prepare production public index.php
         run: |
           cat > /tmp/index.php <<'PHP'
           <?php
@@ -92,18 +29,18 @@ jobs:
 
           define('LARAVEL_START', microtime(true));
 
-          if (file_exists($maintenance = __DIR__.'/../../laravel/supergym/storage/framework/maintenance.php')) {
+          if (file_exists($maintenance = __DIR__.'/storage/framework/maintenance.php')) {
               require $maintenance;
           }
 
-          require __DIR__.'/../../laravel/supergym/vendor/autoload.php';
+          require __DIR__.'/vendor/autoload.php';
 
-          $app = require_once __DIR__.'/../../laravel/supergym/bootstrap/app.php';
+          $app = require_once __DIR__.'/bootstrap/app.php';
 
           $app->handleRequest(Request::capture());
           PHP
 
-      - name: Deploy public files to supergym.sk/web
+      - name: Deploy Laravel root
         env:
           FTP_HOST: ${{ secrets.FTP_HOST }}
           FTP_USER: ${{ secrets.FTP_USER }}
@@ -117,15 +54,47 @@ jobs:
           set net:reconnect-interval-base 5
           set net:reconnect-interval-max 10
 
-          mkdir -p supergym.sk/web
-
-          mirror -R ./app/public/ supergym.sk/web \
+          mirror -R ./app/ . \
             --delete \
+            --verbose \
+            --parallel=2 \
+            --no-perms \
+            --exclude-glob .env \
+            --exclude-glob node_modules \
+            --exclude-glob node_modules/** \
+            --exclude-glob vendor \
+            --exclude-glob vendor/** \
+            --exclude-glob .git* \
+            --exclude-glob .github \
+            --exclude-glob .github/** \
+            --exclude-glob .idea \
+            --exclude-glob .idea/** \
+            --exclude-glob tests \
+            --exclude-glob tests/**
+
+          bye
+          EOF
+
+      - name: Deploy public files into root
+        env:
+          FTP_HOST: ${{ secrets.FTP_HOST }}
+          FTP_USER: ${{ secrets.FTP_USER }}
+          FTP_PASS: ${{ secrets.FTP_PASS }}
+          FTP_PORT: ${{ secrets.FTP_PORT }}
+        run: |
+          lftp -u "$FTP_USER","$FTP_PASS" sftp://$FTP_HOST:$FTP_PORT <<EOF
+          set sftp:auto-confirm yes
+          set net:max-retries 2
+          set net:timeout 20
+          set net:reconnect-interval-base 5
+          set net:reconnect-interval-max 10
+
+          mirror -R ./app/public/ . \
             --verbose \
             --parallel=2 \
             --no-perms
 
-          put /tmp/index.php -o supergym.sk/web/index.php
+          put /tmp/index.php -o index.php
 
           bye
           EOF
