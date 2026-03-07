@@ -507,6 +507,8 @@
                                             Oznamy (zobrazenie)
                                         </a>
                                     </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <!-- removed Admin settings from here - now a top-level nav item (moved below) -->
                                 </ul>
                             </li>
 
@@ -525,9 +527,16 @@
                                         <a class="nav-link {{ request()->routeIs('admin.announcements.index') ? 'active' : '' }}" href="{{ route('admin.announcements.index') }}">Správa oznamov</a>
                                         <a class="nav-link mt-1 {{ request()->routeIs('admin.announcements.archive') ? 'active' : '' }}" href="{{ route('admin.announcements.archive') }}">Archív oznamov</a>
                                         <a class="nav-link mt-1 {{ request()->routeIs('announcements.index') ? 'active' : '' }}" href="{{ route('announcements.index') }}">Oznamy (zobrazenie)</a>
+                                        <!-- removed mobile 'Nastavenia' from here - now appears as a separate menu item (moved below) -->
                                     </div>
                                 </div>
                             </li>
+
+                            {{-- Move Settings to be last in the admin menu (after Oznamy) --}}
+                            <li class="nav-item">
+                                <a class="nav-link {{ request()->routeIs('admin.settings.*') ? 'active' : '' }}" href="{{ route('admin.settings.edit') }}">Nastavenia</a>
+                            </li>
+
                         @else
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ route('announcements.index') }}">Oznamy</a>

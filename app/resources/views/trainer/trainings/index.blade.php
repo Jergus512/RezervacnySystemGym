@@ -8,12 +8,42 @@
         <a href="{{ route('trainer.trainings.create') }}" class="btn btn-primary">+ Vytvoriť tréning</a>
     </div>
 
+    {{-- Search & filter form --}}
+    <form method="GET" action="{{ route('trainer.trainings.index') }}" class="card card-body mb-3">
+        <div class="row g-3 align-items-end">
+            <div class="col-12 col-md-5">
+                <label for="search" class="form-label">Vyhľadávanie podľa názvu</label>
+                <input type="text" id="search" name="search" class="form-control"
+                       placeholder="Zadaj názov tréningu…" value="{{ $search ?? '' }}">
+            </div>
+            <div class="col-12 col-md-5">
+                <label class="form-label d-block">Stav tréningu</label>
+                <div class="btn-group" role="group">
+                    <input type="radio" class="btn-check" name="active" id="activeAll" value="all"
+                           {{ ($showActive ?? '1') === 'all' ? 'checked' : '' }}>
+                    <label class="btn btn-outline-secondary" for="activeAll">Všetky</label>
+
+                    <input type="radio" class="btn-check" name="active" id="activeYes" value="1"
+                           {{ ($showActive ?? '1') === '1' ? 'checked' : '' }}>
+                    <label class="btn btn-outline-success" for="activeYes">Aktívne</label>
+
+                    <input type="radio" class="btn-check" name="active" id="activeNo" value="0"
+                           {{ ($showActive ?? '1') === '0' ? 'checked' : '' }}>
+                    <label class="btn btn-outline-secondary" for="activeNo">Neaktívne</label>
+                </div>
+            </div>
+            <div class="col-12 col-md-2">
+                <button type="submit" class="btn btn-primary w-100">Hľadať</button>
+            </div>
+        </div>
+    </form>
+
     @if (session('status'))
         <div class="alert alert-success">{{ session('status') }}</div>
     @endif
 
     @if($trainings->isEmpty())
-        <div class="alert alert-info">Zatiaľ si nevytvoril žiadne tréningy.</div>
+        <div class="alert alert-info">Žiadne tréningy nezodpovedajú filtru.</div>
     @else
         <div class="card">
             <div class="table-responsive">

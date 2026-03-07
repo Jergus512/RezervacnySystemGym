@@ -22,12 +22,34 @@ class TrainingManageController extends Controller
     {
         $this->requireTrainer($request);
 
-        $trainings = $request->user()
+        // Auto-deactivate past trainings (where start_at is in the past and still marked active)
+        $request->user()
             ->createdTrainings()
-            ->orderByDesc('start_at')
-            ->paginate(15);
+            ->where('is_active', true)
+            ->where('start_at', '<', now())
+            ->update(['is_active' => false]);
 
-        return view('trainer.trainings.index', compact('trainings'));
+        $query = $request->user()
+            ->createdTrainings()
+            ->orderByDesc('start_at');
+
+        // Filter by search text
+        if ($search = $request->input('search')) {
+            $query->where('title', 'like', '%' . $search . '%');
+        }
+
+        // Filter by active status (default: show active only)
+        $showActive = $request->input('active', '1');
+        if ($showActive === '1') {
+            $query->where('is_active', true);
+        } elseif ($showActive === '0') {
+            $query->where('is_active', false);
+        }
+        // if 'all' or anything else => no filter
+
+        $trainings = $query->paginate(15)->withQueryString();
+
+        return view('trainer.trainings.index', compact('trainings', 'search', 'showActive'));
     }
 
     public function create(Request $request)

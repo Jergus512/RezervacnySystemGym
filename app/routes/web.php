@@ -94,6 +94,12 @@ Route::middleware('auth')->group(function () {
             Route::get('announcements/archive', [AdminAnnouncementController::class, 'archive'])
                 ->name('announcements.archive');
             Route::resource('announcements', AdminAnnouncementController::class)->except(['show']);
+
+            // Admin settings - penalty configuration for refunds
+            Route::get('settings', [\App\Http\Controllers\Admin\PenaltySettingController::class, 'edit'])
+                ->name('settings.edit');
+            Route::put('settings', [\App\Http\Controllers\Admin\PenaltySettingController::class, 'update'])
+                ->name('settings.update');
         });
     });
 

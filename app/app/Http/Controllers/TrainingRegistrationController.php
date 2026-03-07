@@ -78,6 +78,11 @@ class TrainingRegistrationController extends Controller
         DB::transaction(function () use ($training, $user) {
             $training->refresh();
 
+            // Disallow unregistration if training has already started
+            if ($training->start_at && $training->start_at->isPast()) {
+                abort(422, 'Z tréningu, ktorý už začal, sa nedá odhlásiť.');
+            }
+
             // Lock user row to prevent double-refund in concurrent requests
             $user = $user->newQuery()->whereKey($user->id)->lockForUpdate()->first();
 
@@ -93,7 +98,40 @@ class TrainingRegistrationController extends Controller
 
             $price = (int) ($training->price ?? 0);
             if ($price > 0) {
-                $user->increment('credits', $price);
+                // Determine refund amount based on admin-configured penalty settings
+                $refundAmount = 0;
+                try {
+                    $settings = \App\Models\PenaltySetting::getSingleton();
+                } catch (\Throwable $e) {
+                    // If settings table / model missing, fall back to full refund to be safe
+                    $settings = null;
+                }
+
+                if (! $training->start_at || ! $settings) {
+                    // If there's no start time or no settings available, refund full amount
+                    $refundAmount = $price;
+                } else {
+                    // Use a signed diff so past start times produce negative values
+                    $minutesUntilStart = (int) now()->diffInMinutes($training->start_at, false);
+                    $window = (int) ($settings->refund_window_minutes ?? 0);
+
+                    if ($minutesUntilStart >= $window) {
+                        // Cancellation happened earlier than the configured window => full refund
+                        $refundAmount = $price;
+                    } else {
+                        // Late cancellation => apply penalty policy
+                        $policy = $settings->penalty_policy ?? 'none';
+                        if ($policy === 'half') {
+                            $refundAmount = intdiv($price, 2);
+                        } else { // 'none' or unknown
+                            $refundAmount = 0;
+                        }
+                    }
+                }
+
+                if ($refundAmount > 0) {
+                    $user->increment('credits', $refundAmount);
+                }
             }
         });
 

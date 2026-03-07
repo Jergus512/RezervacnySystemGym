@@ -238,11 +238,11 @@ document.addEventListener('DOMContentLoaded', function () {
                     unregisterForm.action = unregisterRouteTemplate.replace('__ID__', String(event.id));
                 }
                 if (unregisterForm) {
-                    // show only when registered
-                    unregisterForm.classList.toggle('d-none', !isRegistered);
+                    // show only when registered and training hasn't started yet
+                    unregisterForm.classList.toggle('d-none', !isRegistered || isNotCurrent);
                 }
                 if (unregisterBtn) {
-                    unregisterBtn.disabled = !unregisterRouteTemplate || !isRegistered;
+                    unregisterBtn.disabled = !unregisterRouteTemplate || !isRegistered || isNotCurrent;
                 }
             }
 

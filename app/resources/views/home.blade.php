@@ -116,6 +116,12 @@
             font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
         }
 
+        /* Ensure SUPER and GYM remain separate words on mobile by making each word a block at small widths */
+        .home-hero-bleed-title h1 .word { display: inline; }
+        @media (max-width: 575.98px) {
+            .home-hero-bleed-title h1 .word { display: block; }
+        }
+
         @media (min-width: 768px) {
             .home-hero-bleed-title { padding-top: 6.9rem; }
         }
@@ -224,6 +230,18 @@
             right: -18px;
             transform: none;
             font-size: 22px;
+        }
+
+        /* Keep the close (X) button visually interactive but prevent it from shifting on hover/focus
+           The generic .lb-btn:hover rule applies a translateY(..) which causes the close button to move
+           because its selector specificity is lower — override that here for both hover and focus. */
+        .gallery-lightbox .lb-btn.lb-close:hover,
+        .gallery-lightbox .lb-btn.lb-close:focus,
+        .gallery-lightbox .lb-btn.lb-close:active {
+            transform: none; /* Do not translate/scale the close button */
+            /* Keep the same hover colors as other buttons for consistency (optional) */
+            background: rgba(249, 115, 22, .22);
+            border-color: rgba(249, 115, 22, .65);
         }
 
         @media (max-width: 575.98px) {
@@ -377,7 +395,7 @@
         <img class="home-hero-bleed-img" src="{{ asset('img/pozadie7.png') }}" alt="Činky" loading="eager">
         <div class="home-hero-bleed-title">
             <div class="container">
-                <h1><span class="cap">S</span>UPER <span class="cap">G</span>YM</h1>
+                <h1><span class="word"><span class="cap">S</span>UPER</span> <span class="word"><span class="cap">G</span>YM</span></h1>
             </div>
         </div>
     </section>
