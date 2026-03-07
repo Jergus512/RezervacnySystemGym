@@ -19,7 +19,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y lftp
 
-      - name: Prepare production public index.php
+      - name: Create production index.php
         run: |
           cat > /tmp/index.php <<'PHP'
           <?php
@@ -40,7 +40,7 @@ jobs:
           $app->handleRequest(Request::capture());
           PHP
 
-      - name: Deploy Laravel root
+      - name: Deploy Laravel core without public and storage
         env:
           FTP_HOST: ${{ secrets.FTP_HOST }}
           FTP_USER: ${{ secrets.FTP_USER }}
@@ -64,13 +64,17 @@ jobs:
             --exclude-glob node_modules/** \
             --exclude-glob vendor \
             --exclude-glob vendor/** \
+            --exclude-glob tests \
+            --exclude-glob tests/** \
+            --exclude-glob storage \
+            --exclude-glob storage/** \
+            --exclude-glob public \
+            --exclude-glob public/** \
             --exclude-glob .git* \
             --exclude-glob .github \
             --exclude-glob .github/** \
             --exclude-glob .idea \
-            --exclude-glob .idea/** \
-            --exclude-glob tests \
-            --exclude-glob tests/**
+            --exclude-glob .idea/**
 
           bye
           EOF
