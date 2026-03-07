@@ -395,7 +395,7 @@
         <img class="home-hero-bleed-img" src="{{ asset('img/pozadie7.png') }}" alt="Činky" loading="eager">
         <div class="home-hero-bleed-title">
             <div class="container">
-                <h1><span class="word"><span class="cap">S</span>UPER</span> <span class="word"><span class="cap">G</span>YM</span></h1>
+                <h1><span class="word"><span class="cap">S</span>UP</span> <span class="word"><span class="cap">G</span>YM</span></h1>
             </div>
         </div>
     </section>
