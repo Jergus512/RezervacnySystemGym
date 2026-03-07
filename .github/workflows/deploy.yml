@@ -19,7 +19,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y lftp
 
-      - name: Deploy Laravel app to correct domain path
+      - name: Deploy app folder into target path
         env:
           FTP_HOST: ${{ secrets.FTP_HOST }}
           FTP_USER: ${{ secrets.FTP_USER }}
@@ -34,20 +34,19 @@ jobs:
           set net:reconnect-interval-base 5
           set net:reconnect-interval-max 10
 
-          mirror -R ./app/ $FTP_PATH \
+          mirror -R ./app/ "$FTP_PATH" \
             --delete \
             --verbose \
             --parallel=2 \
+            --no-perms \
             --exclude-glob .env \
             --exclude-glob node_modules \
             --exclude-glob vendor \
             --exclude-glob .git* \
             --exclude-glob .github \
             --exclude-glob .idea \
-            --exclude-glob storage/logs/* \
-            --exclude-glob storage/framework/cache/* \
-            --exclude-glob storage/framework/sessions/* \
-            --exclude-glob storage/framework/views/*
+            --exclude-glob storage \
+            --exclude-glob tests
 
           bye
           EOF
