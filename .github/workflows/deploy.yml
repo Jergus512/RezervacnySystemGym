@@ -15,7 +15,9 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install lftp
-        run: sudo apt-get update && sudo apt-get install -y lftp
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y lftp
 
       - name: Deploy via SFTP
         env:
@@ -27,15 +29,23 @@ jobs:
         run: |
           lftp -u "$FTP_USER","$FTP_PASS" sftp://$FTP_HOST:$FTP_PORT <<EOF
           set sftp:auto-confirm yes
+          set net:max-retries 2
+          set net:timeout 20
+          set net:reconnect-interval-base 5
+          set net:reconnect-interval-max 10
+
           mirror -R ./ $FTP_PATH \
             --verbose \
             --delete \
+            --parallel=2 \
             --exclude-glob .git* \
             --exclude-glob .github \
             --exclude-glob node_modules \
             --exclude-glob .env \
             --exclude-glob docker \
             --exclude-glob Dockerfile \
-            --exclude-glob docker-compose.yml
+            --exclude-glob docker-compose.yml \
+            --exclude-glob README.md
+
           bye
           EOF
