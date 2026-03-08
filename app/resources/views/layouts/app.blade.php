@@ -86,13 +86,17 @@
             /* keep the pseudo-element limited to the original topbar rectangle
                (when the mobile menu expands the .app-topbar element grows, but
                we don't want the blur to cover that expanded area). */
-            height: var(--topbar-height);
+            /* extend the height slightly so logo drop-shadows don't visually protrude */
+            height: calc(var(--topbar-height) + 12px);
             background: rgba(0, 0, 0, 0.55);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
             border-bottom: 1px solid rgba(255, 255, 255, 0.14);
             pointer-events: none;
             z-index: 1030; /* sits at the same stacking context as the topbar */
+            /* Smooth opacity/height transitions avoid a hard flicker when toggling */
+            transition: opacity .12s linear, height .18s ease;
+            opacity: 1;
         }
 
         /* When the mobile menu is opened we expand the pseudo-element so the
@@ -175,7 +179,8 @@
             width: auto;
             max-width: 100%;
             display: block;
-            filter: drop-shadow(0 10px 22px rgba(0,0,0,.35));
+            /* reduce the shadow so the logo doesn't visually poke outside the topbar */
+            filter: drop-shadow(0 6px 10px rgba(0,0,0,.25));
         }
 
         @media (min-width: 768px) {
@@ -344,7 +349,7 @@
             .app-topbar button.mobile-collapse-toggle {
                 background: transparent;
                 border: 0;
-                padding: .5rem var(--bs-navbar-nav-link-padding-x, 0.5rem);
+                padding: .5rem 0.5rem;
                 color: inherit;
                 font: inherit;
                 line-height: inherit;
@@ -364,17 +369,18 @@
             }
 
             /* Fix: button-based Oznamy toggle was rendering as default (black) in some browsers */
+            /* Use concrete fallbacks for navbar colors to avoid unresolved custom-property errors */
             .app-topbar button.mobile-collapse-toggle {
-                color: var(--bs-navbar-color) !important;
+                color: rgba(255,255,255,0.92) !important;
             }
 
             .app-topbar button.mobile-collapse-toggle:hover,
             .app-topbar button.mobile-collapse-toggle:focus {
-                color: var(--bs-navbar-hover-color) !important;
+                color: rgba(255,255,255,1) !important;
             }
 
             .app-topbar button.mobile-collapse-toggle.active {
-                color: var(--bs-navbar-active-color) !important;
+                color: rgba(255,255,255,1) !important;
             }
 
         }
@@ -408,12 +414,12 @@
         .app-topbar.no-backdrop::before {
             backdrop-filter: none !important;
             -webkit-backdrop-filter: none !important;
-            background: rgba(0,0,0,0.45) !important; /* keep slightly darker fallback while disabled */
+            background: rgba(0,0,0,0.45) !important; /* slightly darker fallback while disabled */
         }
 
         /* Stronger temporary hide: remove the pseudo-element entirely (used to avoid lingering blur artifacts) */
         .app-topbar.backdrop-disabled::before {
-            display: none !important;
+            opacity: 0 !important;
             pointer-events: none !important;
         }
     </style>
@@ -680,8 +686,6 @@
                 // hide menu and remove the full-viewport blur immediately
                 if (topbar) {
                     topbar.classList.remove('menu-open');
-                    // temporarily hide the pseudo-element right away to avoid lingering blur
-                    topbar.classList.add('backdrop-disabled');
                 }
                 collapse.hide();
             } else {
