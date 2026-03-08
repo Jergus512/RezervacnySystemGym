@@ -363,6 +363,12 @@
         body.homepage .dropdown-menu {
             z-index: 99999999 !important;
         }
+
+        /* Workaround helper: disable backdrop-filter briefly to clear rendering artifacts on some mobile browsers */
+        .app-topbar.no-backdrop {
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+        }
     </style>
 </head>
 <body class="{{ url()->current() === url('/') ? 'homepage' : '' }} @if(!empty($hideTopbar)) no-topbar @elseif(!empty($overlayTopbar)) overlay-topbar @endif">
@@ -636,6 +642,32 @@
 
         collapseEl.addEventListener('hidden.bs.collapse', function () {
             toggler.setAttribute('aria-expanded', 'false');
+
+            // Workaround: Some mobile browsers (notably iOS Safari) can leave
+            // backdrop-filter / blur rendering artifacts after a transform/opacity
+            // change unless the page is repainted. Two strategies:
+            // 1) briefly add a class disabling the backdrop-filter on the topbar
+            //    (non-invasive), and 2) force a lightweight transform on body as a fallback.
+            try {
+                const topbar = document.querySelector('.app-topbar');
+                if (topbar) {
+                    topbar.classList.add('no-backdrop');
+                    // Remove on next frame to restore original visual style.
+                    requestAnimationFrame(function () {
+                        topbar.classList.remove('no-backdrop');
+                    });
+                }
+
+                // Fallback: apply a trivial transform to body to promote a repaint.
+                document.body.style.webkitTransform = 'translateZ(0)';
+                document.body.style.transform = 'translateZ(0)';
+                requestAnimationFrame(function () {
+                    document.body.style.webkitTransform = '';
+                    document.body.style.transform = '';
+                });
+            } catch (err) {
+                // ignore
+            }
         });
 
         // Auto-close the menu when clicking a real navigation link inside the expanded collapse (mobile UX).
