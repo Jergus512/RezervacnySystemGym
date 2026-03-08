@@ -68,11 +68,40 @@
             z-index: 1030;
 
             /* transparent dark glass */
+            /* Move the visual backdrop into a pseudo-element so the blur is strictly
+               confined to the topbar rectangle. This avoids leaving a blurred
+               rectangle artifact below when the mobile menu opens/closes. */
+            background: transparent;
+            border-bottom: 0; /* moved to pseudo-element */
+        }
+
+        /* Background layer for the topbar (covers only the topbar area).
+           Keep pointer-events disabled so it never blocks interactions. */
+        .app-topbar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            /* keep the pseudo-element limited to the original topbar rectangle
+               (when the mobile menu expands the .app-topbar element grows, but
+               we don't want the blur to cover that expanded area). */
+            height: var(--topbar-height);
             background: rgba(0, 0, 0, 0.55);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
-
             border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+            pointer-events: none;
+            z-index: 1030; /* sits at the same stacking context as the topbar */
+        }
+
+        /* Ensure interactive content within the topbar appears above the pseudo-element. */
+        .app-topbar .container,
+        .app-topbar .navbar-brand,
+        .app-topbar .navbar-toggler,
+        .app-topbar .navbar-collapse {
+            position: relative;
+            z-index: 1031;
         }
 
         /* Guest link in topbar (Prihlásiť) */
@@ -365,9 +394,11 @@
         }
 
         /* Workaround helper: disable backdrop-filter briefly to clear rendering artifacts on some mobile browsers */
-        .app-topbar.no-backdrop {
+        /* When JS adds .no-backdrop we only disable the pseudo-element's filter */
+        .app-topbar.no-backdrop::before {
             backdrop-filter: none !important;
             -webkit-backdrop-filter: none !important;
+            background: rgba(0,0,0,0.45) !important; /* keep slightly darker fallback while disabled */
         }
     </style>
 </head>
@@ -651,11 +682,12 @@
             try {
                 const topbar = document.querySelector('.app-topbar');
                 if (topbar) {
+                    // Keep the no-backdrop state for a short timeout to allow
+                    // some browsers to complete their repaint and clear artifacts.
                     topbar.classList.add('no-backdrop');
-                    // Remove on next frame to restore original visual style.
-                    requestAnimationFrame(function () {
+                    setTimeout(function () {
                         topbar.classList.remove('no-backdrop');
-                    });
+                    }, 200);
                 }
 
                 // Fallback: apply a trivial transform to body to promote a repaint.
