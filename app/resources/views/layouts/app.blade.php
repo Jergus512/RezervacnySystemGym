@@ -95,6 +95,16 @@
             z-index: 1030; /* sits at the same stacking context as the topbar */
         }
 
+        /* When the mobile menu is opened we expand the pseudo-element so the
+           collapsed mobile menu area also gets a blurred backdrop. We only do
+           this for smaller screens so desktop dropdowns keep their normal behavior. */
+        @media (max-width: 991.98px) {
+            .app-topbar.menu-open::before {
+                /* full viewport height so the expanded mobile menu has a blurred backdrop */
+                height: 100vh;
+            }
+        }
+
         /* Ensure interactive content within the topbar appears above the pseudo-element. */
         .app-topbar .container,
         .app-topbar .navbar-brand,
@@ -400,6 +410,12 @@
             -webkit-backdrop-filter: none !important;
             background: rgba(0,0,0,0.45) !important; /* keep slightly darker fallback while disabled */
         }
+
+        /* Stronger temporary hide: remove the pseudo-element entirely (used to avoid lingering blur artifacts) */
+        .app-topbar.backdrop-disabled::before {
+            display: none !important;
+            pointer-events: none !important;
+        }
     </style>
 </head>
 <body class="{{ url()->current() === url('/') ? 'homepage' : '' }} @if(!empty($hideTopbar)) no-topbar @elseif(!empty($overlayTopbar)) overlay-topbar @endif">
@@ -643,6 +659,7 @@
     (function () {
         const toggler = document.querySelector('.app-topbar .navbar-toggler');
         const collapseEl = document.getElementById('navbarSupportedContent');
+        const topbar = document.querySelector('.app-topbar');
         if (!toggler || !collapseEl || typeof bootstrap === 'undefined') return;
 
         // Add missing ARIA attributes for better Bootstrap/AT interoperability.
@@ -660,8 +677,19 @@
         toggler.addEventListener('click', function (e) {
             e.preventDefault();
             if (collapseEl.classList.contains('show')) {
+                // hide menu and remove the full-viewport blur immediately
+                if (topbar) {
+                    topbar.classList.remove('menu-open');
+                    // temporarily hide the pseudo-element right away to avoid lingering blur
+                    topbar.classList.add('backdrop-disabled');
+                }
                 collapse.hide();
             } else {
+                // show menu and enable full-viewport blur immediately so they appear together
+                if (topbar) {
+                    topbar.classList.remove('backdrop-disabled');
+                    topbar.classList.add('menu-open');
+                }
                 collapse.show();
             }
         });
@@ -669,25 +697,34 @@
         // Keep ARIA in sync.
         collapseEl.addEventListener('shown.bs.collapse', function () {
             toggler.setAttribute('aria-expanded', 'true');
+            // ensure menu-open is present (in case show() was triggered programmatically)
+            if (topbar) {
+                topbar.classList.remove('backdrop-disabled');
+                topbar.classList.add('menu-open');
+            }
         });
 
         collapseEl.addEventListener('hidden.bs.collapse', function () {
             toggler.setAttribute('aria-expanded', 'false');
 
-            // Workaround: Some mobile browsers (notably iOS Safari) can leave
-            // backdrop-filter / blur rendering artifacts after a transform/opacity
-            // change unless the page is repainted. Two strategies:
-            // 1) briefly add a class disabling the backdrop-filter on the topbar
-            //    (non-invasive), and 2) force a lightweight transform on body as a fallback.
+            // Remove the menu-open class immediately so the blur disappears together with the menu.
+            if (topbar) topbar.classList.remove('menu-open');
+
+            // Immediately hide the pseudo-element to avoid lingering blur artifacts on some mobile browsers.
+            // We'll restore it shortly after allowing the browser to repaint.
             try {
-                const topbar = document.querySelector('.app-topbar');
-                if (topbar) {
-                    // Keep the no-backdrop state for a short timeout to allow
+                const tb = document.querySelector('.app-topbar');
+                if (tb) {
+                    tb.classList.add('backdrop-disabled');
+
+                    // Also keep the no-backdrop state for a short timeout to allow
                     // some browsers to complete their repaint and clear artifacts.
-                    topbar.classList.add('no-backdrop');
+                    tb.classList.add('no-backdrop');
+
                     setTimeout(function () {
-                        topbar.classList.remove('no-backdrop');
-                    }, 200);
+                        tb.classList.remove('no-backdrop');
+                        tb.classList.remove('backdrop-disabled');
+                    }, 120);
                 }
 
                 // Fallback: apply a trivial transform to body to promote a repaint.
@@ -715,6 +752,7 @@
             if ((link.getAttribute('href') || '') === '#') return;
 
             if (collapseEl.classList.contains('show')) {
+                if (topbar) topbar.classList.remove('menu-open');
                 collapse.hide();
             }
         });
