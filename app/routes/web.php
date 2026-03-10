@@ -52,6 +52,12 @@ Route::middleware('auth')->group(function () {
     // Current user (regular user) JSON endpoints
     Route::get('/me/credits', [MeController::class, 'credits'])->name('me.credits');
 
+    Route::get('/moje-kredity/evidencia', [\App\Http\Controllers\UserCreditsController::class, 'index'])
+        ->name('user-credits.history');
+
+    Route::get('/moje-treningy/prehliad', [\App\Http\Controllers\UserCreditsController::class, 'trainings'])
+        ->name('user-trainings.history');
+
     Route::prefix('reception')->name('reception.')->middleware('reception')->group(function () {
         // No separate receptionist dashboard; navigation is in the shared topbar.
         Route::get('/', function () {

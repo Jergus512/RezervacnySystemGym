@@ -437,8 +437,27 @@
                                 </li>
 
                                 @if($isRegular)
-                                    <li class="nav-item">
-                                        <a class="nav-link {{ $isMyTrainingsActive ? 'nav-link-active' : '' }}" href="{{ route('my-trainings.index') }}">Moje tréningy</a>
+                                    <li class="nav-item dropdown">
+                                        <a class="nav-link dropdown-toggle {{ (request()->routeIs('my-trainings.*') || request()->routeIs('user-credits.*') || request()->routeIs('user-trainings.*')) ? 'nav-link-active' : '' }}"
+                                           href="#"
+                                           id="statsDropdown"
+                                           role="button"
+                                           data-bs-toggle="dropdown"
+                                           aria-expanded="false">
+                                            Štatistiky
+                                        </a>
+                                        <ul class="dropdown-menu dropdown-menu-dark shadow" aria-labelledby="statsDropdown">
+                                            <li>
+                                                <a class="dropdown-item {{ request()->routeIs('my-trainings.*') ? 'dropdown-item-active' : '' }}" href="{{ route('my-trainings.index') }}">
+                                                    Prehľad absolvovaných tréningov
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a class="dropdown-item {{ request()->routeIs('user-credits.*') ? 'dropdown-item-active' : '' }}" href="{{ route('user-credits.history') }}">
+                                                    Evidencia zmien kreditov
+                                                </a>
+                                            </li>
+                                        </ul>
                                     </li>
                                 @endif
 
@@ -619,7 +638,24 @@
                         <li><a class="app-mobile-link {{ $isCalendarActive ? 'app-mobile-link-active' : '' }}" href="{{ route('training-calendar.index') }}">Kalendár tréningov</a></li>
 
                         @if($isRegular)
-                            <li><a class="app-mobile-link {{ $isMyTrainingsActive ? 'app-mobile-link-active' : '' }}" href="{{ route('my-trainings.index') }}">Moje tréningy</a></li>
+                            <li>
+                                <button class="app-mobile-submenu-toggle" type="button" data-mobile-submenu-toggle="stats">
+                                    <span>Štatistiky</span>
+                                    <span class="app-mobile-submenu-chevron">▾</span>
+                                </button>
+                                <ul class="app-mobile-nav-list mt-1" data-mobile-submenu="stats" hidden>
+                                    <li>
+                                        <a class="app-mobile-link {{ request()->routeIs('my-trainings.*') ? 'app-mobile-link-active' : '' }}" href="{{ route('my-trainings.index') }}">
+                                            Prehľad absolvovaných tréningov
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="app-mobile-link {{ request()->routeIs('user-credits.*') ? 'app-mobile-link-active' : '' }}" href="{{ route('user-credits.history') }}">
+                                            Evidencia zmien kreditov
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
                         @endif
 
                         @if($isAdmin)
