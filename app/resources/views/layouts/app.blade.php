@@ -572,7 +572,7 @@
                 @endauth
 
                 @guest
-                    <a class="nav-link me-2" href="{{ route('login') }}">Prihlásiť sa</a>
+                    <a class="nav-link me-2" style="color:#fff;" href="{{ route('login') }}">Prihlásiť sa</a>
                     <a class="btn btn-sm" style="background-color: var(--brand-orange); color:#fff; border-radius: 9999px; padding-inline: 1rem;" href="{{ route('register') }}">Registrácia</a>
                 @endguest
             </div>
