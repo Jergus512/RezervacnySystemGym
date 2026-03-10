@@ -109,8 +109,10 @@ class AnalyticsController extends Controller
 
         $totalReservations = (clone $baseQuery)->count();
 
-        // Bez stĺpca status nevieme priamo zistiť zrušené rezervácie – nastavíme 0
-        $canceled = 0;
+        // Canceled = záznamy označené status = 'canceled'
+        $canceled = (clone $baseQuery)
+            ->where('training_registrations.status', 'canceled')
+            ->count();
 
         $dayOfWeek = (clone $baseQuery)
             ->selectRaw('DAYOFWEEK(trainings.start_at) as dow, COUNT(*) as c')

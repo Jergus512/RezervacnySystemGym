@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\CreditMovement;
 use App\Models\Training;
+use App\Models\TrainingRegistration;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -47,7 +48,7 @@ class TrainingRegistrationController extends Controller
                 abort(422, 'Tréning je už plný.');
             }
 
-            $training->users()->attach($user->id);
+            $training->users()->attach($user->id, ['status' => 'active']);
 
             $price = (int) ($training->price ?? 0);
 
@@ -102,7 +103,10 @@ class TrainingRegistrationController extends Controller
                 return;
             }
 
-            $training->users()->detach($user->id);
+            // Instead of deleting the registration, mark it as canceled for analytics
+            TrainingRegistration::where('training_id', $training->id)
+                ->where('user_id', $user->id)
+                ->update(['status' => 'canceled']);
 
             $price = (int) ($training->price ?? 0);
             if ($price > 0) {
