@@ -383,6 +383,31 @@
                 color: rgba(255,255,255,1) !important;
             }
 
+            /* When the menu is open on mobile turn the collapse into a fixed overlay
+               so menu items are centered, scrollable and visually consistent. */
+            .app-topbar.menu-open .navbar-collapse {
+                position: fixed;
+                top: var(--topbar-height);
+                left: 0;
+                right: 0;
+                width: 100%;
+                height: calc(100vh - var(--topbar-height));
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+                background: transparent; /* visual backdrop handled by pseudo-element */
+                padding: 1rem 1rem 2rem;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: flex-start;
+                z-index: 1033; /* above pseudo-element (1030) and interactive content (1031) */
+            }
+
+            /* Slight spacing for nav items in overlay mode */
+            .app-topbar.menu-open .navbar-collapse .navbar-nav {
+                gap: .5rem;
+            }
+
         }
 
         /* Mobile-only: keep credits badge fixed in the topbar near the burger icon (never inside the collapse layout) */
@@ -746,14 +771,19 @@
         // Auto-close the menu when clicking a real navigation link inside the expanded collapse (mobile UX).
         // Do NOT close when user clicks collapse toggles like "Oznamy".
         collapseEl.addEventListener('click', function (e) {
-            const link = e.target.closest('a');
-            if (!link) return;
+            // Consider clicks on anchors and buttons. Mobile submenu toggles are buttons, so
+            // ensure we detect them and avoid auto-closing when users toggle submenus.
+            const clickedToggle = e.target.closest('[data-bs-toggle="collapse"], .mobile-collapse-toggle');
+            const linkEl = e.target.closest('a, button');
 
-            // If the link toggles a collapse section, don’t auto-close the whole menu.
-            if (link.getAttribute('data-bs-toggle') === 'collapse') return;
+            // If click wasn't on a link/button inside the collapse, ignore.
+            if (!linkEl) return;
+
+            // If the clicked element (or its ancestor) is a collapse-toggle (mobile submenu), don't auto-close.
+            if (clickedToggle) return;
 
             // If it's a dummy dropdown toggle (href="#"), also don't close.
-            if ((link.getAttribute('href') || '') === '#') return;
+            if (linkEl.tagName === 'A' && (linkEl.getAttribute('href') || '') === '#') return;
 
             if (collapseEl.classList.contains('show')) {
                 if (topbar) topbar.classList.remove('menu-open');
