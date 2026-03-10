@@ -437,8 +437,14 @@
                                 </li>
 
                                 @if($isRegular)
+                                    <li class="nav-item">
+                                        <a class="nav-link {{ $isMyTrainingsActive ? 'nav-link-active' : '' }}" href="{{ route('my-trainings.index') }}">
+                                            Moje tréningy
+                                        </a>
+                                    </li>
+
                                     <li class="nav-item dropdown">
-                                        <a class="nav-link dropdown-toggle {{ (request()->routeIs('my-trainings.*') || request()->routeIs('user-credits.*') || request()->routeIs('user-trainings.*')) ? 'nav-link-active' : '' }}"
+                                        <a class="nav-link dropdown-toggle {{ (request()->routeIs('user-credits.*') || request()->routeIs('user-trainings.*')) ? 'nav-link-active' : '' }}"
                                            href="#"
                                            id="statsDropdown"
                                            role="button"
@@ -447,14 +453,17 @@
                                             Štatistiky
                                         </a>
                                         <ul class="dropdown-menu dropdown-menu-dark shadow" aria-labelledby="statsDropdown">
-                                            <li>
-                                                <a class="dropdown-item {{ request()->routeIs('my-trainings.*') ? 'dropdown-item-active' : '' }}" href="{{ route('my-trainings.index') }}">
-                                                    Prehľad absolvovaných tréningov
-                                                </a>
-                                            </li>
+                                            <li class="dropdown-header small text-muted px-3 pt-2 pb-1">Kredity</li>
                                             <li>
                                                 <a class="dropdown-item {{ request()->routeIs('user-credits.*') ? 'dropdown-item-active' : '' }}" href="{{ route('user-credits.history') }}">
                                                     Evidencia zmien kreditov
+                                                </a>
+                                            </li>
+                                            <li><hr class="dropdown-divider"></li>
+                                            <li class="dropdown-header small text-muted px-3 pt-1 pb-1">Tréningy</li>
+                                            <li>
+                                                <a class="dropdown-item {{ request()->routeIs('user-trainings.*') ? 'dropdown-item-active' : '' }}" href="{{ route('user-trainings.history') }}">
+                                                    Prehľad absolvovaných tréningov
                                                 </a>
                                             </li>
                                         </ul>
@@ -639,19 +648,24 @@
 
                         @if($isRegular)
                             <li>
+                                <a class="app-mobile-link {{ $isMyTrainingsActive ? 'app-mobile-link-active' : '' }}" href="{{ route('my-trainings.index') }}">
+                                    Moje tréningy
+                                </a>
+                            </li>
+                            <li>
                                 <button class="app-mobile-submenu-toggle" type="button" data-mobile-submenu-toggle="stats">
                                     <span>Štatistiky</span>
                                     <span class="app-mobile-submenu-chevron">▾</span>
                                 </button>
                                 <ul class="app-mobile-nav-list mt-1" data-mobile-submenu="stats" hidden>
                                     <li>
-                                        <a class="app-mobile-link {{ request()->routeIs('my-trainings.*') ? 'app-mobile-link-active' : '' }}" href="{{ route('my-trainings.index') }}">
-                                            Prehľad absolvovaných tréningov
+                                        <a class="app-mobile-link {{ request()->routeIs('user-credits.*') ? 'app-mobile-link-active' : '' }}" href="{{ route('user-credits.history') }}">
+                                            Evidencia zmien kreditov
                                         </a>
                                     </li>
                                     <li>
-                                        <a class="app-mobile-link {{ request()->routeIs('user-credits.*') ? 'app-mobile-link-active' : '' }}" href="{{ route('user-credits.history') }}">
-                                            Evidencia zmien kreditov
+                                        <a class="app-mobile-link {{ request()->routeIs('user-trainings.*') ? 'app-mobile-link-active' : '' }}" href="{{ route('user-trainings.history') }}">
+                                            Prehľad absolvovaných tréningov
                                         </a>
                                     </li>
                                 </ul>

@@ -41,9 +41,16 @@ Route::middleware('auth')->group(function () {
     Route::delete('/trainings/{training}/register', [TrainingRegistrationController::class, 'destroy'])
         ->name('trainings.unregister');
 
-    // Moje tréningy page
+    // Moje tréningy page (hlavná stránka na správu tréningov)
     Route::get('/moje-treningy', [MyTrainingsController::class, 'index'])
         ->name('my-trainings.index');
+
+    // Štatistiky - kredity & tréningy
+    Route::get('/moje-kredity/evidencia', [\App\Http\Controllers\UserCreditsController::class, 'index'])
+        ->name('user-credits.history');
+
+    Route::get('/moje-treningy/statistiky', [\App\Http\Controllers\UserCreditsController::class, 'trainings'])
+        ->name('user-trainings.history');
 
     // Oznamy (pre všetkých prihlásených)
     Route::get('/oznamy', [AnnouncementController::class, 'index'])->name('announcements.index');
@@ -52,11 +59,6 @@ Route::middleware('auth')->group(function () {
     // Current user (regular user) JSON endpoints
     Route::get('/me/credits', [MeController::class, 'credits'])->name('me.credits');
 
-    Route::get('/moje-kredity/evidencia', [\App\Http\Controllers\UserCreditsController::class, 'index'])
-        ->name('user-credits.history');
-
-    Route::get('/moje-treningy/prehliad', [\App\Http\Controllers\UserCreditsController::class, 'trainings'])
-        ->name('user-trainings.history');
 
     Route::prefix('reception')->name('reception.')->middleware('reception')->group(function () {
         // No separate receptionist dashboard; navigation is in the shared topbar.
