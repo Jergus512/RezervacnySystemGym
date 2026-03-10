@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Relations\Pivot;
+use Illuminate\Database\Eloquent\Builder;
 
 class TrainingRegistration extends Pivot
 {
@@ -21,8 +22,10 @@ class TrainingRegistration extends Pivot
 
     protected static function booted(): void
     {
-        static::addGlobalScope('only_active', function ($query) {
-            $query->where($query->from.'.status', '!=', 'canceled');
+        static::addGlobalScope('only_active', function (Builder $query) {
+            // Use the concrete table name to avoid referencing $query->from,
+            // which can cause recursion in some Laravel internals.
+            $query->where('training_registrations.status', '!=', 'canceled');
         });
     }
 }

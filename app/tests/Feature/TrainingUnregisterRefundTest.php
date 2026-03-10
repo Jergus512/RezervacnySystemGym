@@ -32,6 +32,7 @@ class TrainingUnregisterRefundTest extends TestCase
         $this->assertDatabaseHas('training_registrations', [
             'training_id' => $training->id,
             'user_id' => $user->id,
+            'status' => 'active',
         ]);
 
         $this->assertSame(7, $user->refresh()->credits);
@@ -41,9 +42,11 @@ class TrainingUnregisterRefundTest extends TestCase
             ->deleteJson(route('trainings.unregister', $training))
             ->assertNoContent();
 
-        $this->assertDatabaseMissing('training_registrations', [
+        // Registration is not deleted but marked as canceled
+        $this->assertDatabaseHas('training_registrations', [
             'training_id' => $training->id,
             'user_id' => $user->id,
+            'status' => 'canceled',
         ]);
 
         $this->assertSame(10, $user->refresh()->credits);
