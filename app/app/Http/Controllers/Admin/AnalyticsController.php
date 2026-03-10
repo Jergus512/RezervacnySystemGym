@@ -48,26 +48,26 @@ class AnalyticsController extends Controller
     {
         $period = CarbonPeriod::create($start->copy()->startOfMonth(), '1 month', $end->copy()->endOfMonth());
 
+        // MySQL: group by year-month using DATE_FORMAT
         $reservationsPerMonth = DB::table('training_registrations')
-            ->selectRaw('strftime("%Y-%m", created_at) as ym, count(*) as registrations')
+            ->selectRaw('DATE_FORMAT(created_at, "%Y-%m") as ym, COUNT(*) as registrations')
             ->whereBetween('created_at', [$start, $end])
             ->groupBy('ym')
             ->pluck('registrations', 'ym');
 
-        // Jednoduchšie: ak máš v tabuľke stĺpec status pre zrušenie, berieme ich podľa updated_at
         $cancellationsPerMonth = DB::table('training_registrations')
-            ->selectRaw('strftime("%Y-%m", updated_at) as ym, count(*) as cancellations')
+            ->selectRaw('DATE_FORMAT(updated_at, "%Y-%m") as ym, COUNT(*) as cancellations')
             ->where('status', 'cancelled')
             ->whereBetween('updated_at', [$start, $end])
             ->groupBy('ym')
             ->pluck('cancellations', 'ym');
 
-        // Priemerná obsadenosť za mesiac – rátame najprv obsadenosť pre každý tréning a potom spriemerujeme
+        // Priemerná obsadenosť za mesiac – MySQL agregácia
         $occupancyRows = DB::table('trainings')
             ->leftJoin('training_registrations', 'trainings.id', '=', 'training_registrations.training_id')
-            ->selectRaw('trainings.id as training_id, strftime("%Y-%m", trainings.start_at) as ym, trainings.capacity, count(training_registrations.id) as registrations')
+            ->selectRaw('trainings.id as training_id, DATE_FORMAT(trainings.start_at, "%Y-%m") as ym, trainings.capacity, COUNT(training_registrations.id) as registrations')
             ->whereBetween('trainings.start_at', [$start, $end])
-            ->groupBy('trainings.id', 'ym')
+            ->groupBy('trainings.id', 'ym', 'trainings.capacity')
             ->get();
 
         $perMonth = [];
@@ -115,14 +115,16 @@ class AnalyticsController extends Controller
         $totalReservations = (clone $baseQuery)->count();
         $canceled          = (clone $baseQuery)->where('training_registrations.status', 'cancelled')->count();
 
+        // MySQL: DAYOFWEEK (1=Sunday ... 7=Saturday)
         $dayOfWeek = (clone $baseQuery)
-            ->selectRaw('strftime("%w", trainings.start_at) as dow, count(*) as c')
+            ->selectRaw('DAYOFWEEK(trainings.start_at) as dow, COUNT(*) as c')
             ->groupBy('dow')
             ->orderBy('c', 'desc')
             ->get();
 
+        // MySQL: HOUR() for time slots
         $timeSlots = (clone $baseQuery)
-            ->selectRaw('strftime("%H:00", trainings.start_at) as slot, count(*) as c')
+            ->selectRaw('LPAD(HOUR(trainings.start_at), 2, "0") as slot, COUNT(*) as c')
             ->groupBy('slot')
             ->orderBy('c', 'desc')
             ->get();
@@ -210,7 +212,7 @@ class AnalyticsController extends Controller
 
     protected function getTrainingPopularity(Carbon $start, Carbon $end): array
     {
-        $byType = Training::select('training_type_id', DB::raw('count(*) as trainings_count'))
+        $byType = Training::select('training_type_id', DB::raw('COUNT(*) as trainings_count'))
             ->whereBetween('start_at', [$start, $end])
             ->groupBy('training_type_id')
             ->get();
@@ -221,12 +223,12 @@ class AnalyticsController extends Controller
 
         $reservationsByType = DB::table('training_registrations')
             ->join('trainings', 'training_registrations.training_id', '=', 'trainings.id')
-            ->select('trainings.training_type_id', DB::raw('count(*) as reservations_count'))
+            ->select('trainings.training_type_id', DB::raw('COUNT(*) as reservations_count'))
             ->whereBetween('trainings.start_at', [$start, $end])
             ->groupBy('trainings.training_type_id')
             ->pluck('reservations_count', 'training_type_id');
 
-        $capacityByType = Training::select('training_type_id', DB::raw('sum(capacity) as capacity_sum'))
+        $capacityByType = Training::select('training_type_id', DB::raw('SUM(capacity) as capacity_sum'))
             ->whereBetween('start_at', [$start, $end])
             ->groupBy('training_type_id')
             ->pluck('capacity_sum', 'training_type_id');
