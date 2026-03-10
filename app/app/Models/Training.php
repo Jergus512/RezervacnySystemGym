@@ -35,6 +35,7 @@ class Training extends Model
     {
         return $this->belongsToMany(User::class, 'training_registrations')
             ->using(TrainingRegistration::class)
+            ->withPivot('status')
             ->withTimestamps();
     }
 
