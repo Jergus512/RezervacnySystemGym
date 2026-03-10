@@ -138,23 +138,29 @@ class AnalyticsController extends Controller
             ->whereBetween('created_at', [$start, $end])
             ->sum('amount');
 
-        // V tvojom systéme sú pohyby pravdepodobne: +reception_add, -training_charge, +training_refund
+        // Použité kredity na rezervácie (negatívne pohyby – odčítavajú sa z účtu)
         $creditsUsed = CreditMovement::where('type', 'training_charge')
             ->whereBetween('created_at', [$start, $end])
             ->sum('amount');
 
+        // Kredit vrátený klientom (napr. pri zrušení tréningu – pridáva sa späť na účet)
         $creditsRefunded = CreditMovement::where('type', 'training_refund')
             ->whereBetween('created_at', [$start, $end])
             ->sum('amount');
 
-        $totalUsedNet = (int) $creditsUsed + (int) $creditsRefunded;
+        // Čisté použitie = koľko kreditov reálne "zmizlo" z účtov kvôli tréningom
+        $creditsUsedNet = (int) $creditsUsed + (int) $creditsRefunded; // obidva pohyby sú v DB záporné čísla
 
         $totalRemaining = (int) User::sum('credits');
 
         return [
-            'sold'      => (int) $creditsSold,
-            'used'      => $totalUsedNet,
-            'remaining' => $totalRemaining,
+            'sold'          => (int) $creditsSold,
+            // absolútna hodnota skutočne minutých kreditov bez vrátených
+            'used'          => abs((int) $creditsUsed),
+            // čisté použitie po započítaní refundov
+            'used_net'      => abs($creditsUsedNet),
+            'refunded'      => abs((int) $creditsRefunded),
+            'remaining'     => $totalRemaining,
         ];
     }
 

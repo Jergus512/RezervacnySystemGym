@@ -28,7 +28,7 @@
     </form>
 
     <div class="row g-3 mb-4">
-        <div class="col-md-4">
+        <div class="col-md-3">
             <div class="card h-100">
                 <div class="card-body">
                     <h2 class="h6 text-muted mb-2">Rezervácie (spolu)</h2>
@@ -37,7 +37,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-3">
             <div class="card h-100">
                 <div class="card-body">
                     <h2 class="h6 text-muted mb-2">Predané kredity</h2>
@@ -46,7 +46,16 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h2 class="h6 text-muted mb-2">Použité kredity</h2>
+                    <div class="h3 mb-1">{{ $financialOverview['used'] }}</div>
+                    <div class="text-muted small">minuté kredity na rezervácie v období</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
             <div class="card h-100">
                 <div class="card-body">
                     <h2 class="h6 text-muted mb-2">Kredity u klientov</h2>
