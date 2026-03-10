@@ -95,18 +95,26 @@ class TrainingRegistrationController extends Controller
             // Lock user row to prevent double-refund in concurrent requests
             $user = $user->newQuery()->whereKey($user->id)->lockForUpdate()->first();
 
-            $isRegistered = $training->users()
-                ->where('users.id', $user->id)
-                ->exists();
+            // Work directly with the pivot model so we can see also canceled registrations if needed.
+            // We only care about an active registration for unregistration logic.
+            $registration = TrainingRegistration::withoutGlobalScopes()
+                ->where('training_id', $training->id)
+                ->where('user_id', $user->id)
+                ->first();
 
-            if (! $isRegistered) {
+            // No registration at all => nothing to do (avoid double-refunds)
+            if (! $registration) {
                 return;
             }
 
-            // Instead of deleting the registration, mark it as canceled for analytics
-            TrainingRegistration::where('training_id', $training->id)
-                ->where('user_id', $user->id)
-                ->update(['status' => 'canceled']);
+            // If it's already canceled, do nothing (idempotent endpoint)
+            if ($registration->status === 'canceled') {
+                return;
+            }
+
+            // Mark as canceled for analytics
+            $registration->status = 'canceled';
+            $registration->save();
 
             $price = (int) ($training->price ?? 0);
             if ($price > 0) {
