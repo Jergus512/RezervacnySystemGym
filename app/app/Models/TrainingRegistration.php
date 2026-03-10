@@ -13,5 +13,16 @@ class TrainingRegistration extends Pivot
         'user_id',
         'status',
     ];
-}
 
+    // Ensure canceled registrations are not returned by default
+    protected $attributes = [
+        'status' => 'active',
+    ];
+
+    protected static function booted(): void
+    {
+        static::addGlobalScope('only_active', function ($query) {
+            $query->where($query->from.'.status', '!=', 'canceled');
+        });
+    }
+}
