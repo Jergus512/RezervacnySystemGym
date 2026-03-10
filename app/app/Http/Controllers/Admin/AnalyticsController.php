@@ -54,8 +54,13 @@ class AnalyticsController extends Controller
             ->groupBy('ym')
             ->pluck('registrations', 'ym');
 
-        // Nemáme stĺpec status, takže zrušenia nevieme rozlíšiť – zatiaľ 0
-        $cancellationsPerMonth = [];
+        // Count cancellations per month based on when the registration was marked as canceled
+        $cancellationsPerMonth = DB::table('training_registrations')
+            ->selectRaw('DATE_FORMAT(updated_at, "%Y-%m") as ym, COUNT(*) as cancellations')
+            ->where('status', 'canceled')
+            ->whereBetween('updated_at', [$start, $end])
+            ->groupBy('ym')
+            ->pluck('cancellations', 'ym');
 
         // Priemerná obsadenosť za mesiac – MySQL agregácia
         $occupancyRows = DB::table('trainings')
