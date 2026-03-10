@@ -19,9 +19,6 @@
             --brand-orange: #f97316;
         }
 
-        /* Home overlay-topbar: keep default Bootstrap behavior (no forced open/closed).
-           We only do mobile centering when the burger menu is actually expanded. */
-
         @media (min-width: 768px) {
             :root {
                 --topbar-height: 86px;
@@ -33,15 +30,12 @@
             background: #fff;
         }
 
-        /* Pages that want the hero image to start at the very top (topbar overlays content). */
         body.overlay-topbar {
             padding-top: 0;
         }
 
         body.no-topbar {
             padding-top: 0;
-
-            /* Full-page background image for auth pages */
             background-image: url("{{ asset('img/pozadie1.jpg') }}");
             background-size: cover;
             background-position: center;
@@ -49,7 +43,6 @@
             background-attachment: fixed;
         }
 
-        /* Center auth pages (no topbar) */
         body.no-topbar main {
             min-height: 100vh;
             display: flex;
@@ -66,50 +59,29 @@
             left: 0;
             right: 0;
             z-index: 1030;
-
-            /* transparent dark glass */
-            /* Move the visual backdrop into a pseudo-element so the blur is strictly
-               confined to the topbar rectangle. This avoids leaving a blurred
-               rectangle artifact below when the mobile menu opens/closes. */
             background: transparent;
-            border-bottom: 0; /* moved to pseudo-element */
+            border-bottom: 0;
         }
 
-        /* Background layer for the topbar (covers only the topbar area).
-           Keep pointer-events disabled so it never blocks interactions. */
+        /* Static glass header background: fixed-height, no height animation.
+           This avoids Safari re-compositing the whole viewport and changing
+           how the hero image/overlay are blended. */
         .app-topbar::before {
             content: '';
             position: absolute;
             top: 0;
             left: 0;
             right: 0;
-            /* keep the pseudo-element limited to the original topbar rectangle
-               (when the mobile menu expands the .app-topbar element grows, but
-               we don't want the blur to cover that expanded area). */
-            /* extend the height slightly so logo drop-shadows don't visually protrude */
-            height: calc(var(--topbar-height) + 12px);
+            height: var(--topbar-height);
             background: rgba(0, 0, 0, 0.55);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
             border-bottom: 1px solid rgba(255, 255, 255, 0.14);
             pointer-events: none;
-            z-index: 1030; /* sits at the same stacking context as the topbar */
-            /* Smooth opacity/height transitions avoid a hard flicker when toggling */
-            transition: opacity .12s linear, height .18s ease;
-            opacity: 1;
+            z-index: 1030;
+            /* keep opacity stable – no transitions on blur or background */
         }
 
-        /* When the mobile menu is opened we expand the pseudo-element so the
-           collapsed mobile menu area also gets a blurred backdrop. We only do
-           this for smaller screens so desktop dropdowns keep their normal behavior. */
-        @media (max-width: 991.98px) {
-            .app-topbar.menu-open::before {
-                /* full viewport height so the expanded mobile menu has a blurred backdrop */
-                height: 100vh;
-            }
-        }
-
-        /* Ensure interactive content within the topbar appears above the pseudo-element. */
         .app-topbar .container,
         .app-topbar .navbar-brand,
         .app-topbar .navbar-toggler,
@@ -118,7 +90,6 @@
             z-index: 1031;
         }
 
-        /* Guest link in topbar (Prihlásiť) */
         .topbar-link {
             color: rgba(255,255,255,.9);
             text-decoration: none;
@@ -156,7 +127,6 @@
             color: #fff;
         }
 
-        /* Credits badge (regular user) */
         .topbar-credits {
             background: var(--brand-orange) !important;
             color: #fff !important;
@@ -179,7 +149,6 @@
             width: auto;
             max-width: 100%;
             display: block;
-            /* reduce the shadow so the logo doesn't visually poke outside the topbar */
             filter: drop-shadow(0 6px 10px rgba(0,0,0,.25));
         }
 
@@ -189,22 +158,16 @@
             }
         }
 
-        /* Mobile burger menu: center items when expanded (no flicker) */
         @media (max-width: 991.98px) {
-            /* Keep the collapsed area text-centered at all times to avoid left->center flicker.
-               Do NOT touch display/visibility here; Bootstrap controls that. */
             .app-topbar .navbar-collapse {
                 text-align: center;
             }
 
-            /* Bootstrap uses .collapsing during the open/close animation.
-               Apply the same layout rules there to avoid the text jumping left/right. */
             .app-topbar .navbar-collapse.show,
             .app-topbar .navbar-collapse.collapsing {
                 padding-top: .75rem;
             }
 
-            /* Stack and center both nav groups when expanded OR animating */
             .app-topbar .navbar-collapse.show .navbar-nav,
             .app-topbar .navbar-collapse.collapsing .navbar-nav {
                 width: 100%;
@@ -222,7 +185,6 @@
                 margin-right: 0 !important;
             }
 
-            /* Optional separator before account/actions */
             .app-topbar .navbar-collapse.show .navbar-nav.ms-auto,
             .app-topbar .navbar-collapse.collapsing .navbar-nav.ms-auto {
                 margin-top: .5rem;
@@ -230,7 +192,6 @@
                 border-top: 1px solid rgba(255,255,255,.15);
             }
 
-            /* One item per line, centered */
             .app-topbar .navbar-collapse.show .navbar-nav .nav-item,
             .app-topbar .navbar-collapse.collapsing .navbar-nav .nav-item {
                 width: 100%;
@@ -248,7 +209,6 @@
                 white-space: nowrap;
             }
 
-            /* Center the user info row (name/credits) */
             .app-topbar .navbar-collapse.show .navbar-nav .nav-item.d-flex,
             .app-topbar .navbar-collapse.collapsing .navbar-nav .nav-item.d-flex {
                 flex-direction: column;
@@ -256,7 +216,6 @@
                 gap: .35rem;
             }
 
-            /* Remove desktop spacing helpers on mobile expanded menu */
             .app-topbar .navbar-collapse.show .navbar-nav .nav-item.ms-2,
             .app-topbar .navbar-collapse.show .navbar-nav .nav-item.me-2,
             .app-topbar .navbar-collapse.collapsing .navbar-nav .nav-item.ms-2,
@@ -271,7 +230,6 @@
                 margin-right: 0 !important;
             }
 
-            /* Mobile: nicer sub-menu card styling */
             .app-topbar .mobile-submenu {
                 width: 100%;
                 max-width: none;
@@ -282,10 +240,6 @@
                 width: 100%;
                 border-radius: 10px;
                 padding: .55rem .75rem;
-            }
-
-            /* Keep the same centering as other links in the expanded burger menu */
-            .app-topbar .mobile-submenu .nav-link {
                 justify-content: center;
                 text-align: center;
             }
@@ -295,7 +249,6 @@
                 border: 1px solid rgba(249,115,22,.42);
             }
 
-            /* Mobile: keep the Oznamy toggle centered like other nav links */
             .app-topbar .mobile-collapse-toggle {
                 position: relative;
                 width: 100%;
@@ -310,23 +263,19 @@
                 transition: transform .15s ease;
             }
 
-            /* Rotate caret when expanded */
             .app-topbar .mobile-collapse-toggle[aria-expanded="true"] .caret {
                 transform: rotate(180deg);
             }
 
-            /* Oznamy (mobile): stack toggle + submenu vertically within the same nav item */
             .app-topbar .nav-item.d-lg-none {
                 flex-direction: column;
                 align-items: stretch;
             }
 
-            /* Ensure the collapse container takes full width so submenu never flows next to the toggle */
             .app-topbar #announcementsMobile {
                 width: 100%;
             }
 
-            /* Make submenu a real vertical block under the Oznamy toggle */
             .app-topbar #announcementsMobile .mobile-submenu {
                 display: flex;
                 flex-direction: column;
@@ -334,118 +283,104 @@
                 width: 100%;
             }
 
-            .app-topbar #announcementsMobile .mobile-submenu .nav-link {
-                width: 100%;
-                justify-content: center;
-                text-align: center;
-            }
-
-            /* Remove inline margin helpers inside the submenu (mt-1 would otherwise shift layout oddly) */
             .app-topbar #announcementsMobile .mobile-submenu .nav-link.mt-1 {
                 margin-top: .25rem !important;
             }
 
-            /* When Oznamy is a <button>, reset default button styles so it's centered like links */
             .app-topbar button.mobile-collapse-toggle {
                 background: transparent;
                 border: 0;
-                padding: .5rem 0.5rem;
-                color: inherit;
+                padding: .5rem .5rem;
+                color: rgba(255,255,255,0.92) !important;
                 font: inherit;
                 line-height: inherit;
                 cursor: pointer;
                 appearance: none;
                 -webkit-appearance: none;
-            }
-
-            .app-topbar button.mobile-collapse-toggle:focus {
-                outline: none;
-                box-shadow: none;
-            }
-
-            /* Make sure the button text is centered (some browsers treat buttons differently) */
-            .app-topbar button.mobile-collapse-toggle {
                 text-align: center;
             }
 
-            /* Fix: button-based Oznamy toggle was rendering as default (black) in some browsers */
-            /* Use concrete fallbacks for navbar colors to avoid unresolved custom-property errors */
-            .app-topbar button.mobile-collapse-toggle {
-                color: rgba(255,255,255,0.92) !important;
-            }
-
             .app-topbar button.mobile-collapse-toggle:hover,
-            .app-topbar button.mobile-collapse-toggle:focus {
-                color: rgba(255,255,255,1) !important;
-            }
-
+            .app-topbar button.mobile-collapse-toggle:focus,
             .app-topbar button.mobile-collapse-toggle.active {
                 color: rgba(255,255,255,1) !important;
             }
 
-            /* When the menu is open on mobile turn the collapse into a fixed overlay
-               so menu items are centered, scrollable and visually consistent. */
-            .app-topbar.menu-open .navbar-collapse {
+            /* Mobile: turn the collapse into a fixed overlay below the static header.
+               We only animate opacity/transform here, not the header backdrop. */
+            .app-topbar .navbar-collapse.collapse {
                 position: fixed;
                 top: var(--topbar-height);
                 left: 0;
                 right: 0;
                 width: 100%;
-                height: calc(100vh - var(--topbar-height));
+                max-height: calc(100dvh - var(--topbar-height));
                 overflow-y: auto;
                 -webkit-overflow-scrolling: touch;
-                background: transparent; /* visual backdrop handled by pseudo-element */
-                padding: 1rem 1rem 2rem;
-                display: flex;
+                background: rgba(0,0,0,0.78);
+                opacity: 0;
+                visibility: hidden;
+                pointer-events: none;
+                transform: translateY(-8px);
+                transition:
+                    opacity .18s ease-out,
+                    transform .18s ease-out,
+                    visibility 0s linear .18s;
+            }
+
+            .app-topbar .navbar-collapse.show {
+                opacity: 1;
+                visibility: visible;
+                pointer-events: auto;
+                transform: translateY(0);
+                transition:
+                    opacity .18s ease-out,
+                    transform .18s ease-out,
+                    visibility 0s linear 0s;
+            }
+
+            /* Avoid content shifting during the intermediate `.collapsing` phase –
+               mirror the same fixed overlay styles so Safari doesn't recompute
+               a different stacking context. */
+            .app-topbar .navbar-collapse.collapsing {
+                position: fixed;
+                top: var(--topbar-height);
+                left: 0;
+                right: 0;
+                width: 100%;
+                max-height: calc(100dvh - var(--topbar-height));
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+                background: rgba(0,0,0,0.78);
+            }
+
+            .app-topbar .navbar-collapse.show .navbar-nav,
+            .app-topbar .navbar-collapse.collapsing .navbar-nav {
                 flex-direction: column;
                 align-items: center;
                 justify-content: flex-start;
-                z-index: 1033; /* above pseudo-element (1030) and interactive content (1031) */
-            }
-
-            /* Slight spacing for nav items in overlay mode */
-            .app-topbar.menu-open .navbar-collapse .navbar-nav {
+                z-index: 1033;
                 gap: .5rem;
             }
 
-        }
-
-        /* Mobile-only: keep credits badge fixed in the topbar near the burger icon (never inside the collapse layout) */
-        @media (max-width: 991.98px) {
             .app-topbar #userCreditsBadgeMobile {
                 position: fixed;
                 top: calc(var(--topbar-height) / 2 + 20px);
                 transform: translateY(-50%);
-                right: 76px; /* sits just left of burger icon */
+                right: 76px;
                 z-index: 1032;
-                pointer-events: none; /* never block tapping the burger icon */
+                pointer-events: none;
             }
         }
 
-        /* Brand orange text color (sýta oranžová) */
         .text-brand-orange {
             color: var(--brand-orange) !important;
         }
 
-        /* Homepage-only: ensure topbar dropdowns/submenus appear above everything */
         body.homepage .app-topbar .dropdown-menu,
         body.homepage .app-topbar .mobile-submenu,
         body.homepage .dropdown-menu {
             z-index: 99999999 !important;
-        }
-
-        /* Workaround helper: disable backdrop-filter briefly to clear rendering artifacts on some mobile browsers */
-        /* When JS adds .no-backdrop we only disable the pseudo-element's filter */
-        .app-topbar.no-backdrop::before {
-            backdrop-filter: none !important;
-            -webkit-backdrop-filter: none !important;
-            background: rgba(0,0,0,0.45) !important; /* slightly darker fallback while disabled */
-        }
-
-        /* Stronger temporary hide: remove the pseudo-element entirely (used to avoid lingering blur artifacts) */
-        .app-topbar.backdrop-disabled::before {
-            opacity: 0 !important;
-            pointer-events: none !important;
         }
     </style>
 </head>
@@ -686,123 +621,46 @@
 ></script>
 
 <script>
-    // Ensure the burger icon always toggles the menu (open/close) reliably.
     (function () {
         const toggler = document.querySelector('.app-topbar .navbar-toggler');
         const collapseEl = document.getElementById('navbarSupportedContent');
-        const topbar = document.querySelector('.app-topbar');
         if (!toggler || !collapseEl || typeof bootstrap === 'undefined') return;
 
-        // Add missing ARIA attributes for better Bootstrap/AT interoperability.
+        // let Bootstrap handle open/close, we only ensure aria and rely on
+        // our CSS overlay styles to avoid layout jumps.
         toggler.setAttribute('aria-controls', 'navbarSupportedContent');
         toggler.setAttribute('aria-expanded', 'false');
         toggler.setAttribute('aria-label', 'Toggle navigation');
 
-        // Disable Bootstrap's data-api toggle to avoid double toggles.
-        toggler.removeAttribute('data-bs-toggle');
-        toggler.removeAttribute('data-bs-target');
-
-        const collapse = bootstrap.Collapse.getOrCreateInstance(collapseEl, { toggle: false });
-
-        // Explicitly toggle on burger click (1st click opens, 2nd click closes).
-        toggler.addEventListener('click', function (e) {
-            e.preventDefault();
-            if (collapseEl.classList.contains('show')) {
-                // hide menu and remove the full-viewport blur immediately
-                if (topbar) {
-                    topbar.classList.remove('menu-open');
-                }
-                collapse.hide();
-            } else {
-                // show menu and enable full-viewport blur immediately so they appear together
-                if (topbar) {
-                    topbar.classList.remove('backdrop-disabled');
-                    topbar.classList.add('menu-open');
-                }
-                collapse.show();
-            }
-        });
-
-        // Keep ARIA in sync.
         collapseEl.addEventListener('shown.bs.collapse', function () {
             toggler.setAttribute('aria-expanded', 'true');
-            // ensure menu-open is present (in case show() was triggered programmatically)
-            if (topbar) {
-                topbar.classList.remove('backdrop-disabled');
-                topbar.classList.add('menu-open');
-            }
         });
 
         collapseEl.addEventListener('hidden.bs.collapse', function () {
             toggler.setAttribute('aria-expanded', 'false');
-
-            // Remove the menu-open class immediately so the blur disappears together with the menu.
-            if (topbar) topbar.classList.remove('menu-open');
-
-            // Immediately hide the pseudo-element to avoid lingering blur artifacts on some mobile browsers.
-            // We'll restore it shortly after allowing the browser to repaint.
-            try {
-                const tb = document.querySelector('.app-topbar');
-                if (tb) {
-                    tb.classList.add('backdrop-disabled');
-
-                    // Also keep the no-backdrop state for a short timeout to allow
-                    // some browsers to complete their repaint and clear artifacts.
-                    tb.classList.add('no-backdrop');
-
-                    setTimeout(function () {
-                        tb.classList.remove('no-backdrop');
-                        tb.classList.remove('backdrop-disabled');
-                    }, 120);
-                }
-
-                // Fallback: apply a trivial transform to body to promote a repaint.
-                document.body.style.webkitTransform = 'translateZ(0)';
-                document.body.style.transform = 'translateZ(0)';
-                requestAnimationFrame(function () {
-                    document.body.style.webkitTransform = '';
-                    document.body.style.transform = '';
-                });
-            } catch (err) {
-                // ignore
-            }
         });
 
-        // Auto-close the menu when clicking a real navigation link inside the expanded collapse (mobile UX).
-        // Do NOT close when user clicks collapse toggles like "Oznamy".
+        // Auto-close menu on real navigation link click (but not on submenu toggles).
         collapseEl.addEventListener('click', function (e) {
-            // Consider clicks on anchors and buttons. Mobile submenu toggles are buttons, so
-            // ensure we detect them and avoid auto-closing when users toggle submenus.
             const clickedToggle = e.target.closest('[data-bs-toggle="collapse"], .mobile-collapse-toggle');
             const linkEl = e.target.closest('a, button');
-
-            // If click wasn't on a link/button inside the collapse, ignore.
             if (!linkEl) return;
-
-            // If the clicked element (or its ancestor) is a collapse-toggle (mobile submenu), don't auto-close.
             if (clickedToggle) return;
-
-            // If it's a dummy dropdown toggle (href="#"), also don't close.
             if (linkEl.tagName === 'A' && (linkEl.getAttribute('href') || '') === '#') return;
-
             if (collapseEl.classList.contains('show')) {
-                if (topbar) topbar.classList.remove('menu-open');
-                collapse.hide();
+                const inst = bootstrap.Collapse.getInstance(collapseEl);
+                if (inst) inst.hide();
             }
         });
     })();
 
-    // Fallback: ensure any .dropdown-toggle in the topbar reliably opens its menu (fixes homepage overlay/blocking cases)
+    // Keep dropdowns reliable in the topbar
     (function () {
         document.addEventListener('click', function (e) {
             const toggle = e.target.closest('.app-topbar .dropdown-toggle');
             if (!toggle) return;
-
             const menu = document.getElementById(toggle.getAttribute('aria-controls')) || toggle.nextElementSibling;
             if (!menu) return;
-
-            // Let Bootstrap's native handler run first. If it didn't open the menu, open it ourselves.
-            // Use a microtask so we don't interfere with event order.
             Promise.resolve().then(function () {
                 if (!menu.classList.contains('show')) {
                     const dd = bootstrap.Dropdown.getOrCreateInstance(toggle);
