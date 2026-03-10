@@ -534,8 +534,11 @@
     <div class="app-mobile-shell d-lg-none" id="appMobileShell">
         <div class="app-mobile-backdrop" id="appMobileBackdrop"></div>
         <div class="app-mobile-panel" id="appMobileMenu" role="menu">
+            @php($isHomepage = url()->current() === url('/'))
+
             <div class="app-mobile-nav-header">
                 @auth
+                    {{-- On homepage neskryvame meno, ale pokojne môžeme – zatiaľ necháme meno len pre prihlásených --}}
                     <div class="app-mobile-user">
                         <span class="fw-semibold">{{ $user->name }}</span>
                         @if($isRegular)
@@ -545,10 +548,12 @@
                         @endif
                     </div>
                 @else
-                    <div class="app-mobile-user">
-                        <span class="fw-semibold">Vitajte v Super Gym</span>
-                        <span style="font-size: 0.8rem; color: rgba(255,255,255,0.6);">Prihláste sa alebo si vytvorte účet.</span>
-                    </div>
+                    @if(! $isHomepage)
+                        <div class="app-mobile-user">
+                            <span class="fw-semibold">Vitajte v Super Gym</span>
+                            <span style="font-size: 0.8rem; color: rgba(255,255,255,0.6);">Prihláste sa alebo si vytvorte účet.</span>
+                        </div>
+                    @endif
                 @endauth
 
                 {{-- Close button inside panel for easy reach --}}
@@ -562,55 +567,58 @@
             </div>
 
             {{-- Main navigation sections --}}
-            <div class="app-mobile-nav-section">
-                <div class="app-mobile-subtitle">Navigácia</div>
-                <ul class="app-mobile-nav-list">
-                    @auth
-                        @if($isReception)
-                            <li><a class="app-mobile-link" href="{{ url('/') }}">Home</a></li>
-                            <li><a class="app-mobile-link" href="{{ route('reception.calendar') }}">Kalendár tréningov</a></li>
-                            <li><a class="app-mobile-link" href="{{ route('announcements.index') }}">Oznamy</a></li>
-                            <li><a class="app-mobile-link" href="{{ route('reception.credits.create') }}">Pridanie kreditov</a></li>
-                        @else
+            @if(! $isHomepage)
+                <div class="app-mobile-nav-section">
+                    <div class="app-mobile-subtitle">Navigácia</div>
+                    <ul class="app-mobile-nav-list">
+                        @auth
+                            @if($isReception)
+                                <li><a class="app-mobile-link" href="{{ url('/') }}">Home</a></li>
+                                <li><a class="app-mobile-link" href="{{ route('reception.calendar') }}">Kalendár tréningov</a></li>
+                                <li><a class="app-mobile-link" href="{{ route('announcements.index') }}">Oznamy</a></li>
+                                <li><a class="app-mobile-link" href="{{ route('reception.credits.create') }}">Pridanie kreditov</a></li>
+                            @else
+                                <li><a class="app-mobile-link" href="{{ url('/') }}">Home</a></li>
+                                <li><a class="app-mobile-link" href="{{ route('training-calendar.index') }}">Kalendár tréningov</a></li>
+
+                                @if($isRegular)
+                                    <li><a class="app-mobile-link" href="{{ route('my-trainings.index') }}">Moje tréningy</a></li>
+                                @endif
+
+                                @if($isAdmin)
+                                    <li>
+                                        <div class="app-mobile-subtitle mt-2">Administrácia</div>
+                                    </li>
+                                    <li><a class="app-mobile-link {{ request()->routeIs('admin.users.index') ? 'active' : '' }}" href="{{ route('admin.users.index') }}">Používatelia</a></li>
+                                    <li><a class="app-mobile-link {{ request()->routeIs('admin.trainings.index') ? 'active' : '' }}" href="{{ route('admin.trainings.index') }}">Správa aktuálnych tréningov</a></li>
+                                    <li><a class="app-mobile-link {{ request()->routeIs('admin.trainings.archive') ? 'active' : '' }}" href="{{ route('admin.trainings.archive') }}">Archív tréningov</a></li>
+                                    <li><a class="app-mobile-link {{ request()->routeIs('admin.announcements.index') ? 'active' : '' }}" href="{{ route('admin.announcements.index') }}">Správa oznamov</a></li>
+                                    <li><a class="app-mobile-link {{ request()->routeIs('admin.announcements.archive') ? 'active' : '' }}" href="{{ route('admin.announcements.archive') }}">Archív oznamov</a></li>
+                                    <li><a class="app-mobile-link {{ request()->routeIs('announcements.index') ? 'active' : '' }}" href="{{ route('announcements.index') }}">Oznamy (zobrazenie)</a></li>
+                                    <li><a class="app-mobile-link {{ request()->routeIs('admin.settings.*') ? 'active' : '' }}" href="{{ route('admin.settings.edit') }}">Nastavenia</a>
+                                    </li>
+                                @else
+                                    <li><a class="app-mobile-link {{ request()->routeIs('announcements.index') ? 'active' : '' }}" href="{{ route('announcements.index') }}">Oznamy</a></li>
+                                @endif
+                            @endif
+
+                            @if($isTrainer)
+                                <li class="mt-2">
+                                    <div class="app-mobile-subtitle">Tréner</div>
+                                </li>
+                                <li><a class="app-mobile-link" href="{{ route('trainer.trainings.create') }}">Vytvorenie tréningu</a></li>
+                                <li><a class="app-mobile-link" href="{{ route('trainer.trainings.index') }}">Vytvorené tréningy</a></li>
+                            @endif
+                        @endauth
+
+                        @guest
                             <li><a class="app-mobile-link" href="{{ url('/') }}">Home</a></li>
                             <li><a class="app-mobile-link" href="{{ route('training-calendar.index') }}">Kalendár tréningov</a></li>
-
-                            @if($isRegular)
-                                <li><a class="app-mobile-link" href="{{ route('my-trainings.index') }}">Moje tréningy</a></li>
-                            @endif
-
-                            @if($isAdmin)
-                                <li>
-                                    <div class="app-mobile-subtitle mt-2">Administrácia</div>
-                                </li>
-                                <li><a class="app-mobile-link {{ request()->routeIs('admin.users.index') ? 'active' : '' }}" href="{{ route('admin.users.index') }}">Používatelia</a></li>
-                                <li><a class="app-mobile-link {{ request()->routeIs('admin.trainings.index') ? 'active' : '' }}" href="{{ route('admin.trainings.index') }}">Správa aktuálnych tréningov</a></li>
-                                <li><a class="app-mobile-link {{ request()->routeIs('admin.trainings.archive') ? 'active' : '' }}" href="{{ route('admin.trainings.archive') }}">Archív tréningov</a></li>
-                                <li><a class="app-mobile-link {{ request()->routeIs('admin.announcements.index') ? 'active' : '' }}" href="{{ route('admin.announcements.index') }}">Správa oznamov</a></li>
-                                <li><a class="app-mobile-link {{ request()->routeIs('admin.announcements.archive') ? 'active' : '' }}" href="{{ route('admin.announcements.archive') }}">Archív oznamov</a></li>
-                                <li><a class="app-mobile-link {{ request()->routeIs('announcements.index') ? 'active' : '' }}" href="{{ route('announcements.index') }}">Oznamy (zobrazenie)</a></li>
-                                <li><a class="app-mobile-link {{ request()->routeIs('admin.settings.*') ? 'active' : '' }}" href="{{ route('admin.settings.edit') }}">Nastavenia</a></li>
-                            @else
-                                <li><a class="app-mobile-link {{ request()->routeIs('announcements.index') ? 'active' : '' }}" href="{{ route('announcements.index') }}">Oznamy</a></li>
-                            @endif
-                        @endif
-
-                        @if($isTrainer)
-                            <li class="mt-2">
-                                <div class="app-mobile-subtitle">Tréner</div>
-                            </li>
-                            <li><a class="app-mobile-link" href="{{ route('trainer.trainings.create') }}">Vytvorenie tréningu</a></li>
-                            <li><a class="app-mobile-link" href="{{ route('trainer.trainings.index') }}">Vytvorené tréningy</a></li>
-                        @endif
-                    @endauth
-
-                    @guest
-                        <li><a class="app-mobile-link" href="{{ url('/') }}">Home</a></li>
-                        <li><a class="app-mobile-link" href="{{ route('training-calendar.index') }}">Kalendár tréningov</a></li>
-                        <li><a class="app-mobile-link" href="{{ route('announcements.index') }}">Oznamy</a></li>
-                    @endguest
-                </ul>
-            </div>
+                            <li><a class="app-mobile-link" href="{{ route('announcements.index') }}">Oznamy</a></li>
+                        @endguest
+                    </ul>
+                </div>
+            @endif
 
             <div class="app-mobile-nav-section">
                 <div class="app-mobile-subtitle">Účet</div>
