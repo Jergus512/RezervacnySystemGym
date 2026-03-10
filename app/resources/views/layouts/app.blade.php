@@ -70,6 +70,7 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
+            gap: 1.5rem;
         }
 
         .app-logo-wrapper {
@@ -101,14 +102,53 @@
             .app-nav-desktop {
                 display: flex;
                 align-items: center;
-                gap: 0.5rem;
+                gap: 1.5rem;
             }
 
             .app-nav-desktop .navbar-nav {
                 flex-direction: row;
                 align-items: center;
-                gap: 0.25rem;
+                gap: 1.25rem;
             }
+
+            .app-nav-desktop .nav-link {
+                color: #fff !important;
+                font-weight: 500;
+                padding-inline: 0.25rem;
+            }
+
+            .app-nav-desktop .nav-link:hover,
+            .app-nav-desktop .nav-link:focus,
+            .app-nav-desktop .nav-link.active {
+                color: var(--brand-orange) !important;
+            }
+
+            .app-nav-desktop .dropdown-menu-dark {
+                background-color: #111827;
+            }
+        }
+
+        .app-topbar-user {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            white-space: nowrap;
+        }
+
+        .app-topbar-username {
+            color: rgba(255, 255, 255, 0.85);
+            font-size: 0.9rem;
+        }
+
+        .app-topbar-credits {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.15rem 0.6rem;
+            border-radius: 9999px;
+            background-color: var(--brand-orange);
+            color: #fff;
+            font-size: 0.8rem;
+            font-weight: 600;
         }
 
         /* Mobile hamburger button ( < 992px ) */
@@ -243,6 +283,7 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
+            gap: 0.75rem;
             margin-bottom: .75rem;
         }
 
@@ -334,6 +375,47 @@
             margin-bottom: 0.3rem;
         }
 
+        .app-mobile-submenu-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            border-radius: 10px;
+            padding: 0.55rem 0.75rem;
+            color: rgba(255, 255, 255, 0.90);
+            background: transparent;
+            border: 1px solid transparent;
+            font-size: 0.95rem;
+            cursor: pointer;
+        }
+
+        .app-mobile-submenu-toggle:hover,
+        .app-mobile-submenu-toggle:focus {
+            color: #fff;
+            background-color: rgba(255, 255, 255, 0.06);
+            border-color: rgba(255, 255, 255, 0.14);
+        }
+
+        .app-mobile-submenu-toggle-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+
+        .app-mobile-submenu-chevron {
+            transition: transform .18s ease;
+            font-size: 0.8rem;
+        }
+
+        .app-mobile-submenu[hidden] {
+            display: none;
+        }
+
+        .app-mobile-submenu.open + .app-mobile-submenu-chevron,
+        .app-mobile-submenu-toggle[aria-expanded="true"] .app-mobile-submenu-chevron {
+            transform: rotate(180deg);
+        }
+
         .text-brand-orange {
             color: var(--brand-orange) !important;
         }
@@ -366,7 +448,7 @@
             </a>
 
             {{-- Desktop nav (≥ 992px) --}}
-            <div class="app-nav-desktop w-100 ms-3">
+            <div class="app-nav-desktop w-100 d-none d-lg-flex align-items-center">
                 <div class="d-flex align-items-center justify-content-between w-100">
                     {{-- Left: nav links --}}
                     <ul class="navbar-nav me-auto mb-0">
@@ -483,8 +565,8 @@
                     {{-- Right: user controls --}}
                     <ul class="navbar-nav ms-auto mb-0">
                         @guest
-                            <li class="nav-item me-2">
-                                <a class="nav-link text-light" href="{{ route('login') }}">Prihlásiť sa</a>
+                            <li class="nav-item me-3">
+                                <a class="nav-link" href="{{ route('login') }}">Prihlásiť sa</a>
                             </li>
                             <li class="nav-item">
                                 <a class="btn btn-sm" style="background-color: var(--brand-orange); color:#fff; border-radius: 9999px; padding-inline: 1rem;"
@@ -494,12 +576,14 @@
                             </li>
                         @else
                             <li class="nav-item d-flex align-items-center me-3">
-                                @if($isRegular)
-                                    <span class="badge me-2" id="userCreditsBadge" style="background-color: var(--brand-orange); color:#fff; border-radius:9999px;">
-                                        Kredity: {{ $user->credits ?? 0 }}
-                                    </span>
-                                @endif
-                                <span class="navbar-text small text-white-50">{{ $user->name }}</span>
+                                <div class="app-topbar-user">
+                                    @if($isRegular)
+                                        <span class="app-topbar-credits" id="userCreditsBadge">
+                                            Kredity: {{ $user->credits ?? 0 }}
+                                        </span>
+                                    @endif
+                                    <span class="app-topbar-username">{{ $user->name }}</span>
+                                </div>
                             </li>
                             <li class="nav-item">
                                 <form method="POST" action="{{ route('logout') }}">
@@ -512,21 +596,35 @@
                 </div>
             </div>
 
-            {{-- Mobile hamburger ( < 992px ) --}}
-            <button
-                class="app-nav-toggle d-lg-none"
-                type="button"
-                id="appMobileToggle"
-                aria-expanded="false"
-                aria-controls="appMobileMenu"
-            >
-                <span class="visually-hidden">Toggle navigation</span>
-                <span class="app-nav-toggle-icon" aria-hidden="true">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </span>
-            </button>
+            {{-- Right side for mobile: user + burger --}}
+            <div class="d-flex align-items-center ms-auto d-lg-none" style="gap: 0.75rem;">
+                @auth
+                    <div class="d-flex flex-column align-items-end" style="line-height: 1.1;">
+                        <span class="app-topbar-username small">{{ $user->name }}</span>
+                        @if($isRegular)
+                            <span class="app-topbar-credits mt-1" id="userCreditsBadgeMobileTop">
+                                Kredity: {{ $user->credits ?? 0 }}
+                            </span>
+                        @endif
+                    </div>
+                @endauth
+
+                {{-- Mobile hamburger ( < 992px ) --}}
+                <button
+                    class="app-nav-toggle d-lg-none"
+                    type="button"
+                    id="appMobileToggle"
+                    aria-expanded="false"
+                    aria-controls="appMobileMenu"
+                >
+                    <span class="visually-hidden">Toggle navigation</span>
+                    <span class="app-nav-toggle-icon" aria-hidden="true">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </span>
+                </button>
+            </div>
         </div>
     </nav>
 
@@ -540,17 +638,11 @@
 
             <div class="app-mobile-nav-header">
                 @auth
-                    {{-- Meno a kredity prihláseného používateľa --}}
+                    {{-- Na mobile už vnútri menu nezobrazujeme meno a kredity --}}
                     <div class="app-mobile-user">
-                        <span class="fw-semibold">{{ $user->name }}</span>
-                        @if($isRegular)
-                            <span class="app-mobile-credits-badge" id="userCreditsBadgeMobile">
-                                Kredity: {{ $user->credits ?? 0 }}
-                            </span>
-                        @endif
+                        <span class="fw-semibold">Menu</span>
                     </div>
                 @else
-                    {{-- Text "Vitajte v Super Gym" zobrazuj len mimo homepage --}}
                     @if(! $isHomepage)
                         <div class="app-mobile-user">
                             <span class="fw-semibold">Vitajte v Super Gym</span>
@@ -593,13 +685,35 @@
                                         <div class="app-mobile-subtitle mt-2">Administrácia</div>
                                     </li>
                                     <li><a class="app-mobile-link {{ request()->routeIs('admin.users.index') ? 'active' : '' }}" href="{{ route('admin.users.index') }}">Používatelia</a></li>
-                                    <li><a class="app-mobile-link {{ request()->routeIs('admin.trainings.index') ? 'active' : '' }}" href="{{ route('admin.trainings.index') }}">Správa aktuálnych tréningov</a></li>
-                                    <li><a class="app-mobile-link {{ request()->routeIs('admin.trainings.archive') ? 'active' : '' }}" href="{{ route('admin.trainings.archive') }}">Archív tréningov</a></li>
-                                    <li><a class="app-mobile-link {{ request()->routeIs('admin.announcements.index') ? 'active' : '' }}" href="{{ route('admin.announcements.index') }}">Správa oznamov</a></li>
-                                    <li><a class="app-mobile-link {{ request()->routeIs('admin.announcements.archive') ? 'active' : '' }}" href="{{ route('admin.announcements.archive') }}">Archív oznamov</a></li>
-                                    <li><a class="app-mobile-link {{ request()->routeIs('announcements.index') ? 'active' : '' }}" href="{{ route('announcements.index') }}">Oznamy (zobrazenie)</a></li>
+
+                                    {{-- Tréningy (mobilný submenu) --}}
+                                    <li>
+                                        <button class="app-mobile-submenu-toggle" type="button" data-mobile-submenu-toggle="trainings">
+                                            <span class="app-mobile-submenu-toggle-label">Tréningy</span>
+                                            <span class="app-mobile-submenu-chevron">▾</span>
+                                        </button>
+                                        <ul class="app-mobile-nav-list mt-1" data-mobile-submenu="trainings" hidden>
+                                            <li><a class="app-mobile-link {{ request()->routeIs('admin.trainings.index') ? 'active' : '' }}" href="{{ route('admin.trainings.index') }}">Správa aktuálnych tréningov</a></li>
+                                            <li><a class="app-mobile-link {{ request()->routeIs('admin.trainings.archive') ? 'active' : '' }}" href="{{ route('admin.trainings.archive') }}">Archív tréningov</a></li>
+                                        </ul>
+                                    </li>
+
+                                    {{-- Oznamy (mobilný submenu) --}}
+                                    <li>
+                                        <button class="app-mobile-submenu-toggle" type="button" data-mobile-submenu-toggle="announcements">
+                                            <span class="app-mobile-submenu-toggle-label">Oznamy</span>
+                                            <span class="app-mobile-submenu-chevron">▾</span>
+                                        </button>
+                                        <ul class="app-mobile-nav-list mt-1" data-mobile-submenu="announcements" hidden>
+                                            <li><a class="app-mobile-link {{ request()->routeIs('admin.announcements.index') ? 'active' : '' }}" href="{{ route('admin.announcements.index') }}">Správa oznamov</a></li>
+                                            <li><a class="app-mobile-link {{ request()->routeIs('admin.announcements.archive') ? 'active' : '' }}" href="{{ route('admin.announcements.archive') }}">Archív oznamov</a></li>
+                                            <li><a class="app-mobile-link {{ request()->routeIs('announcements.index') ? 'active' : '' }}" href="{{ route('announcements.index') }}">Oznamy (zobrazenie)</a></li>
+                                        </ul>
+                                    </li>
+
                                     <li><a class="app-mobile-link {{ request()->routeIs('admin.settings.*') ? 'active' : '' }}" href="{{ route('admin.settings.edit') }}">Nastavenia</a></li>
                                 @else
+                                    {{-- Oznamy bez admin práv --}}
                                     <li><a class="app-mobile-link {{ request()->routeIs('announcements.index') ? 'active' : '' }}" href="{{ route('announcements.index') }}">Oznamy</a></li>
                                 @endif
                             @endif
@@ -690,6 +804,14 @@
             shell.classList.remove('is-open');
             toggleBtn.setAttribute('aria-expanded', 'false');
             document.body.style.overflow = ''; // restore scroll
+
+            // close all mobile submenus
+            document.querySelectorAll('[data-mobile-submenu]').forEach(function (submenu) {
+                submenu.hidden = true;
+            });
+            document.querySelectorAll('[data-mobile-submenu-toggle]').forEach(function (btn) {
+                btn.setAttribute('aria-expanded', 'false');
+            });
         }
 
         // Toggle button
@@ -720,36 +842,40 @@
             }
         });
 
-        // Close on navigation link / form submit inside panel
+        // Close on navigation (any link inside mobile menu)
         panel.addEventListener('click', function (e) {
             const link = e.target.closest('a');
-            const button = e.target.closest('button');
-            const form = e.target.closest('form');
-
-            if (form && form.getAttribute('method')?.toLowerCase() === 'post') {
-                // Let logout POST happen; menu will disappear on page load
-                closeMenu();
-                return;
-            }
-
-            if (link) {
-                const href = link.getAttribute('href') || '';
-                if (href && href !== '#') {
-                    closeMenu();
-                }
-            } else if (button && button.type === 'submit') {
+            if (link && link.getAttribute('href') && !link.getAttribute('href').startsWith('#')) {
                 closeMenu();
             }
         });
 
-        // Ensure menu is closed if viewport becomes desktop
-        function handleResize() {
-            if (window.innerWidth >= 992) {
-                closeMenu();
-            }
-        }
+        // Mobile submenus (Oznamy, Tréningy, ...)
+        document.querySelectorAll('[data-mobile-submenu-toggle]').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                const key = btn.getAttribute('data-mobile-submenu-toggle');
+                if (!key) return;
 
-        window.addEventListener('resize', handleResize);
+                const submenu = panel.querySelector('[data-mobile-submenu="' + key + '"]');
+                if (!submenu) return;
+
+                const isCurrentlyOpen = !submenu.hidden;
+
+                // close all first for accordion-like behavior
+                document.querySelectorAll('[data-mobile-submenu]').forEach(function (s) {
+                    s.hidden = true;
+                });
+                document.querySelectorAll('[data-mobile-submenu-toggle]').forEach(function (b) {
+                    b.setAttribute('aria-expanded', 'false');
+                });
+
+                // then open the clicked one if it was previously closed
+                if (!isCurrentlyOpen) {
+                    submenu.hidden = false;
+                    btn.setAttribute('aria-expanded', 'true');
+                }
+            });
+        });
     })();
 </script>
 
