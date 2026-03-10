@@ -15,13 +15,14 @@
 
     <style>
         :root {
-            --topbar-height: 72px;
+            --topbar-height: 70px;
             --brand-orange: #f97316;
+            --header-bg: #050505;
         }
 
         @media (min-width: 768px) {
             :root {
-                --topbar-height: 86px;
+                --topbar-height: 80px;
             }
         }
 
@@ -53,332 +54,290 @@
             width: 100%;
         }
 
+        /* NEW: clean, fixed-height header */
+
         .app-topbar {
             position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 1030;
-            background: transparent;
-            border-bottom: 0;
-        }
-
-        /* Static glass header background: fixed-height, no height animation.
-           This avoids Safari re-compositing the whole viewport and changing
-           how the hero image/overlay are blended. */
-        .app-topbar::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
+            inset: 0 0 auto 0;
             height: var(--topbar-height);
-            background: rgba(0, 0, 0, 0.55);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.14);
-            pointer-events: none;
             z-index: 1030;
-            /* keep opacity stable – no transitions on blur or background */
-        }
-
-        .app-topbar .container,
-        .app-topbar .navbar-brand,
-        .app-topbar .navbar-toggler,
-        .app-topbar .navbar-collapse {
-            position: relative;
-            z-index: 1031;
-        }
-
-        .topbar-link {
-            color: rgba(255,255,255,.9);
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            line-height: 1;
-            padding: .45rem .8rem;
-            border-radius: 8px;
-            border: 1px solid transparent;
-        }
-
-        .topbar-link:hover,
-        .topbar-link:focus {
-            color: #fff;
-            text-decoration: none;
-            border-color: rgba(255,255,255,.85);
-            background: rgba(255,255,255,.08);
-        }
-
-        .topbar-btn-orange {
-            display: inline-flex;
-            align-items: center;
-            background: var(--brand-orange);
-            color: #fff;
-            border-radius: 8px;
-            padding: .45rem .9rem;
-            line-height: 1;
-            border: 1px solid var(--brand-orange);
-        }
-
-        .topbar-btn-orange:hover,
-        .topbar-btn-orange:focus {
-            background: #ea6a0f;
-            border-color: #ea6a0f;
-            color: #fff;
-        }
-
-        .topbar-credits {
-            background: var(--brand-orange) !important;
-            color: #fff !important;
-            border: 1px solid rgba(255,255,255,.18);
-            font-weight: 700;
+            background-color: rgba(0, 0, 0, 0.92);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.12);
         }
 
         .app-topbar-inner {
-            padding: .45rem 0;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
 
-        @media (min-width: 768px) {
-            .app-topbar-inner {
-                padding: .6rem 0;
-            }
+        .app-logo-wrapper {
+            display: inline-flex;
+            align-items: center;
+            max-height: 100%;
         }
 
         .app-logo {
-            height: 58px;
-            width: auto;
-            max-width: 100%;
             display: block;
-            filter: drop-shadow(0 6px 10px rgba(0,0,0,.25));
+            max-height: calc(var(--topbar-height) - 18px);
+            width: auto;
+            object-fit: contain;
         }
 
         @media (min-width: 768px) {
             .app-logo {
-                height: 70px;
+                max-height: calc(var(--topbar-height) - 20px);
             }
         }
 
-        @media (max-width: 991.98px) {
-            .app-topbar .navbar-collapse {
-                text-align: center;
-            }
+        /* Desktop nav (≥ 992px): standard inline layout */
 
-            .app-topbar .navbar-collapse.show,
-            .app-topbar .navbar-collapse.collapsing {
-                padding-top: .75rem;
-            }
+        .app-nav-desktop {
+            display: none;
+        }
 
-            .app-topbar .navbar-collapse.show .navbar-nav,
-            .app-topbar .navbar-collapse.collapsing .navbar-nav {
-                width: 100%;
-                align-items: center;
-                justify-content: center;
-                text-align: center;
-            }
-
-            .app-topbar .navbar-collapse.show .navbar-nav.me-auto,
-            .app-topbar .navbar-collapse.show .navbar-nav.ms-auto,
-            .app-topbar .navbar-collapse.collapsing .navbar-nav.me-auto,
-            .app-topbar .navbar-collapse.collapsing .navbar-nav.ms-auto {
-                flex-direction: column;
-                margin-left: 0 !important;
-                margin-right: 0 !important;
-            }
-
-            .app-topbar .navbar-collapse.show .navbar-nav.ms-auto,
-            .app-topbar .navbar-collapse.collapsing .navbar-nav.ms-auto {
-                margin-top: .5rem;
-                padding-top: .5rem;
-                border-top: 1px solid rgba(255,255,255,.15);
-            }
-
-            .app-topbar .navbar-collapse.show .navbar-nav .nav-item,
-            .app-topbar .navbar-collapse.collapsing .navbar-nav .nav-item {
-                width: 100%;
+        @media (min-width: 992px) {
+            .app-nav-desktop {
                 display: flex;
-                justify-content: center;
-            }
-
-            .app-topbar .navbar-collapse.show .navbar-nav .nav-link,
-            .app-topbar .navbar-collapse.show .navbar-nav .btn,
-            .app-topbar .navbar-collapse.collapsing .navbar-nav .nav-link,
-            .app-topbar .navbar-collapse.collapsing .navbar-nav .btn {
-                width: 100%;
-                justify-content: center;
-                text-align: center;
-                white-space: nowrap;
-            }
-
-            .app-topbar .navbar-collapse.show .navbar-nav .nav-item.d-flex,
-            .app-topbar .navbar-collapse.collapsing .navbar-nav .nav-item.d-flex {
-                flex-direction: column;
                 align-items: center;
-                gap: .35rem;
+                gap: 0.5rem;
             }
 
-            .app-topbar .navbar-collapse.show .navbar-nav .nav-item.ms-2,
-            .app-topbar .navbar-collapse.show .navbar-nav .nav-item.me-2,
-            .app-topbar .navbar-collapse.collapsing .navbar-nav .nav-item.ms-2,
-            .app-topbar .navbar-collapse.collapsing .navbar-nav .nav-item.me-2 {
-                margin-left: 0 !important;
-                margin-right: 0 !important;
-            }
-
-            .app-topbar .navbar-collapse.show .navbar-nav .badge,
-            .app-topbar .navbar-collapse.collapsing .navbar-nav .badge {
-                margin-left: 0 !important;
-                margin-right: 0 !important;
-            }
-
-            .app-topbar .mobile-submenu {
-                width: 100%;
-                max-width: none;
-                padding: .25rem 0;
-            }
-
-            .app-topbar .mobile-submenu .nav-link {
-                width: 100%;
-                border-radius: 10px;
-                padding: .55rem .75rem;
-                justify-content: center;
-                text-align: center;
-            }
-
-            .app-topbar .mobile-submenu .nav-link.active {
-                background: rgba(249,115,22,.22);
-                border: 1px solid rgba(249,115,22,.42);
-            }
-
-            .app-topbar .mobile-collapse-toggle {
-                position: relative;
-                width: 100%;
-                justify-content: center !important;
-                text-align: center;
-            }
-
-            .app-topbar .mobile-collapse-toggle .caret {
-                position: static;
-                transform: none;
-                opacity: .9;
-                transition: transform .15s ease;
-            }
-
-            .app-topbar .mobile-collapse-toggle[aria-expanded="true"] .caret {
-                transform: rotate(180deg);
-            }
-
-            .app-topbar .nav-item.d-lg-none {
-                flex-direction: column;
-                align-items: stretch;
-            }
-
-            .app-topbar #announcementsMobile {
-                width: 100%;
-            }
-
-            .app-topbar #announcementsMobile .mobile-submenu {
-                display: flex;
-                flex-direction: column;
+            .app-nav-desktop .navbar-nav {
+                flex-direction: row;
                 align-items: center;
-                width: 100%;
+                gap: 0.25rem;
             }
+        }
 
-            .app-topbar #announcementsMobile .mobile-submenu .nav-link.mt-1 {
-                margin-top: .25rem !important;
-            }
+        /* Mobile hamburger button ( < 992px ) */
 
-            .app-topbar button.mobile-collapse-toggle {
-                background: transparent;
-                border: 0;
-                padding: .5rem .5rem;
-                color: rgba(255,255,255,0.92) !important;
-                font: inherit;
-                line-height: inherit;
-                cursor: pointer;
-                appearance: none;
-                -webkit-appearance: none;
-                text-align: center;
-            }
+        .app-nav-toggle {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            border-radius: 9999px;
+            border: 1px solid rgba(255, 255, 255, 0.32);
+            background: transparent;
+            color: #fff;
+            padding: 0;
+            cursor: pointer;
+        }
 
-            .app-topbar button.mobile-collapse-toggle:hover,
-            .app-topbar button.mobile-collapse-toggle:focus,
-            .app-topbar button.mobile-collapse-toggle.active {
-                color: rgba(255,255,255,1) !important;
-            }
+        .app-nav-toggle-icon {
+            position: relative;
+            width: 20px;
+            height: 18px;
+        }
 
-            /* Mobile: turn the collapse into a fixed overlay below the static header.
-               We only animate opacity/transform here, not the header backdrop. */
-            .app-topbar .navbar-collapse.collapse {
-                position: fixed;
-                top: var(--topbar-height);
-                left: 0;
-                right: 0;
-                width: 100%;
-                max-height: calc(100dvh - var(--topbar-height));
-                overflow-y: auto;
-                -webkit-overflow-scrolling: touch;
-                background: rgba(0,0,0,0.78);
-                opacity: 0;
-                visibility: hidden;
-                pointer-events: none;
-                transform: translateY(-8px);
-                transition:
-                    opacity .18s ease-out,
-                    transform .18s ease-out,
-                    visibility 0s linear .18s;
-            }
+        .app-nav-toggle-icon span {
+            position: absolute;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: #fff;
+            border-radius: 9999px;
+            transition:
+                transform .18s ease,
+                opacity .18s ease,
+                top .18s ease,
+                bottom .18s ease;
+        }
 
-            .app-topbar .navbar-collapse.show {
-                opacity: 1;
-                visibility: visible;
-                pointer-events: auto;
-                transform: translateY(0);
-                transition:
-                    opacity .18s ease-out,
-                    transform .18s ease-out,
-                    visibility 0s linear 0s;
-            }
+        .app-nav-toggle-icon span:nth-child(1) {
+            top: 0;
+        }
 
-            /* Avoid content shifting during the intermediate `.collapsing` phase –
-               mirror the same fixed overlay styles so Safari doesn't recompute
-               a different stacking context. */
-            .app-topbar .navbar-collapse.collapsing {
-                position: fixed;
-                top: var(--topbar-height);
-                left: 0;
-                right: 0;
-                width: 100%;
-                max-height: calc(100dvh - var(--topbar-height));
-                overflow-y: auto;
-                -webkit-overflow-scrolling: touch;
-                background: rgba(0,0,0,0.78);
-            }
+        .app-nav-toggle-icon span:nth-child(2) {
+            top: 8px;
+        }
 
-            .app-topbar .navbar-collapse.show .navbar-nav,
-            .app-topbar .navbar-collapse.collapsing .navbar-nav {
-                flex-direction: column;
-                align-items: center;
-                justify-content: flex-start;
-                z-index: 1033;
-                gap: .5rem;
-            }
+        .app-nav-toggle-icon span:nth-child(3) {
+            bottom: 0;
+        }
 
-            .app-topbar #userCreditsBadgeMobile {
-                position: fixed;
-                top: calc(var(--topbar-height) / 2 + 20px);
-                transform: translateY(-50%);
-                right: 76px;
-                z-index: 1032;
-                pointer-events: none;
-            }
+        .app-nav-toggle[aria-expanded="true"] .app-nav-toggle-icon span:nth-child(1) {
+            top: 8px;
+            transform: rotate(45deg);
+        }
+
+        .app-nav-toggle[aria-expanded="true"] .app-nav-toggle-icon span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .app-nav-toggle[aria-expanded="true"] .app-nav-toggle-icon span:nth-child(3) {
+            bottom: 8px;
+            transform: rotate(-45deg);
+        }
+
+        /* Mobile menu overlay (panel + backdrop) */
+
+        .app-mobile-shell {
+            position: fixed;
+            top: var(--topbar-height);
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 1025;
+            pointer-events: none;
+        }
+
+        .app-mobile-backdrop {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.65);
+            opacity: 0;
+            visibility: hidden;
+            transition:
+                opacity .18s ease,
+                visibility 0s linear .18s;
+        }
+
+        .app-mobile-panel {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            max-height: 100%;
+            background-color: #050505;
+            padding: 0.75rem 1.0rem 1.25rem;
+            transform: translateY(-12px);
+            opacity: 0;
+            visibility: hidden;
+            transition:
+                opacity .18s ease-out,
+                transform .18s ease-out,
+                visibility 0s linear .18s;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .app-mobile-shell.is-open {
+            pointer-events: auto;
+        }
+
+        .app-mobile-shell.is-open .app-mobile-backdrop {
+            opacity: 1;
+            visibility: visible;
+            transition:
+                opacity .18s ease,
+                visibility 0s linear 0s;
+        }
+
+        .app-mobile-shell.is-open .app-mobile-panel {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+            transition:
+                opacity .18s ease-out,
+                transform .18s ease-out,
+                visibility 0s linear 0s;
+        }
+
+        /* Mobile menu content */
+
+        .app-mobile-nav-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: .75rem;
+        }
+
+        .app-mobile-user {
+            display: flex;
+            flex-direction: column;
+            gap: 0.15rem;
+            font-size: 0.875rem;
+            color: rgba(255, 255, 255, 0.85);
+        }
+
+        .app-mobile-credits-badge {
+            align-self: flex-start;
+            display: inline-flex;
+            align-items: center;
+            padding: 0.2rem 0.6rem;
+            border-radius: 9999px;
+            background-color: var(--brand-orange);
+            color: #fff;
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+
+        .app-mobile-nav-section + .app-mobile-nav-section {
+            margin-top: .75rem;
+            padding-top: .75rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.16);
+        }
+
+        .app-mobile-nav-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .app-mobile-nav-list > li + li {
+            margin-top: 0.25rem;
+        }
+
+        .app-mobile-link,
+        .app-mobile-link-button {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            width: 100%;
+            border-radius: 10px;
+            padding: 0.55rem 0.75rem;
+            color: rgba(255, 255, 255, 0.90);
+            text-decoration: none;
+            border: 1px solid transparent;
+            background: transparent;
+            font-size: 0.95rem;
+        }
+
+        .app-mobile-link:hover,
+        .app-mobile-link:focus {
+            color: #fff;
+            background-color: rgba(255, 255, 255, 0.06);
+            border-color: rgba(255, 255, 255, 0.14);
+            text-decoration: none;
+        }
+
+        .app-mobile-link.active {
+            background-color: rgba(249, 115, 22, 0.18);
+            border-color: rgba(249, 115, 22, 0.5);
+            color: #fff;
+        }
+
+        .app-mobile-link-button {
+            justify-content: center;
+            background-color: var(--brand-orange);
+            border-color: var(--brand-orange);
+            color: #fff;
+            font-weight: 600;
+        }
+
+        .app-mobile-link-button:hover,
+        .app-mobile-link-button:focus {
+            background-color: #ea6a0f;
+            border-color: #ea6a0f;
+            color: #fff;
+        }
+
+        .app-mobile-subtitle {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: rgba(255, 255, 255, 0.5);
+            margin-bottom: 0.3rem;
         }
 
         .text-brand-orange {
             color: var(--brand-orange) !important;
         }
 
-        body.homepage .app-topbar .dropdown-menu,
-        body.homepage .app-topbar .mobile-submenu,
         body.homepage .dropdown-menu {
             z-index: 99999999 !important;
         }
@@ -387,224 +346,298 @@
 <body class="{{ url()->current() === url('/') ? 'homepage' : '' }} @if(!empty($hideTopbar)) no-topbar @elseif(!empty($overlayTopbar)) overlay-topbar @endif">
 
 @if(empty($hideTopbar))
-<nav class="app-topbar navbar navbar-dark navbar-expand-lg">
-    <div class="container app-topbar-inner">
+    @php
+        /** @var \App\Models\User|null $user */
+        $user = auth()->user();
+        $isAdmin      = $user && $user->isAdmin();
+        $isReception  = $user && $user->isReception();
+        $isTrainer    = $user && $user->isTrainer();
+        $isRegular    = $user && $user->isRegularUser();
+        $trainOpen    = request()->routeIs('admin.trainings.*');
+        $annOpen      = request()->routeIs('admin.announcements.*') || request()->routeIs('announcements.*');
+    @endphp
 
-         <a class="navbar-brand d-inline-flex align-items-center" href="{{ url('/') }}">
-             <img class="app-logo" src="{{ asset('img/logo1.png') }}" alt="Super Gym logo" loading="eager">
-         </a>
+    <nav class="app-topbar">
+        <div class="container app-topbar-inner">
 
-        {{-- Mobile-only credits badge (positioned next to burger via CSS) --}}
-        @auth
-            @php
-                /** @var \App\Models\User $user */
-                $user = auth()->user();
-            @endphp
-            @if($user && $user->isRegularUser())
-                <span class="badge topbar-credits d-lg-none" id="userCreditsBadgeMobile">Kredity: {{ $user->credits ?? 0 }}</span>
-            @endif
-        @endauth
+            {{-- Left: Logo (always fully inside header) --}}
+            <a class="app-logo-wrapper" href="{{ url('/') }}">
+                <img class="app-logo" src="{{ asset('img/logo1.png') }}" alt="Super Gym logo" loading="eager">
+            </a>
 
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent">
-            <span class="navbar-toggler-icon"></span>
-        </button>
+            {{-- Desktop nav (≥ 992px) --}}
+            <div class="app-nav-desktop w-100 ms-3">
+                <div class="d-flex align-items-center justify-content-between w-100">
+                    {{-- Left: nav links --}}
+                    <ul class="navbar-nav me-auto mb-0">
+                        @auth
+                            @if($isReception)
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ url('/') }}">Home</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ route('reception.calendar') }}">Kalendár tréningov</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ route('announcements.index') }}">Oznamy</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ route('reception.credits.create') }}">Pridanie kreditov</a>
+                                </li>
+                            @else
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ url('/') }}">Home</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ route('training-calendar.index') }}">Kalendár tréningov</a>
+                                </li>
 
-         <div class="collapse navbar-collapse" id="navbarSupportedContent">
-             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                                @if($isRegular)
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="{{ route('my-trainings.index') }}">Moje tréningy</a>
+                                    </li>
+                                @endif
+
+                                @if($isAdmin)
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="{{ route('admin.users.index') }}">Používatelia</a>
+                                    </li>
+
+                                    {{-- Tréningy dropdown (desktop) --}}
+                                    <li class="nav-item dropdown">
+                                        <a class="nav-link dropdown-toggle {{ $trainOpen ? 'active' : '' }}"
+                                           href="#"
+                                           id="trainingsDropdown"
+                                           role="button"
+                                           data-bs-toggle="dropdown"
+                                           aria-expanded="false">
+                                            Tréningy
+                                        </a>
+                                        <ul class="dropdown-menu dropdown-menu-dark shadow" aria-labelledby="trainingsDropdown">
+                                            <li>
+                                                <a class="dropdown-item {{ request()->routeIs('admin.trainings.index') ? 'active' : '' }}" href="{{ route('admin.trainings.index') }}">
+                                                    Správa aktuálnych tréningov
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a class="dropdown-item {{ request()->routeIs('admin.trainings.archive') ? 'active' : '' }}" href="{{ route('admin.trainings.archive') }}">
+                                                    Archív tréningov
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </li>
+
+                                    {{-- Oznamy dropdown (desktop) --}}
+                                    <li class="nav-item dropdown">
+                                        <a class="nav-link dropdown-toggle {{ $annOpen ? 'active' : '' }}"
+                                           href="#"
+                                           id="announcementsDropdown"
+                                           role="button"
+                                           data-bs-toggle="dropdown"
+                                           aria-expanded="false">
+                                            Oznamy
+                                        </a>
+                                        <ul class="dropdown-menu dropdown-menu-dark shadow" aria-labelledby="announcementsDropdown">
+                                            <li>
+                                                <a class="dropdown-item {{ request()->routeIs('admin.announcements.index') ? 'active' : '' }}" href="{{ route('admin.announcements.index') }}">
+                                                    Správa oznamov
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a class="dropdown-item {{ request()->routeIs('admin.announcements.archive') ? 'active' : '' }}" href="{{ route('admin.announcements.archive') }}">
+                                                    Archív oznamov
+                                                </a>
+                                            </li>
+                                            <li><hr class="dropdown-divider"></li>
+                                            <li>
+                                                <a class="dropdown-item {{ request()->routeIs('announcements.index') ? 'active' : '' }}" href="{{ route('announcements.index') }}">
+                                                    Oznamy (zobrazenie)
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </li>
+
+                                    {{-- Nastavenia as last admin item --}}
+                                    <li class="nav-item">
+                                        <a class="nav-link {{ request()->routeIs('admin.settings.*') ? 'active' : '' }}" href="{{ route('admin.settings.edit') }}">Nastavenia</a>
+                                    </li>
+
+                                @else
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="{{ route('announcements.index') }}">Oznamy</a>
+                                    </li>
+                                @endif
+                            @endif
+
+                            @if($isTrainer)
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ route('trainer.trainings.create') }}">Vytvorenie tréningu</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ route('trainer.trainings.index') }}">Vytvorené tréningy</a>
+                                </li>
+                            @endif
+                        @endauth
+                    </ul>
+
+                    {{-- Right: user controls --}}
+                    <ul class="navbar-nav ms-auto mb-0">
+                        @guest
+                            <li class="nav-item me-2">
+                                <a class="nav-link text-light" href="{{ route('login') }}">Prihlásiť sa</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="btn btn-sm" style="background-color: var(--brand-orange); color:#fff; border-radius: 9999px; padding-inline: 1rem;"
+                                   href="{{ route('register') }}">
+                                    Registrácia
+                                </a>
+                            </li>
+                        @else
+                            <li class="nav-item d-flex align-items-center me-3">
+                                @if($isRegular)
+                                    <span class="badge me-2" id="userCreditsBadge" style="background-color: var(--brand-orange); color:#fff; border-radius:9999px;">
+                                        Kredity: {{ $user->credits ?? 0 }}
+                                    </span>
+                                @endif
+                                <span class="navbar-text small text-white-50">{{ $user->name }}</span>
+                            </li>
+                            <li class="nav-item">
+                                <form method="POST" action="{{ route('logout') }}">
+                                    @csrf
+                                    <button type="submit" class="btn btn-outline-light btn-sm">Odhlásiť</button>
+                                </form>
+                            </li>
+                        @endguest
+                    </ul>
+                </div>
+            </div>
+
+            {{-- Mobile hamburger ( < 992px ) --}}
+            <button
+                class="app-nav-toggle d-lg-none"
+                type="button"
+                id="appMobileToggle"
+                aria-expanded="false"
+                aria-controls="appMobileMenu"
+            >
+                <span class="visually-hidden">Toggle navigation</span>
+                <span class="app-nav-toggle-icon" aria-hidden="true">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </span>
+            </button>
+        </div>
+    </nav>
+
+    {{-- Mobile overlay menu (full-width under header) --}}
+    <div class="app-mobile-shell d-lg-none" id="appMobileShell">
+        <div class="app-mobile-backdrop" id="appMobileBackdrop"></div>
+        <div class="app-mobile-panel" id="appMobileMenu" role="menu">
+            <div class="app-mobile-nav-header">
                 @auth
-                    @php
-                        /** @var \App\Models\User $user */
-                        $user = auth()->user();
-                    @endphp
+                    <div class="app-mobile-user">
+                        <span class="fw-semibold">{{ $user->name }}</span>
+                        @if($isRegular)
+                            <span class="app-mobile-credits-badge" id="userCreditsBadgeMobile">
+                                Kredity: {{ $user->credits ?? 0 }}
+                            </span>
+                        @endif
+                    </div>
+                @else
+                    <div class="app-mobile-user">
+                        <span class="fw-semibold">Vitajte v Super Gym</span>
+                        <span style="font-size: 0.8rem; color: rgba(255,255,255,0.6);">Prihláste sa alebo si vytvorte účet.</span>
+                    </div>
+                @endauth
 
-                    @if($user->isReception())
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url('/') }}">Home</a>
+                {{-- Close button inside panel for easy reach --}}
+                <button
+                    type="button"
+                    class="btn btn-sm btn-outline-light rounded-pill ms-3"
+                    id="appMobileClose"
+                >
+                    Zavrieť
+                </button>
+            </div>
+
+            {{-- Main navigation sections --}}
+            <div class="app-mobile-nav-section">
+                <div class="app-mobile-subtitle">Navigácia</div>
+                <ul class="app-mobile-nav-list">
+                    @auth
+                        @if($isReception)
+                            <li><a class="app-mobile-link" href="{{ url('/') }}">Home</a></li>
+                            <li><a class="app-mobile-link" href="{{ route('reception.calendar') }}">Kalendár tréningov</a></li>
+                            <li><a class="app-mobile-link" href="{{ route('announcements.index') }}">Oznamy</a></li>
+                            <li><a class="app-mobile-link" href="{{ route('reception.credits.create') }}">Pridanie kreditov</a></li>
+                        @else
+                            <li><a class="app-mobile-link" href="{{ url('/') }}">Home</a></li>
+                            <li><a class="app-mobile-link" href="{{ route('training-calendar.index') }}">Kalendár tréningov</a></li>
+
+                            @if($isRegular)
+                                <li><a class="app-mobile-link" href="{{ route('my-trainings.index') }}">Moje tréningy</a></li>
+                            @endif
+
+                            @if($isAdmin)
+                                <li>
+                                    <div class="app-mobile-subtitle mt-2">Administrácia</div>
+                                </li>
+                                <li><a class="app-mobile-link {{ request()->routeIs('admin.users.index') ? 'active' : '' }}" href="{{ route('admin.users.index') }}">Používatelia</a></li>
+                                <li><a class="app-mobile-link {{ request()->routeIs('admin.trainings.index') ? 'active' : '' }}" href="{{ route('admin.trainings.index') }}">Správa aktuálnych tréningov</a></li>
+                                <li><a class="app-mobile-link {{ request()->routeIs('admin.trainings.archive') ? 'active' : '' }}" href="{{ route('admin.trainings.archive') }}">Archív tréningov</a></li>
+                                <li><a class="app-mobile-link {{ request()->routeIs('admin.announcements.index') ? 'active' : '' }}" href="{{ route('admin.announcements.index') }}">Správa oznamov</a></li>
+                                <li><a class="app-mobile-link {{ request()->routeIs('admin.announcements.archive') ? 'active' : '' }}" href="{{ route('admin.announcements.archive') }}">Archív oznamov</a></li>
+                                <li><a class="app-mobile-link {{ request()->routeIs('announcements.index') ? 'active' : '' }}" href="{{ route('announcements.index') }}">Oznamy (zobrazenie)</a></li>
+                                <li><a class="app-mobile-link {{ request()->routeIs('admin.settings.*') ? 'active' : '' }}" href="{{ route('admin.settings.edit') }}">Nastavenia</a></li>
+                            @else
+                                <li><a class="app-mobile-link {{ request()->routeIs('announcements.index') ? 'active' : '' }}" href="{{ route('announcements.index') }}">Oznamy</a></li>
+                            @endif
+                        @endif
+
+                        @if($isTrainer)
+                            <li class="mt-2">
+                                <div class="app-mobile-subtitle">Tréner</div>
+                            </li>
+                            <li><a class="app-mobile-link" href="{{ route('trainer.trainings.create') }}">Vytvorenie tréningu</a></li>
+                            <li><a class="app-mobile-link" href="{{ route('trainer.trainings.index') }}">Vytvorené tréningy</a></li>
+                        @endif
+                    @endauth
+
+                    @guest
+                        <li><a class="app-mobile-link" href="{{ url('/') }}">Home</a></li>
+                        <li><a class="app-mobile-link" href="{{ route('training-calendar.index') }}">Kalendár tréningov</a></li>
+                        <li><a class="app-mobile-link" href="{{ route('announcements.index') }}">Oznamy</a></li>
+                    @endguest
+                </ul>
+            </div>
+
+            <div class="app-mobile-nav-section">
+                <div class="app-mobile-subtitle">Účet</div>
+                <ul class="app-mobile-nav-list">
+                    @guest
+                        <li>
+                            <a class="app-mobile-link" href="{{ route('login') }}">Prihlásiť sa</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('reception.calendar') }}">Kalendár tréningov</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('announcements.index') }}">Oznamy</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('reception.credits.create') }}">Pridanie kreditov</a>
+                        <li>
+                            <a class="app-mobile-link-button" href="{{ route('register') }}">
+                                Registrácia
+                            </a>
                         </li>
                     @else
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url('/') }}">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('training-calendar.index') }}">Kalendár tréningov</a>
-                        </li>
-
-                        @if($user->isRegularUser())
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ route('my-trainings.index') }}">Moje tréningy</a>
-                            </li>
-                        @endif
-
-                        @if($user->isAdmin())
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ route('admin.users.index') }}">Používatelia</a>
-                            </li>
-
-                            @php
-                                $trainOpen = request()->routeIs('admin.trainings.*');
-                            @endphp
-
-                            {{-- Tréningy: desktop dropdown + mobile collapse (no duplicates). --}}
-                            <li class="nav-item dropdown d-none d-lg-block">
-                                <a class="nav-link dropdown-toggle {{ $trainOpen ? 'active' : '' }}"
-                                   href="#"
-                                   id="trainingsDropdown"
-                                   role="button"
-                                   data-bs-toggle="dropdown"
-                                   aria-expanded="false">
-                                    Tréningy
-                                </a>
-                                <ul class="dropdown-menu dropdown-menu-dark shadow" aria-labelledby="trainingsDropdown">
-                                    <li>
-                                        <a class="dropdown-item {{ request()->routeIs('admin.trainings.index') ? 'active' : '' }}" href="{{ route('admin.trainings.index') }}">
-                                            Správa aktuálnych tréningov
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item {{ request()->routeIs('admin.trainings.archive') ? 'active' : '' }}" href="{{ route('admin.trainings.archive') }}">
-                                            Archív tréningov
-                                        </a>
-                                    </li>
-                                </ul>
-                            </li>
-
-                            <li class="nav-item d-lg-none">
-                                <button class="nav-link d-flex align-items-center mobile-collapse-toggle {{ $trainOpen ? 'active' : '' }}"
-                                        type="button"
-                                        data-bs-toggle="collapse"
-                                        data-bs-target="#trainingsMobile"
-                                        aria-expanded="{{ $trainOpen ? 'true' : 'false' }}"
-                                        aria-controls="trainingsMobile">
-                                    <span>Tréningy</span>
-                                    <span class="caret">▾</span>
+                        <li>
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <button type="submit" class="app-mobile-link-button">
+                                    Odhlásiť
                                 </button>
-                                <div class="collapse {{ $trainOpen ? 'show' : '' }}" id="trainingsMobile">
-                                    <div class="mobile-submenu">
-                                        <a class="nav-link {{ request()->routeIs('admin.trainings.index') ? 'active' : '' }}" href="{{ route('admin.trainings.index') }}">Správa aktuálnych tréningov</a>
-                                        <a class="nav-link mt-1 {{ request()->routeIs('admin.trainings.archive') ? 'active' : '' }}" href="{{ route('admin.trainings.archive') }}">Archív tréningov</a>
-                                    </div>
-                                </div>
-                            </li>
-
-                            @php
-                                $annOpen = request()->routeIs('admin.announcements.*') || request()->routeIs('announcements.*');
-                            @endphp
-
-                            {{-- Desktop/tablet: dropdown. Mobile: inline submenu. --}}
-                            <li class="nav-item dropdown d-none d-lg-block">
-                                <a class="nav-link dropdown-toggle {{ $annOpen ? 'active' : '' }}"
-                                   href="#"
-                                   id="announcementsDropdown"
-                                   role="button"
-                                   data-bs-toggle="dropdown"
-                                   aria-expanded="false">
-                                    Oznamy
-                                </a>
-                                <ul class="dropdown-menu dropdown-menu-dark shadow" aria-labelledby="announcementsDropdown">
-                                    <li>
-                                        <a class="dropdown-item {{ request()->routeIs('admin.announcements.index') ? 'active' : '' }}" href="{{ route('admin.announcements.index') }}">
-                                            Správa oznamov
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item {{ request()->routeIs('admin.announcements.archive') ? 'active' : '' }}" href="{{ route('admin.announcements.archive') }}">
-                                            Archív oznamov
-                                        </a>
-                                    </li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li>
-                                        <a class="dropdown-item {{ request()->routeIs('announcements.index') ? 'active' : '' }}" href="{{ route('announcements.index') }}">
-                                            Oznamy (zobrazenie)
-                                        </a>
-                                    </li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <!-- removed Admin settings from here - now a top-level nav item (moved below) -->
-                                </ul>
-                            </li>
-
-                            <li class="nav-item d-lg-none">
-                                <button class="nav-link d-flex align-items-center mobile-collapse-toggle {{ $annOpen ? 'active' : '' }}"
-                                        type="button"
-                                        data-bs-toggle="collapse"
-                                        data-bs-target="#announcementsMobile"
-                                        aria-expanded="{{ $annOpen ? 'true' : 'false' }}"
-                                        aria-controls="announcementsMobile">
-                                    <span>Oznamy</span>
-                                    <span class="caret">▾</span>
-                                </button>
-                                <div class="collapse {{ $annOpen ? 'show' : '' }}" id="announcementsMobile">
-                                    <div class="mobile-submenu">
-                                        <a class="nav-link {{ request()->routeIs('admin.announcements.index') ? 'active' : '' }}" href="{{ route('admin.announcements.index') }}">Správa oznamov</a>
-                                        <a class="nav-link mt-1 {{ request()->routeIs('admin.announcements.archive') ? 'active' : '' }}" href="{{ route('admin.announcements.archive') }}">Archív oznamov</a>
-                                        <a class="nav-link mt-1 {{ request()->routeIs('announcements.index') ? 'active' : '' }}" href="{{ route('announcements.index') }}">Oznamy (zobrazenie)</a>
-                                        <!-- removed mobile 'Nastavenia' from here - now appears as a separate menu item (moved below) -->
-                                    </div>
-                                </div>
-                            </li>
-
-                            {{-- Move Settings to be last in the admin menu (after Oznamy) --}}
-                            <li class="nav-item">
-                                <a class="nav-link {{ request()->routeIs('admin.settings.*') ? 'active' : '' }}" href="{{ route('admin.settings.edit') }}">Nastavenia</a>
-                            </li>
-
-                        @else
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ route('announcements.index') }}">Oznamy</a>
-                            </li>
-                        @endif
-                    @endif
-
-                    @if($user->isTrainer())
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('trainer.trainings.create') }}">Vytvorenie tréningu</a>
+                            </form>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('trainer.trainings.index') }}">Vytvorené tréningy</a>
-                        </li>
-                    @endif
-                @endauth
-            </ul>
-
-            <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-                @guest
-                    <li class="nav-item">
-                        <a class="nav-link topbar-link" href="{{ route('login') }}">Prihlásiť sa</a>
-                    </li>
-                    <li class="nav-item ms-2">
-                        <a class="nav-link topbar-btn-orange" href="{{ route('register') }}">Registrácia</a>
-                    </li>
-                @else
-                    @php
-                        /** @var \App\Models\User $user */
-                        $user = auth()->user();
-                    @endphp
-                    <li class="nav-item d-flex align-items-center me-2">
-                        @if($user->isRegularUser())
-                            {{-- Desktop-only: on mobile we show credits next to the burger icon, so don't duplicate inside the expanded menu. --}}
-                            <span class="badge topbar-credits me-2 d-none d-lg-inline-flex" id="userCreditsBadge">Kredity: {{ $user->credits ?? 0 }}</span>
-                        @endif
-                        <span class="navbar-text small text-white-50">{{ $user->name }}</span>
-                    </li>
-                    <li class="nav-item">
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
-                            <button type="submit" class="btn btn-outline-light btn-sm">Odhlásiť</button>
-                        </form>
-                    </li>
-                @endguest
-            </ul>
+                    @endguest
+                </ul>
+            </div>
         </div>
     </div>
-</nav>
 @endif
 
 <main class="@if(!empty($overlayTopbar)) p-0 @else py-4 @endif">
@@ -622,52 +655,90 @@
 
 <script>
     (function () {
-        const toggler = document.querySelector('.app-topbar .navbar-toggler');
-        const collapseEl = document.getElementById('navbarSupportedContent');
-        if (!toggler || !collapseEl || typeof bootstrap === 'undefined') return;
+        const shell     = document.getElementById('appMobileShell');
+        const panel     = document.getElementById('appMobileMenu');
+        const backdrop  = document.getElementById('appMobileBackdrop');
+        const toggleBtn = document.getElementById('appMobileToggle');
+        const closeBtn  = document.getElementById('appMobileClose');
 
-        // let Bootstrap handle open/close, we only ensure aria and rely on
-        // our CSS overlay styles to avoid layout jumps.
-        toggler.setAttribute('aria-controls', 'navbarSupportedContent');
-        toggler.setAttribute('aria-expanded', 'false');
-        toggler.setAttribute('aria-label', 'Toggle navigation');
+        if (!shell || !panel || !backdrop || !toggleBtn) return;
 
-        collapseEl.addEventListener('shown.bs.collapse', function () {
-            toggler.setAttribute('aria-expanded', 'true');
-        });
+        let isOpen = false;
 
-        collapseEl.addEventListener('hidden.bs.collapse', function () {
-            toggler.setAttribute('aria-expanded', 'false');
-        });
+        function openMenu() {
+            if (isOpen) return;
+            isOpen = true;
+            shell.classList.add('is-open');
+            toggleBtn.setAttribute('aria-expanded', 'true');
+            document.body.style.overflow = 'hidden'; // lock scroll
+        }
 
-        // Auto-close menu on real navigation link click (but not on submenu toggles).
-        collapseEl.addEventListener('click', function (e) {
-            const clickedToggle = e.target.closest('[data-bs-toggle="collapse"], .mobile-collapse-toggle');
-            const linkEl = e.target.closest('a, button');
-            if (!linkEl) return;
-            if (clickedToggle) return;
-            if (linkEl.tagName === 'A' && (linkEl.getAttribute('href') || '') === '#') return;
-            if (collapseEl.classList.contains('show')) {
-                const inst = bootstrap.Collapse.getInstance(collapseEl);
-                if (inst) inst.hide();
+        function closeMenu() {
+            if (!isOpen) return;
+            isOpen = false;
+            shell.classList.remove('is-open');
+            toggleBtn.setAttribute('aria-expanded', 'false');
+            document.body.style.overflow = ''; // restore scroll
+        }
+
+        // Toggle button
+        toggleBtn.addEventListener('click', function () {
+            if (isOpen) {
+                closeMenu();
+            } else {
+                openMenu();
             }
         });
-    })();
 
-    // Keep dropdowns reliable in the topbar
-    (function () {
-        document.addEventListener('click', function (e) {
-            const toggle = e.target.closest('.app-topbar .dropdown-toggle');
-            if (!toggle) return;
-            const menu = document.getElementById(toggle.getAttribute('aria-controls')) || toggle.nextElementSibling;
-            if (!menu) return;
-            Promise.resolve().then(function () {
-                if (!menu.classList.contains('show')) {
-                    const dd = bootstrap.Dropdown.getOrCreateInstance(toggle);
-                    dd.toggle();
-                }
+        // Close button inside panel
+        if (closeBtn) {
+            closeBtn.addEventListener('click', function () {
+                closeMenu();
             });
+        }
+
+        // Click outside (backdrop)
+        backdrop.addEventListener('click', function () {
+            closeMenu();
         });
+
+        // Close on ESC
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape' || e.key === 'Esc' || e.keyCode === 27) {
+                closeMenu();
+            }
+        });
+
+        // Close on navigation link / form submit inside panel
+        panel.addEventListener('click', function (e) {
+            const link = e.target.closest('a');
+            const button = e.target.closest('button');
+            const form = e.target.closest('form');
+
+            if (form && form.getAttribute('method')?.toLowerCase() === 'post') {
+                // Let logout POST happen; menu will disappear on page load
+                closeMenu();
+                return;
+            }
+
+            if (link) {
+                const href = link.getAttribute('href') || '';
+                if (href && href !== '#') {
+                    closeMenu();
+                }
+            } else if (button && button.type === 'submit') {
+                closeMenu();
+            }
+        });
+
+        // Ensure menu is closed if viewport becomes desktop
+        function handleResize() {
+            if (window.innerWidth >= 992) {
+                closeMenu();
+            }
+        }
+
+        window.addEventListener('resize', handleResize);
     })();
 </script>
 
@@ -688,7 +759,6 @@
                     if (badgeMobile) badgeMobile.textContent = `Kredity: ${value}`;
                 }
 
-                // React to programmatic updates from other scripts (e.g. training-calendar.js)
                 try {
                     window.addEventListener('credits:updated', function (ev) {
                         try {
@@ -696,15 +766,12 @@
                             if (typeof v !== 'undefined') setBadgeCredits(v);
                         } catch (e) { /* ignore */ }
                     });
-                } catch (e) {
-                    // ignore
-                }
+                } catch (e) {}
 
                 async function pollMyCredits() {
                     try {
                         const routeUrl = @json(route('me.credits'));
                         if (!routeUrl) return;
-                        console.debug('pollMyCredits: fetching', routeUrl);
                         const res = await fetch(routeUrl, {
                             headers: {
                                 'Accept': 'application/json',
@@ -727,9 +794,7 @@
                     }
                 }
 
-                // Run once immediately so mobile users see their credits without waiting 5s
                 pollMyCredits();
-                // Poll every 5 seconds
                 setInterval(pollMyCredits, 5000);
             })();
         </script>
