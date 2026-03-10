@@ -173,6 +173,9 @@
                         <th>Počet tréningov</th>
                         <th>Počet rezervácií</th>
                         <th>Priemerné zaplnenie (%)</th>
+                        <th>Unikátni účastníci</th>
+                        <th>Zrušené rezervácie</th>
+                        <th>Získané kredity</th>
                         <th>Hodnotenie</th>
                     </tr>
                     </thead>
@@ -183,6 +186,9 @@
                             <td>{{ $row['trainings_count'] }}</td>
                             <td>{{ $row['reservations'] }}</td>
                             <td>{{ $row['avg_occupancy'] }}</td>
+                            <td>{{ $row['unique_participants'] }}</td>
+                            <td>{{ $row['canceled_reservations'] }}</td>
+                            <td>{{ $row['credits_gained'] }}</td>
                             <td>
                                 @if($row['rating'] === null)
                                     <span class="text-muted small">nie je k dispozícii</span>
@@ -193,7 +199,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="text-center text-muted py-3">Žiadne dáta.</td>
+                            <td colspan="8" class="text-center text-muted py-3">Žiadne dáta.</td>
                         </tr>
                     @endforelse
                     </tbody>
