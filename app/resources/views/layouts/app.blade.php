@@ -403,40 +403,52 @@
                     {{-- Left: nav links (AUTH ONLY) --}}
                     <ul class="navbar-nav me-auto mb-0">
                         @auth
+                            @php
+                                $isHomeActive          = request()->routeIs('home') || url()->current() === url('/');
+                                $isCalendarActive      = request()->routeIs('training-calendar.*') || request()->routeIs('reception.calendar');
+                                $isMyTrainingsActive   = request()->routeIs('my-trainings.*');
+                                $isUsersActive         = request()->routeIs('admin.users.*');
+                                $isTrainerCreateActive = request()->routeIs('trainer.trainings.create');
+                                $isTrainerIndexActive  = request()->routeIs('trainer.trainings.index');
+                                $isAnnouncementsList   = request()->routeIs('announcements.index');
+                                $isReceptionCredits    = request()->routeIs('reception.credits.*');
+                                $isSettingsActive      = request()->routeIs('admin.settings.*');
+                            @endphp
+
                             @if($isReception)
                                 <li class="nav-item">
-                                    <a class="nav-link" href="{{ url('/') }}">Home</a>
+                                    <a class="nav-link {{ $isHomeActive ? 'nav-link-active' : '' }}" href="{{ url('/') }}">Home</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('reception.calendar') }}">Kalendár tréningov</a>
+                                    <a class="nav-link {{ $isCalendarActive ? 'nav-link-active' : '' }}" href="{{ route('reception.calendar') }}">Kalendár tréningov</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('announcements.index') }}">Oznamy</a>
+                                    <a class="nav-link {{ $isAnnouncementsList ? 'nav-link-active' : '' }}" href="{{ route('announcements.index') }}">Oznamy</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('reception.credits.create') }}">Pridanie kreditov</a>
+                                    <a class="nav-link {{ $isReceptionCredits ? 'nav-link-active' : '' }}" href="{{ route('reception.credits.create') }}">Pridanie kreditov</a>
                                 </li>
                             @else
                                 <li class="nav-item">
-                                    <a class="nav-link" href="{{ url('/') }}">Home</a>
+                                    <a class="nav-link {{ $isHomeActive ? 'nav-link-active' : '' }}" href="{{ url('/') }}">Home</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('training-calendar.index') }}">Kalendár tréningov</a>
+                                    <a class="nav-link {{ $isCalendarActive ? 'nav-link-active' : '' }}" href="{{ route('training-calendar.index') }}">Kalendár tréningov</a>
                                 </li>
 
                                 @if($isRegular)
                                     <li class="nav-item">
-                                        <a class="nav-link" href="{{ route('my-trainings.index') }}">Moje tréningy</a>
+                                        <a class="nav-link {{ $isMyTrainingsActive ? 'nav-link-active' : '' }}" href="{{ route('my-trainings.index') }}">Moje tréningy</a>
                                     </li>
                                 @endif
 
                                 @if($isAdmin)
                                     <li class="nav-item">
-                                        <a class="nav-link" href="{{ route('admin.users.index') }}">Používatelia</a>
+                                        <a class="nav-link {{ $isUsersActive ? 'nav-link-active' : '' }}" href="{{ route('admin.users.index') }}">Používatelia</a>
                                     </li>
 
                                     <li class="nav-item dropdown">
-                                        <a class="nav-link dropdown-toggle {{ $trainOpen ? 'active' : '' }}"
+                                        <a class="nav-link dropdown-toggle {{ $trainOpen ? 'nav-link-active' : '' }}"
                                            href="#"
                                            id="trainingsDropdown"
                                            role="button"
@@ -446,12 +458,12 @@
                                         </a>
                                         <ul class="dropdown-menu dropdown-menu-dark shadow" aria-labelledby="trainingsDropdown">
                                             <li>
-                                                <a class="dropdown-item {{ request()->routeIs('admin.trainings.index') ? 'active' : '' }}" href="{{ route('admin.trainings.index') }}">
+                                                <a class="dropdown-item {{ request()->routeIs('admin.trainings.index') ? 'dropdown-item-active' : '' }}" href="{{ route('admin.trainings.index') }}">
                                                     Správa aktuálnych tréningov
                                                 </a>
                                             </li>
                                             <li>
-                                                <a class="dropdown-item {{ request()->routeIs('admin.trainings.archive') ? 'active' : '' }}" href="{{ route('admin.trainings.archive') }}">
+                                                <a class="dropdown-item {{ request()->routeIs('admin.trainings.archive') ? 'dropdown-item-active' : '' }}" href="{{ route('admin.trainings.archive') }}">
                                                     Archív tréningov
                                                 </a>
                                             </li>
@@ -459,7 +471,7 @@
                                     </li>
 
                                     <li class="nav-item dropdown">
-                                        <a class="nav-link dropdown-toggle {{ $annOpen ? 'active' : '' }}"
+                                        <a class="nav-link dropdown-toggle {{ $annOpen ? 'nav-link-active' : '' }}"
                                            href="#"
                                            id="announcementsDropdown"
                                            role="button"
@@ -469,18 +481,18 @@
                                         </a>
                                         <ul class="dropdown-menu dropdown-menu-dark shadow" aria-labelledby="announcementsDropdown">
                                             <li>
-                                                <a class="dropdown-item {{ request()->routeIs('admin.announcements.index') ? 'active' : '' }}" href="{{ route('admin.announcements.index') }}">
+                                                <a class="dropdown-item {{ request()->routeIs('admin.announcements.index') ? 'dropdown-item-active' : '' }}" href="{{ route('admin.announcements.index') }}">
                                                     Správa oznamov
                                                 </a>
                                             </li>
                                             <li>
-                                                <a class="dropdown-item {{ request()->routeIs('admin.announcements.archive') ? 'active' : '' }}" href="{{ route('admin.announcements.archive') }}">
+                                                <a class="dropdown-item {{ request()->routeIs('admin.announcements.archive') ? 'dropdown-item-active' : '' }}" href="{{ route('admin.announcements.archive') }}">
                                                     Archív oznamov
                                                 </a>
                                             </li>
                                             <li><hr class="dropdown-divider"></li>
                                             <li>
-                                                <a class="dropdown-item {{ request()->routeIs('announcements.index') ? 'active' : '' }}" href="{{ route('announcements.index') }}">
+                                                <a class="dropdown-item {{ $isAnnouncementsList ? 'dropdown-item-active' : '' }}" href="{{ route('announcements.index') }}">
                                                     Oznamy (zobrazenie)
                                                 </a>
                                             </li>
@@ -488,22 +500,22 @@
                                     </li>
 
                                     <li class="nav-item">
-                                        <a class="nav-link {{ request()->routeIs('admin.settings.*') ? 'active' : '' }}" href="{{ route('admin.settings.edit') }}">Nastavenia</a>
+                                        <a class="nav-link {{ $isSettingsActive ? 'nav-link-active' : '' }}" href="{{ route('admin.settings.edit') }}">Nastavenia</a>
                                     </li>
 
                                 @else
                                     <li class="nav-item">
-                                        <a class="nav-link" href="{{ route('announcements.index') }}">Oznamy</a>
+                                        <a class="nav-link {{ $isAnnouncementsList ? 'nav-link-active' : '' }}" href="{{ route('announcements.index') }}">Oznamy</a>
                                     </li>
                                 @endif
                             @endif
 
                             @if($isTrainer)
                                 <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('trainer.trainings.create') }}">Vytvorenie tréningu</a>
+                                    <a class="nav-link {{ $isTrainerCreateActive ? 'nav-link-active' : '' }}" href="{{ route('trainer.trainings.create') }}">Vytvorenie tréningu</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('trainer.trainings.index') }}">Vytvorené tréningy</a>
+                                    <a class="nav-link {{ $isTrainerIndexActive ? 'nav-link-active' : '' }}" href="{{ route('trainer.trainings.index') }}">Vytvorené tréningy</a>
                                 </li>
                             @endif
                         @endauth
@@ -581,25 +593,37 @@
 
     {{-- Mobile overlay menu (AUTH ONLY) --}}
     @auth
+        @php
+            // Reuse the same active flags for mobile
+            $isHomeActive          = request()->routeIs('home') || url()->current() === url('/');
+            $isCalendarActive      = request()->routeIs('training-calendar.*') || request()->routeIs('reception.calendar');
+            $isMyTrainingsActive   = request()->routeIs('my-trainings.*');
+            $isUsersActive         = request()->routeIs('admin.users.*');
+            $isTrainerCreateActive = request()->routeIs('trainer.trainings.create');
+            $isTrainerIndexActive  = request()->routeIs('trainer.trainings.index');
+            $isAnnouncementsList   = request()->routeIs('announcements.index');
+            $isReceptionCredits    = request()->routeIs('reception.credits.*');
+            $isSettingsActive      = request()->routeIs('admin.settings.*');
+        @endphp
         <div class="app-mobile-shell d-lg-none" id="appMobileShell">
             <div class="app-mobile-backdrop" id="appMobileBackdrop"></div>
             <div class="app-mobile-panel" id="appMobileMenu" role="menu">
                 <ul class="app-mobile-nav-list mb-3">
                     @if($isReception)
-                        <li><a class="app-mobile-link" href="{{ url('/') }}">Home</a></li>
-                        <li><a class="app-mobile-link" href="{{ route('reception.calendar') }}">Kalendár tréningov</a></li>
-                        <li><a class="app-mobile-link" href="{{ route('announcements.index') }}">Oznamy</a></li>
-                        <li><a class="app-mobile-link" href="{{ route('reception.credits.create') }}">Pridanie kreditov</a></li>
+                        <li><a class="app-mobile-link {{ $isHomeActive ? 'app-mobile-link-active' : '' }}" href="{{ url('/') }}">Home</a></li>
+                        <li><a class="app-mobile-link {{ $isCalendarActive ? 'app-mobile-link-active' : '' }}" href="{{ route('reception.calendar') }}">Kalendár tréningov</a></li>
+                        <li><a class="app-mobile-link {{ $isAnnouncementsList ? 'app-mobile-link-active' : '' }}" href="{{ route('announcements.index') }}">Oznamy</a></li>
+                        <li><a class="app-mobile-link {{ $isReceptionCredits ? 'app-mobile-link-active' : '' }}" href="{{ route('reception.credits.create') }}">Pridanie kreditov</a></li>
                     @else
-                        <li><a class="app-mobile-link" href="{{ url('/') }}">Home</a></li>
-                        <li><a class="app-mobile-link" href="{{ route('training-calendar.index') }}">Kalendár tréningov</a></li>
+                        <li><a class="app-mobile-link {{ $isHomeActive ? 'app-mobile-link-active' : '' }}" href="{{ url('/') }}">Home</a></li>
+                        <li><a class="app-mobile-link {{ $isCalendarActive ? 'app-mobile-link-active' : '' }}" href="{{ route('training-calendar.index') }}">Kalendár tréningov</a></li>
 
                         @if($isRegular)
-                            <li><a class="app-mobile-link" href="{{ route('my-trainings.index') }}">Moje tréningy</a></li>
+                            <li><a class="app-mobile-link {{ $isMyTrainingsActive ? 'app-mobile-link-active' : '' }}" href="{{ route('my-trainings.index') }}">Moje tréningy</a></li>
                         @endif
 
                         @if($isAdmin)
-                            <li><a class="app-mobile-link {{ request()->routeIs('admin.users.index') ? 'active' : '' }}" href="{{ route('admin.users.index') }}">Používatelia</a></li>
+                            <li><a class="app-mobile-link {{ $isUsersActive ? 'app-mobile-link-active' : '' }}" href="{{ route('admin.users.index') }}">Používatelia</a></li>
 
                             <li>
                                 <button class="app-mobile-submenu-toggle" type="button" data-mobile-submenu-toggle="trainings">
@@ -607,8 +631,8 @@
                                     <span class="app-mobile-submenu-chevron">▾</span>
                                 </button>
                                 <ul class="app-mobile-nav-list mt-1" data-mobile-submenu="trainings" hidden>
-                                    <li><a class="app-mobile-link {{ request()->routeIs('admin.trainings.index') ? 'active' : '' }}" href="{{ route('admin.trainings.index') }}">Správa aktuálnych tréningov</a></li>
-                                    <li><a class="app-mobile-link {{ request()->routeIs('admin.trainings.archive') ? 'active' : '' }}" href="{{ route('admin.trainings.archive') }}">Archív tréningov</a></li>
+                                    <li><a class="app-mobile-link {{ request()->routeIs('admin.trainings.index') ? 'app-mobile-link-active' : '' }}" href="{{ route('admin.trainings.index') }}">Správa aktuálnych tréningov</a></li>
+                                    <li><a class="app-mobile-link {{ request()->routeIs('admin.trainings.archive') ? 'app-mobile-link-active' : '' }}" href="{{ route('admin.trainings.archive') }}">Archív tréningov</a></li>
                                 </ul>
                             </li>
 
@@ -618,21 +642,21 @@
                                     <span class="app-mobile-submenu-chevron">▾</span>
                                 </button>
                                 <ul class="app-mobile-nav-list mt-1" data-mobile-submenu="announcements" hidden>
-                                    <li><a class="app-mobile-link {{ request()->routeIs('admin.announcements.index') ? 'active' : '' }}" href="{{ route('admin.announcements.index') }}">Správa oznamov</a></li>
-                                    <li><a class="app-mobile-link {{ request()->routeIs('admin.announcements.archive') ? 'active' : '' }}" href="{{ route('admin.announcements.archive') }}">Archív oznamov</a></li>
-                                    <li><a class="app-mobile-link {{ request()->routeIs('announcements.index') ? 'active' : '' }}" href="{{ route('announcements.index') }}">Oznamy (zobrazenie)</a></li>
+                                    <li><a class="app-mobile-link {{ request()->routeIs('admin.announcements.index') ? 'app-mobile-link-active' : '' }}" href="{{ route('admin.announcements.index') }}">Správa oznamov</a></li>
+                                    <li><a class="app-mobile-link {{ request()->routeIs('admin.announcements.archive') ? 'app-mobile-link-active' : '' }}" href="{{ route('admin.announcements.archive') }}">Archív oznamov</a></li>
+                                    <li><a class="app-mobile-link {{ $isAnnouncementsList ? 'app-mobile-link-active' : '' }}" href="{{ route('announcements.index') }}">Oznamy (zobrazenie)</a></li>
                                 </ul>
                             </li>
 
-                            <li><a class="app-mobile-link {{ request()->routeIs('admin.settings.*') ? 'active' : '' }}" href="{{ route('admin.settings.edit') }}">Nastavenia</a></li>
+                            <li><a class="app-mobile-link {{ $isSettingsActive ? 'app-mobile-link-active' : '' }}" href="{{ route('admin.settings.edit') }}">Nastavenia</a></li>
                         @else
-                            <li><a class="app-mobile-link {{ request()->routeIs('announcements.index') ? 'active' : '' }}" href="{{ route('announcements.index') }}">Oznamy</a></li>
+                            <li><a class="app-mobile-link {{ $isAnnouncementsList ? 'app-mobile-link-active' : '' }}" href="{{ route('announcements.index') }}">Oznamy</a></li>
                         @endif
                     @endif
 
                     @if($isTrainer)
-                        <li><a class="app-mobile-link" href="{{ route('trainer.trainings.create') }}">Vytvorenie tréningu</a></li>
-                        <li><a class="app-mobile-link" href="{{ route('trainer.trainings.index') }}">Vytvorené tréningy</a></li>
+                        <li><a class="app-mobile-link {{ $isTrainerCreateActive ? 'app-mobile-link-active' : '' }}" href="{{ route('trainer.trainings.create') }}">Vytvorenie tréningu</a></li>
+                        <li><a class="app-mobile-link {{ $isTrainerIndexActive ? 'app-mobile-link-active' : '' }}" href="{{ route('trainer.trainings.index') }}">Vytvorené tréningy</a></li>
                     @endif
                 </ul>
 
