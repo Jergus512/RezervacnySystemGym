@@ -40,7 +40,10 @@ class TrainingCalendarController extends Controller
             ->with(['users:id,name', 'creator:id,name'])
             ->when($forRegistrationUser && $userId, function ($q) use ($userId) {
                 $q->withExists([
-                    'users as is_registered' => fn ($uq) => $uq->where('users.id', $userId),
+                    'users as is_registered' => function ($uq) use ($userId) {
+                        $uq->where('users.id', $userId)
+                           ->where('training_registrations.status', 'active');
+                    },
                 ]);
             })
             ->orderBy('start_at')

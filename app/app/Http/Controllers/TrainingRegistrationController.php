@@ -33,12 +33,14 @@ class TrainingRegistrationController extends Controller
             // Lock user row to prevent double-charge in concurrent requests
             $user = $user->newQuery()->whereKey($user->id)->lockForUpdate()->first();
 
-            $alreadyRegistered = $training->users()
-                ->where('users.id', $user->id)
-                ->exists();
+            // Work with the pivot model directly so we can distinguish active vs canceled registrations
+            $registration = TrainingRegistration::withoutGlobalScopes()
+                ->where('training_id', $training->id)
+                ->where('user_id', $user->id)
+                ->first();
 
-            // Already registered => do nothing (no charge)
-            if ($alreadyRegistered) {
+            // If there's already an active registration, do nothing (no double-charge)
+            if ($registration && $registration->status === 'active') {
                 return;
             }
 
@@ -48,7 +50,13 @@ class TrainingRegistrationController extends Controller
                 abort(422, 'Tréning je už plný.');
             }
 
-            $training->users()->attach($user->id, ['status' => 'active']);
+            // If there is a canceled registration row, reactivate it instead of inserting a duplicate
+            if ($registration && $registration->status === 'canceled') {
+                $registration->status = 'active';
+                $registration->save();
+            } else {
+                $training->users()->attach($user->id, ['status' => 'active']);
+            }
 
             $price = (int) ($training->price ?? 0);
 
