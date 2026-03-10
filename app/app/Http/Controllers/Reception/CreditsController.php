@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Reception;
 
 use App\Http\Controllers\Controller;
+use App\Models\CreditMovement;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -58,6 +59,16 @@ class CreditsController extends Controller
             }
 
             $user->increment('credits', $creditsToAdd);
+
+            CreditMovement::create([
+                'user_id' => $user->id,
+                'amount' => $creditsToAdd,
+                'type' => 'reception_add',
+                'description' => 'Pridanie kreditov recepciou',
+                'meta' => [
+                    'added_by' => auth()->id(),
+                ],
+            ]);
 
             $updatedUser = $user->refresh();
         });

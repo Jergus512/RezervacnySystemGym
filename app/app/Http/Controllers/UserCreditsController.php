@@ -16,8 +16,25 @@ class UserCreditsController extends Controller
     {
         $user = Auth::user();
 
+        if (! $user || ! $user->isRegularUser()) {
+            abort(403);
+        }
+
+        $movements = $user->creditMovements()
+            ->orderByDesc('created_at')
+            ->limit(200)
+            ->get();
+
+        $balance = (int) ($user->credits ?? 0);
+        $totalAdded = $movements->where('amount', '>', 0)->sum('amount');
+        $totalSubtracted = $movements->where('amount', '<', 0)->sum('amount');
+
         return view('user.credits-history', [
             'user' => $user,
+            'movements' => $movements,
+            'balance' => $balance,
+            'totalAdded' => $totalAdded,
+            'totalSubtracted' => $totalSubtracted,
         ]);
     }
 

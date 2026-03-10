@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\CreditMovement;
 use App\Models\Training;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -46,16 +47,23 @@ class TrainingRegistrationController extends Controller
                 abort(422, 'Tréning je už plný.');
             }
 
-            $price = (int) ($training->price ?? 0);
-
-            if ($price > 0 && (int) $user->credits < $price) {
-                abort(422, 'Nemáš dostatok kreditov.');
-            }
-
             $training->users()->attach($user->id);
+
+            $price = (int) ($training->price ?? 0);
 
             if ($price > 0) {
                 $user->decrement('credits', $price);
+
+                CreditMovement::create([
+                    'user_id' => $user->id,
+                    'amount' => -$price,
+                    'type' => 'training_charge',
+                    'description' => 'Rezervácia tréningu: '.$training->title,
+                    'meta' => [
+                        'training_id' => $training->id,
+                        'start_at' => optional($training->start_at)->toIso8601String(),
+                    ],
+                ]);
             }
         });
 
@@ -131,6 +139,17 @@ class TrainingRegistrationController extends Controller
 
                 if ($refundAmount > 0) {
                     $user->increment('credits', $refundAmount);
+
+                    CreditMovement::create([
+                        'user_id' => $user->id,
+                        'amount' => $refundAmount,
+                        'type' => 'training_refund',
+                        'description' => 'Vrátenie kreditov za zrušený tréning: '.$training->title,
+                        'meta' => [
+                            'training_id' => $training->id,
+                            'start_at' => optional($training->start_at)->toIso8601String(),
+                        ],
+                    ]);
                 }
             }
         });

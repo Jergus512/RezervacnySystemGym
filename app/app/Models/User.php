@@ -86,6 +86,11 @@ class User extends Authenticatable
         return ! $this->isAdmin() && ! $this->isTrainer() && ! $this->isReception();
     }
 
+    public function creditMovements(): HasMany
+    {
+        return $this->hasMany(CreditMovement::class);
+    }
+
     public function createdTrainings(): HasMany
     {
         return $this->hasMany(Training::class, 'created_by_user_id');
