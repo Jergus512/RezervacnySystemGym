@@ -389,6 +389,7 @@
         $isRegular    = $user && $user->isRegularUser();
         $trainOpen    = request()->routeIs('admin.trainings.*');
         $annOpen      = request()->routeIs('admin.announcements.*') || request()->routeIs('announcements.*');
+        $analyticsOpen = request()->routeIs('admin.analytics.*');
     @endphp
 
     <nav class="app-topbar">
@@ -414,6 +415,7 @@
                                 $isAnnouncementsList   = request()->routeIs('announcements.index');
                                 $isReceptionCredits    = request()->routeIs('reception.credits.*');
                                 $isSettingsActive      = request()->routeIs('admin.settings.*');
+                                $isAnalyticsActive     = request()->routeIs('admin.analytics.*');
                             @endphp
 
                             @if($isReception)
@@ -526,6 +528,10 @@
                                     </li>
 
                                     <li class="nav-item">
+                                        <a class="nav-link {{ $isAnalyticsActive ? 'nav-link-active' : '' }}" href="{{ route('admin.analytics.index') }}">Štatistiky</a>
+                                    </li>
+
+                                    <li class="nav-item">
                                         <a class="nav-link {{ $isSettingsActive ? 'nav-link-active' : '' }}" href="{{ route('admin.settings.edit') }}">Nastavenia</a>
                                     </li>
 
@@ -630,6 +636,7 @@
             $isAnnouncementsList   = request()->routeIs('announcements.index');
             $isReceptionCredits    = request()->routeIs('reception.credits.*');
             $isSettingsActive      = request()->routeIs('admin.settings.*');
+            $isAnalyticsActive     = request()->routeIs('admin.analytics.*');
         @endphp
         <div class="app-mobile-shell d-lg-none" id="appMobileShell">
             <div class="app-mobile-backdrop" id="appMobileBackdrop"></div>
@@ -672,6 +679,7 @@
 
                         @if($isAdmin)
                             <li><a class="app-mobile-link {{ $isUsersActive ? 'app-mobile-link-active' : '' }}" href="{{ route('admin.users.index') }}">Používatelia</a></li>
+                            <li><a class="app-mobile-link {{ $isAnalyticsActive ? 'app-mobile-link-active' : '' }}" href="{{ route('admin.analytics.index') }}">Štatistiky</a></li>
 
                             <li>
                                 <button class="app-mobile-submenu-toggle" type="button" data-mobile-submenu-toggle="trainings">
