@@ -125,6 +125,7 @@
 
             .app-nav-desktop .dropdown-menu-dark {
                 background-color: #111827;
+                min-width: 230px;
             }
         }
 
@@ -453,17 +454,14 @@
                                             Štatistiky
                                         </a>
                                         <ul class="dropdown-menu dropdown-menu-dark shadow" aria-labelledby="statsDropdown">
-                                            <li class="dropdown-header small text-muted px-3 pt-2 pb-1">Kredity</li>
                                             <li>
                                                 <a class="dropdown-item {{ request()->routeIs('user-credits.*') ? 'dropdown-item-active' : '' }}" href="{{ route('user-credits.history') }}">
                                                     Evidencia zmien kreditov
                                                 </a>
                                             </li>
-                                            <li><hr class="dropdown-divider"></li>
-                                            <li class="dropdown-header small text-muted px-3 pt-1 pb-1">Tréningy</li>
                                             <li>
                                                 <a class="dropdown-item {{ request()->routeIs('user-trainings.*') ? 'dropdown-item-active' : '' }}" href="{{ route('user-trainings.history') }}">
-                                                    Prehľad absolvovaných tréningov
+                                                    Štatistiky tréningov
                                                 </a>
                                             </li>
                                         </ul>
