@@ -534,11 +534,13 @@
     <div class="app-mobile-shell d-lg-none" id="appMobileShell">
         <div class="app-mobile-backdrop" id="appMobileBackdrop"></div>
         <div class="app-mobile-panel" id="appMobileMenu" role="menu">
-            @php($isHomepage = url()->current() === url('/'))
+            @php
+                $isHomepage = url()->current() === url('/');
+            @endphp
 
             <div class="app-mobile-nav-header">
                 @auth
-                    {{-- On homepage neskryvame meno, ale pokojne môžeme – zatiaľ necháme meno len pre prihlásených --}}
+                    {{-- Meno a kredity prihláseného používateľa --}}
                     <div class="app-mobile-user">
                         <span class="fw-semibold">{{ $user->name }}</span>
                         @if($isRegular)
@@ -548,6 +550,7 @@
                         @endif
                     </div>
                 @else
+                    {{-- Text "Vitajte v Super Gym" zobrazuj len mimo homepage --}}
                     @if(! $isHomepage)
                         <div class="app-mobile-user">
                             <span class="fw-semibold">Vitajte v Super Gym</span>
@@ -566,7 +569,7 @@
                 </button>
             </div>
 
-            {{-- Main navigation sections --}}
+            {{-- Main navigation sections (skryté na homepage) --}}
             @if(! $isHomepage)
                 <div class="app-mobile-nav-section">
                     <div class="app-mobile-subtitle">Navigácia</div>
@@ -595,8 +598,7 @@
                                     <li><a class="app-mobile-link {{ request()->routeIs('admin.announcements.index') ? 'active' : '' }}" href="{{ route('admin.announcements.index') }}">Správa oznamov</a></li>
                                     <li><a class="app-mobile-link {{ request()->routeIs('admin.announcements.archive') ? 'active' : '' }}" href="{{ route('admin.announcements.archive') }}">Archív oznamov</a></li>
                                     <li><a class="app-mobile-link {{ request()->routeIs('announcements.index') ? 'active' : '' }}" href="{{ route('announcements.index') }}">Oznamy (zobrazenie)</a></li>
-                                    <li><a class="app-mobile-link {{ request()->routeIs('admin.settings.*') ? 'active' : '' }}" href="{{ route('admin.settings.edit') }}">Nastavenia</a>
-                                    </li>
+                                    <li><a class="app-mobile-link {{ request()->routeIs('admin.settings.*') ? 'active' : '' }}" href="{{ route('admin.settings.edit') }}">Nastavenia</a></li>
                                 @else
                                     <li><a class="app-mobile-link {{ request()->routeIs('announcements.index') ? 'active' : '' }}" href="{{ route('announcements.index') }}">Oznamy</a></li>
                                 @endif
@@ -620,6 +622,7 @@
                 </div>
             @endif
 
+            {{-- Účet sekcia (vždy, aj na homepage) --}}
             <div class="app-mobile-nav-section">
                 <div class="app-mobile-subtitle">Účet</div>
                 <ul class="app-mobile-nav-list">
