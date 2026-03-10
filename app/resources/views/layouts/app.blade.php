@@ -417,7 +417,7 @@
 
                             @if($isReception)
                                 <li class="nav-item">
-                                    <a class="nav-link {{ $isHomeActive ? 'nav-link-active' : '' }}" href="{{ url('/') }}">Home</a>
+                                    <a class="nav-link {{ $isHomeActive ? 'nav-link-active' : '' }}" href="{{ url('/') }}">Domov</a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link {{ $isCalendarActive ? 'nav-link-active' : '' }}" href="{{ route('reception.calendar') }}">Kalendár tréningov</a>
@@ -430,7 +430,7 @@
                                 </li>
                             @else
                                 <li class="nav-item">
-                                    <a class="nav-link {{ $isHomeActive ? 'nav-link-active' : '' }}" href="{{ url('/') }}">Home</a>
+                                    <a class="nav-link {{ $isHomeActive ? 'nav-link-active' : '' }}" href="{{ url('/') }}">Domov</a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link {{ $isCalendarActive ? 'nav-link-active' : '' }}" href="{{ route('training-calendar.index') }}">Kalendár tréningov</a>
@@ -610,12 +610,12 @@
             <div class="app-mobile-panel" id="appMobileMenu" role="menu">
                 <ul class="app-mobile-nav-list mb-3">
                     @if($isReception)
-                        <li><a class="app-mobile-link {{ $isHomeActive ? 'app-mobile-link-active' : '' }}" href="{{ url('/') }}">Home</a></li>
+                        <li><a class="app-mobile-link {{ $isHomeActive ? 'app-mobile-link-active' : '' }}" href="{{ url('/') }}">Domov</a></li>
                         <li><a class="app-mobile-link {{ $isCalendarActive ? 'app-mobile-link-active' : '' }}" href="{{ route('reception.calendar') }}">Kalendár tréningov</a></li>
                         <li><a class="app-mobile-link {{ $isAnnouncementsList ? 'app-mobile-link-active' : '' }}" href="{{ route('announcements.index') }}">Oznamy</a></li>
                         <li><a class="app-mobile-link {{ $isReceptionCredits ? 'app-mobile-link-active' : '' }}" href="{{ route('reception.credits.create') }}">Pridanie kreditov</a></li>
                     @else
-                        <li><a class="app-mobile-link {{ $isHomeActive ? 'app-mobile-link-active' : '' }}" href="{{ url('/') }}">Home</a></li>
+                        <li><a class="app-mobile-link {{ $isHomeActive ? 'app-mobile-link-active' : '' }}" href="{{ url('/') }}">Domov</a></li>
                         <li><a class="app-mobile-link {{ $isCalendarActive ? 'app-mobile-link-active' : '' }}" href="{{ route('training-calendar.index') }}">Kalendár tréningov</a></li>
 
                         @if($isRegular)
