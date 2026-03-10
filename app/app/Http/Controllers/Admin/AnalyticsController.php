@@ -48,19 +48,14 @@ class AnalyticsController extends Controller
     {
         $period = CarbonPeriod::create($start->copy()->startOfMonth(), '1 month', $end->copy()->endOfMonth());
 
-        // MySQL: group by year-month using DATE_FORMAT
         $reservationsPerMonth = DB::table('training_registrations')
             ->selectRaw('DATE_FORMAT(created_at, "%Y-%m") as ym, COUNT(*) as registrations')
             ->whereBetween('created_at', [$start, $end])
             ->groupBy('ym')
             ->pluck('registrations', 'ym');
 
-        $cancellationsPerMonth = DB::table('training_registrations')
-            ->selectRaw('DATE_FORMAT(updated_at, "%Y-%m") as ym, COUNT(*) as cancellations')
-            ->where('status', 'cancelled')
-            ->whereBetween('updated_at', [$start, $end])
-            ->groupBy('ym')
-            ->pluck('cancellations', 'ym');
+        // Nemáme stĺpec status, takže zrušenia nevieme rozlíšiť – zatiaľ 0
+        $cancellationsPerMonth = [];
 
         // Priemerná obsadenosť za mesiac – MySQL agregácia
         $occupancyRows = DB::table('trainings')
@@ -113,16 +108,16 @@ class AnalyticsController extends Controller
             ->whereBetween('trainings.start_at', [$start, $end]);
 
         $totalReservations = (clone $baseQuery)->count();
-        $canceled          = (clone $baseQuery)->where('training_registrations.status', 'cancelled')->count();
 
-        // MySQL: DAYOFWEEK (1=Sunday ... 7=Saturday)
+        // Bez stĺpca status nevieme priamo zistiť zrušené rezervácie – nastavíme 0
+        $canceled = 0;
+
         $dayOfWeek = (clone $baseQuery)
             ->selectRaw('DAYOFWEEK(trainings.start_at) as dow, COUNT(*) as c')
             ->groupBy('dow')
             ->orderBy('c', 'desc')
             ->get();
 
-        // MySQL: HOUR() for time slots
         $timeSlots = (clone $baseQuery)
             ->selectRaw('LPAD(HOUR(trainings.start_at), 2, "0") as slot, COUNT(*) as c')
             ->groupBy('slot')
@@ -130,10 +125,10 @@ class AnalyticsController extends Controller
             ->get();
 
         return [
-            'total_reservations'   => $totalReservations,
-            'canceled_reservations'=> $canceled,
-            'days_of_week'         => $dayOfWeek,
-            'time_slots'           => $timeSlots,
+            'total_reservations'    => $totalReservations,
+            'canceled_reservations' => $canceled,
+            'days_of_week'          => $dayOfWeek,
+            'time_slots'            => $timeSlots,
         ];
     }
 
@@ -187,7 +182,6 @@ class AnalyticsController extends Controller
 
             $reservationsCount = DB::table('training_registrations')
                 ->whereIn('training_id', $trainingIds)
-                ->where('status', '!=', 'cancelled')
                 ->count();
 
             $capacitySum = (int) $trainings->sum('capacity');
