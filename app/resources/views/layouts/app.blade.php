@@ -243,7 +243,7 @@
             right: 0;
             max-height: 100%;
             background-color: #050505;
-            padding: 0.75rem 1.0rem 1.25rem;
+            padding: 0.75rem 1rem 1.25rem;
             transform: translateY(-12px);
             opacity: 0;
             visibility: hidden;
@@ -278,40 +278,6 @@
         }
 
         /* Mobile menu content */
-
-        .app-mobile-nav-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 0.75rem;
-            margin-bottom: .75rem;
-        }
-
-        .app-mobile-user {
-            display: flex;
-            flex-direction: column;
-            gap: 0.15rem;
-            font-size: 0.875rem;
-            color: rgba(255, 255, 255, 0.85);
-        }
-
-        .app-mobile-credits-badge {
-            align-self: flex-start;
-            display: inline-flex;
-            align-items: center;
-            padding: 0.2rem 0.6rem;
-            border-radius: 9999px;
-            background-color: var(--brand-orange);
-            color: #fff;
-            font-weight: 600;
-            font-size: 0.8rem;
-        }
-
-        .app-mobile-nav-section + .app-mobile-nav-section {
-            margin-top: .75rem;
-            padding-top: .75rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.16);
-        }
 
         .app-mobile-nav-list {
             list-style: none;
@@ -367,14 +333,6 @@
             color: #fff;
         }
 
-        .app-mobile-subtitle {
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 0.06em;
-            color: rgba(255, 255, 255, 0.5);
-            margin-bottom: 0.3rem;
-        }
-
         .app-mobile-submenu-toggle {
             display: flex;
             align-items: center;
@@ -396,12 +354,6 @@
             border-color: rgba(255, 255, 255, 0.14);
         }
 
-        .app-mobile-submenu-toggle-label {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.35rem;
-        }
-
         .app-mobile-submenu-chevron {
             transition: transform .18s ease;
             font-size: 0.8rem;
@@ -411,7 +363,6 @@
             display: none;
         }
 
-        .app-mobile-submenu.open + .app-mobile-submenu-chevron,
         .app-mobile-submenu-toggle[aria-expanded="true"] .app-mobile-submenu-chevron {
             transform: rotate(180deg);
         }
@@ -602,7 +553,7 @@
                     <div class="d-flex flex-column align-items-end" style="line-height: 1.1;">
                         <span class="app-topbar-username small">{{ $user->name }}</span>
                         @if($isRegular)
-                            <span class="app-topbar-credits mt-1" id="userCreditsBadgeMobileTop">
+                            <span class="app-topbar-credits mt-1" id="userCreditsBadgeMobile">
                                 Kredity: {{ $user->credits ?? 0 }}
                             </span>
                         @endif
@@ -632,135 +583,92 @@
     <div class="app-mobile-shell d-lg-none" id="appMobileShell">
         <div class="app-mobile-backdrop" id="appMobileBackdrop"></div>
         <div class="app-mobile-panel" id="appMobileMenu" role="menu">
-            @php
-                $isHomepage = url()->current() === url('/');
-            @endphp
-
-            <div class="app-mobile-nav-header">
+            {{-- Single unified nav for all pages, no homepage restriction --}}
+            <ul class="app-mobile-nav-list mb-3">
                 @auth
-                    {{-- Na mobile už vnútri menu nezobrazujeme meno a kredity --}}
-                    <div class="app-mobile-user">
-                        <span class="fw-semibold">Menu</span>
-                    </div>
-                @else
-                    @if(! $isHomepage)
-                        <div class="app-mobile-user">
-                            <span class="fw-semibold">Vitajte v Super Gym</span>
-                            <span style="font-size: 0.8rem; color: rgba(255,255,255,0.6);">Prihláste sa alebo si vytvorte účet.</span>
-                        </div>
+                    @if($isReception)
+                        <li><a class="app-mobile-link" href="{{ url('/') }}">Home</a></li>
+                        <li><a class="app-mobile-link" href="{{ route('reception.calendar') }}">Kalendár tréningov</a></li>
+                        <li><a class="app-mobile-link" href="{{ route('announcements.index') }}">Oznamy</a></li>
+                        <li><a class="app-mobile-link" href="{{ route('reception.credits.create') }}">Pridanie kreditov</a></li>
+                    @else
+                        <li><a class="app-mobile-link" href="{{ url('/') }}">Home</a></li>
+                        <li><a class="app-mobile-link" href="{{ route('training-calendar.index') }}">Kalendár tréningov</a></li>
+
+                        @if($isRegular)
+                            <li><a class="app-mobile-link" href="{{ route('my-trainings.index') }}">Moje tréningy</a></li>
+                        @endif
+
+                        @if($isAdmin)
+                            <li><a class="app-mobile-link {{ request()->routeIs('admin.users.index') ? 'active' : '' }}" href="{{ route('admin.users.index') }}">Používatelia</a></li>
+
+                            {{-- Tréningy (mobilný submenu) --}}
+                            <li>
+                                <button class="app-mobile-submenu-toggle" type="button" data-mobile-submenu-toggle="trainings">
+                                    <span>Tréningy</span>
+                                    <span class="app-mobile-submenu-chevron">▾</span>
+                                </button>
+                                <ul class="app-mobile-nav-list mt-1" data-mobile-submenu="trainings" hidden>
+                                    <li><a class="app-mobile-link {{ request()->routeIs('admin.trainings.index') ? 'active' : '' }}" href="{{ route('admin.trainings.index') }}">Správa aktuálnych tréningov</a></li>
+                                    <li><a class="app-mobile-link {{ request()->routeIs('admin.trainings.archive') ? 'active' : '' }}" href="{{ route('admin.trainings.archive') }}">Archív tréningov</a></li>
+                                </ul>
+                            </li>
+
+                            {{-- Oznamy (mobilný submenu) --}}
+                            <li>
+                                <button class="app-mobile-submenu-toggle" type="button" data-mobile-submenu-toggle="announcements">
+                                    <span>Oznamy</span>
+                                    <span class="app-mobile-submenu-chevron">▾</span>
+                                </button>
+                                <ul class="app-mobile-nav-list mt-1" data-mobile-submenu="announcements" hidden>
+                                    <li><a class="app-mobile-link {{ request()->routeIs('admin.announcements.index') ? 'active' : '' }}" href="{{ route('admin.announcements.index') }}">Správa oznamov</a></li>
+                                    <li><a class="app-mobile-link {{ request()->routeIs('admin.announcements.archive') ? 'active' : '' }}" href="{{ route('admin.announcements.archive') }}">Archív oznamov</a></li>
+                                    <li><a class="app-mobile-link {{ request()->routeIs('announcements.index') ? 'active' : '' }}" href="{{ route('announcements.index') }}">Oznamy (zobrazenie)</a></li>
+                                </ul>
+                            </li>
+
+                            <li><a class="app-mobile-link {{ request()->routeIs('admin.settings.*') ? 'active' : '' }}" href="{{ route('admin.settings.edit') }}">Nastavenia</a></li>
+                        @else
+                            {{-- Oznamy bez admin práv --}}
+                            <li><a class="app-mobile-link {{ request()->routeIs('announcements.index') ? 'active' : '' }}" href="{{ route('announcements.index') }}">Oznamy</a></li>
+                        @endif
+                    @endif
+
+                    @if($isTrainer)
+                        <li><a class="app-mobile-link" href="{{ route('trainer.trainings.create') }}">Vytvorenie tréningu</a></li>
+                        <li><a class="app-mobile-link" href="{{ route('trainer.trainings.index') }}">Vytvorené tréningy</a></li>
                     @endif
                 @endauth
 
-                {{-- Close button inside panel for easy reach --}}
-                <button
-                    type="button"
-                    class="btn btn-sm btn-outline-light rounded-pill ms-3"
-                    id="appMobileClose"
-                >
-                    Zavrieť
-                </button>
-            </div>
+                @guest
+                    <li><a class="app-mobile-link" href="{{ url('/') }}">Home</a></li>
+                    <li><a class="app-mobile-link" href="{{ route('training-calendar.index') }}">Kalendár tréningov</a></li>
+                    <li><a class="app-mobile-link" href="{{ route('announcements.index') }}">Oznamy</a></li>
+                @endguest
+            </ul>
 
-            {{-- Main navigation sections (skryté na homepage) --}}
-            @if(! $isHomepage)
-                <div class="app-mobile-nav-section">
-                    <div class="app-mobile-subtitle">Navigácia</div>
-                    <ul class="app-mobile-nav-list">
-                        @auth
-                            @if($isReception)
-                                <li><a class="app-mobile-link" href="{{ url('/') }}">Home</a></li>
-                                <li><a class="app-mobile-link" href="{{ route('reception.calendar') }}">Kalendár tréningov</a></li>
-                                <li><a class="app-mobile-link" href="{{ route('announcements.index') }}">Oznamy</a></li>
-                                <li><a class="app-mobile-link" href="{{ route('reception.credits.create') }}">Pridanie kreditov</a></li>
-                            @else
-                                <li><a class="app-mobile-link" href="{{ url('/') }}">Home</a></li>
-                                <li><a class="app-mobile-link" href="{{ route('training-calendar.index') }}">Kalendár tréningov</a></li>
-
-                                @if($isRegular)
-                                    <li><a class="app-mobile-link" href="{{ route('my-trainings.index') }}">Moje tréningy</a></li>
-                                @endif
-
-                                @if($isAdmin)
-                                    <li>
-                                        <div class="app-mobile-subtitle mt-2">Administrácia</div>
-                                    </li>
-                                    <li><a class="app-mobile-link {{ request()->routeIs('admin.users.index') ? 'active' : '' }}" href="{{ route('admin.users.index') }}">Používatelia</a></li>
-
-                                    {{-- Tréningy (mobilný submenu) --}}
-                                    <li>
-                                        <button class="app-mobile-submenu-toggle" type="button" data-mobile-submenu-toggle="trainings">
-                                            <span class="app-mobile-submenu-toggle-label">Tréningy</span>
-                                            <span class="app-mobile-submenu-chevron">▾</span>
-                                        </button>
-                                        <ul class="app-mobile-nav-list mt-1" data-mobile-submenu="trainings" hidden>
-                                            <li><a class="app-mobile-link {{ request()->routeIs('admin.trainings.index') ? 'active' : '' }}" href="{{ route('admin.trainings.index') }}">Správa aktuálnych tréningov</a></li>
-                                            <li><a class="app-mobile-link {{ request()->routeIs('admin.trainings.archive') ? 'active' : '' }}" href="{{ route('admin.trainings.archive') }}">Archív tréningov</a></li>
-                                        </ul>
-                                    </li>
-
-                                    {{-- Oznamy (mobilný submenu) --}}
-                                    <li>
-                                        <button class="app-mobile-submenu-toggle" type="button" data-mobile-submenu-toggle="announcements">
-                                            <span class="app-mobile-submenu-toggle-label">Oznamy</span>
-                                            <span class="app-mobile-submenu-chevron">▾</span>
-                                        </button>
-                                        <ul class="app-mobile-nav-list mt-1" data-mobile-submenu="announcements" hidden>
-                                            <li><a class="app-mobile-link {{ request()->routeIs('admin.announcements.index') ? 'active' : '' }}" href="{{ route('admin.announcements.index') }}">Správa oznamov</a></li>
-                                            <li><a class="app-mobile-link {{ request()->routeIs('admin.announcements.archive') ? 'active' : '' }}" href="{{ route('admin.announcements.archive') }}">Archív oznamov</a></li>
-                                            <li><a class="app-mobile-link {{ request()->routeIs('announcements.index') ? 'active' : '' }}" href="{{ route('announcements.index') }}">Oznamy (zobrazenie)</a></li>
-                                        </ul>
-                                    </li>
-
-                                    <li><a class="app-mobile-link {{ request()->routeIs('admin.settings.*') ? 'active' : '' }}" href="{{ route('admin.settings.edit') }}">Nastavenia</a></li>
-                                @else
-                                    {{-- Oznamy bez admin práv --}}
-                                    <li><a class="app-mobile-link {{ request()->routeIs('announcements.index') ? 'active' : '' }}" href="{{ route('announcements.index') }}">Oznamy</a></li>
-                                @endif
-                            @endif
-
-                            @if($isTrainer)
-                                <li class="mt-2">
-                                    <div class="app-mobile-subtitle">Tréner</div>
-                                </li>
-                                <li><a class="app-mobile-link" href="{{ route('trainer.trainings.create') }}">Vytvorenie tréningu</a></li>
-                                <li><a class="app-mobile-link" href="{{ route('trainer.trainings.index') }}">Vytvorené tréningy</a></li>
-                            @endif
-                        @endauth
-
-                        @guest
-                            <li><a class="app-mobile-link" href="{{ url('/') }}">Home</a></li>
-                            <li><a class="app-mobile-link" href="{{ route('training-calendar.index') }}">Kalendár tréningov</a></li>
-                            <li><a class="app-mobile-link" href="{{ route('announcements.index') }}">Oznamy</a></li>
-                        @endguest
-                    </ul>
-                </div>
-            @endif
-
-            {{-- Účet sekcia (vždy, aj na homepage) --}}
-            <div class="app-mobile-nav-section">
-                <div class="app-mobile-subtitle">Účet</div>
-                <ul class="app-mobile-nav-list">
-                    @guest
-                        <li>
-                            <a class="app-mobile-link" href="{{ route('login') }}">Prihlásiť sa</a>
-                        </li>
-                        <li>
-                            <a class="app-mobile-link-button" href="{{ route('register') }}">
-                                Registrácia
-                            </a>
-                        </li>
-                    @else
-                        <li>
-                            <form method="POST" action="{{ route('logout') }}">
-                                @csrf
-                                <button type="submit" class="app-mobile-link-button">
-                                    Odhlásiť
-                                </button>
-                            </form>
-                        </li>
-                    @endguest
-                </ul>
-            </div>
+            {{-- Účet / auth actions: minimal, no subtitles or extra labels --}}
+            <ul class="app-mobile-nav-list">
+                @guest
+                    <li>
+                        <a class="app-mobile-link" href="{{ route('login') }}">Prihlásiť sa</a>
+                    </li>
+                    <li>
+                        <a class="app-mobile-link-button" href="{{ route('register') }}">
+                            Registrácia
+                        </a>
+                    </li>
+                @else
+                    <li>
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <button type="submit" class="app-mobile-link-button">
+                                Odhlásiť
+                            </button>
+                        </form>
+                    </li>
+                @endguest
+            </ul>
         </div>
     </div>
 @endif
@@ -784,7 +692,6 @@
         const panel     = document.getElementById('appMobileMenu');
         const backdrop  = document.getElementById('appMobileBackdrop');
         const toggleBtn = document.getElementById('appMobileToggle');
-        const closeBtn  = document.getElementById('appMobileClose');
 
         if (!shell || !panel || !backdrop || !toggleBtn) return;
 
@@ -806,29 +713,18 @@
             document.body.style.overflow = ''; // restore scroll
 
             // close all mobile submenus
-            document.querySelectorAll('[data-mobile-submenu]').forEach(function (submenu) {
+            panel.querySelectorAll('[data-mobile-submenu]').forEach(function (submenu) {
                 submenu.hidden = true;
             });
-            document.querySelectorAll('[data-mobile-submenu-toggle]').forEach(function (btn) {
+            panel.querySelectorAll('[data-mobile-submenu-toggle]').forEach(function (btn) {
                 btn.setAttribute('aria-expanded', 'false');
             });
         }
 
         // Toggle button
         toggleBtn.addEventListener('click', function () {
-            if (isOpen) {
-                closeMenu();
-            } else {
-                openMenu();
-            }
+            isOpen ? closeMenu() : openMenu();
         });
-
-        // Close button inside panel
-        if (closeBtn) {
-            closeBtn.addEventListener('click', function () {
-                closeMenu();
-            });
-        }
 
         // Click outside (backdrop)
         backdrop.addEventListener('click', function () {
@@ -851,7 +747,7 @@
         });
 
         // Mobile submenus (Oznamy, Tréningy, ...)
-        document.querySelectorAll('[data-mobile-submenu-toggle]').forEach(function (btn) {
+        panel.querySelectorAll('[data-mobile-submenu-toggle]').forEach(function (btn) {
             btn.addEventListener('click', function () {
                 const key = btn.getAttribute('data-mobile-submenu-toggle');
                 if (!key) return;
@@ -862,10 +758,10 @@
                 const isCurrentlyOpen = !submenu.hidden;
 
                 // close all first for accordion-like behavior
-                document.querySelectorAll('[data-mobile-submenu]').forEach(function (s) {
+                panel.querySelectorAll('[data-mobile-submenu]').forEach(function (s) {
                     s.hidden = true;
                 });
-                document.querySelectorAll('[data-mobile-submenu-toggle]').forEach(function (b) {
+                panel.querySelectorAll('[data-mobile-submenu-toggle]').forEach(function (b) {
                     b.setAttribute('aria-expanded', 'false');
                 });
 
