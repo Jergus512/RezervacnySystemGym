@@ -393,7 +393,6 @@
     <nav class="app-topbar">
         <div class="container app-topbar-inner">
 
-            {{-- Left: Logo (always fully inside header) --}}
             <a class="app-logo-wrapper" href="{{ url('/') }}">
                 <img class="app-logo" src="{{ asset('img/logo1.png') }}" alt="Super Gym logo" loading="eager">
             </a>
@@ -401,7 +400,7 @@
             {{-- Desktop nav (≥ 992px) --}}
             <div class="app-nav-desktop w-100 d-none d-lg-flex align-items-center">
                 <div class="d-flex align-items-center justify-content-between w-100">
-                    {{-- Left: nav links --}}
+                    {{-- Left: nav links (AUTH ONLY) --}}
                     <ul class="navbar-nav me-auto mb-0">
                         @auth
                             @if($isReception)
@@ -436,7 +435,6 @@
                                         <a class="nav-link" href="{{ route('admin.users.index') }}">Používatelia</a>
                                     </li>
 
-                                    {{-- Tréningy dropdown (desktop) --}}
                                     <li class="nav-item dropdown">
                                         <a class="nav-link dropdown-toggle {{ $trainOpen ? 'active' : '' }}"
                                            href="#"
@@ -460,7 +458,6 @@
                                         </ul>
                                     </li>
 
-                                    {{-- Oznamy dropdown (desktop) --}}
                                     <li class="nav-item dropdown">
                                         <a class="nav-link dropdown-toggle {{ $annOpen ? 'active' : '' }}"
                                            href="#"
@@ -490,7 +487,6 @@
                                         </ul>
                                     </li>
 
-                                    {{-- Nastavenia as last admin item --}}
                                     <li class="nav-item">
                                         <a class="nav-link {{ request()->routeIs('admin.settings.*') ? 'active' : '' }}" href="{{ route('admin.settings.edit') }}">Nastavenia</a>
                                     </li>
@@ -513,7 +509,7 @@
                         @endauth
                     </ul>
 
-                    {{-- Right: user controls --}}
+                    {{-- Right: user controls / auth links --}}
                     <ul class="navbar-nav ms-auto mb-0">
                         @guest
                             <li class="nav-item me-3">
@@ -547,7 +543,7 @@
                 </div>
             </div>
 
-            {{-- Right side for mobile: user + burger --}}
+            {{-- Right side for mobile: user + burger / auth links --}}
             <div class="d-flex align-items-center ms-auto d-lg-none" style="gap: 0.75rem;">
                 @auth
                     <div class="d-flex flex-column align-items-end" style="line-height: 1.1;">
@@ -558,34 +554,37 @@
                             </span>
                         @endif
                     </div>
+
+                    <button
+                        class="app-nav-toggle d-lg-none"
+                        type="button"
+                        id="appMobileToggle"
+                        aria-expanded="false"
+                        aria-controls="appMobileMenu"
+                    >
+                        <span class="visually-hidden">Toggle navigation</span>
+                        <span class="app-nav-toggle-icon" aria-hidden="true">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </span>
+                    </button>
                 @endauth
 
-                {{-- Mobile hamburger ( < 992px ) --}}
-                <button
-                    class="app-nav-toggle d-lg-none"
-                    type="button"
-                    id="appMobileToggle"
-                    aria-expanded="false"
-                    aria-controls="appMobileMenu"
-                >
-                    <span class="visually-hidden">Toggle navigation</span>
-                    <span class="app-nav-toggle-icon" aria-hidden="true">
-                        <span></span>
-                        <span></span>
-                        <span></span>
-                    </span>
-                </button>
+                @guest
+                    <a class="btn btn-outline-light btn-sm me-2" href="{{ route('login') }}">Prihlásiť sa</a>
+                    <a class="btn btn-sm" style="background-color: var(--brand-orange); color:#fff; border-radius: 9999px; padding-inline: 1rem;" href="{{ route('register') }}">Registrácia</a>
+                @endguest
             </div>
         </div>
     </nav>
 
-    {{-- Mobile overlay menu (full-width under header) --}}
-    <div class="app-mobile-shell d-lg-none" id="appMobileShell">
-        <div class="app-mobile-backdrop" id="appMobileBackdrop"></div>
-        <div class="app-mobile-panel" id="appMobileMenu" role="menu">
-            {{-- Single unified nav for all pages, no homepage restriction --}}
-            <ul class="app-mobile-nav-list mb-3">
-                @auth
+    {{-- Mobile overlay menu (AUTH ONLY) --}}
+    @auth
+        <div class="app-mobile-shell d-lg-none" id="appMobileShell">
+            <div class="app-mobile-backdrop" id="appMobileBackdrop"></div>
+            <div class="app-mobile-panel" id="appMobileMenu" role="menu">
+                <ul class="app-mobile-nav-list mb-3">
                     @if($isReception)
                         <li><a class="app-mobile-link" href="{{ url('/') }}">Home</a></li>
                         <li><a class="app-mobile-link" href="{{ route('reception.calendar') }}">Kalendár tréningov</a></li>
@@ -602,7 +601,6 @@
                         @if($isAdmin)
                             <li><a class="app-mobile-link {{ request()->routeIs('admin.users.index') ? 'active' : '' }}" href="{{ route('admin.users.index') }}">Používatelia</a></li>
 
-                            {{-- Tréningy (mobilný submenu) --}}
                             <li>
                                 <button class="app-mobile-submenu-toggle" type="button" data-mobile-submenu-toggle="trainings">
                                     <span>Tréningy</span>
@@ -614,7 +612,6 @@
                                 </ul>
                             </li>
 
-                            {{-- Oznamy (mobilný submenu) --}}
                             <li>
                                 <button class="app-mobile-submenu-toggle" type="button" data-mobile-submenu-toggle="announcements">
                                     <span>Oznamy</span>
@@ -629,7 +626,6 @@
 
                             <li><a class="app-mobile-link {{ request()->routeIs('admin.settings.*') ? 'active' : '' }}" href="{{ route('admin.settings.edit') }}">Nastavenia</a></li>
                         @else
-                            {{-- Oznamy bez admin práv --}}
                             <li><a class="app-mobile-link {{ request()->routeIs('announcements.index') ? 'active' : '' }}" href="{{ route('announcements.index') }}">Oznamy</a></li>
                         @endif
                     @endif
@@ -638,27 +634,9 @@
                         <li><a class="app-mobile-link" href="{{ route('trainer.trainings.create') }}">Vytvorenie tréningu</a></li>
                         <li><a class="app-mobile-link" href="{{ route('trainer.trainings.index') }}">Vytvorené tréningy</a></li>
                     @endif
-                @endauth
+                </ul>
 
-                @guest
-                    <li><a class="app-mobile-link" href="{{ url('/') }}">Home</a></li>
-                    <li><a class="app-mobile-link" href="{{ route('training-calendar.index') }}">Kalendár tréningov</a></li>
-                    <li><a class="app-mobile-link" href="{{ route('announcements.index') }}">Oznamy</a></li>
-                @endguest
-            </ul>
-
-            {{-- Účet / auth actions: minimal, no subtitles or extra labels --}}
-            <ul class="app-mobile-nav-list">
-                @guest
-                    <li>
-                        <a class="app-mobile-link" href="{{ route('login') }}">Prihlásiť sa</a>
-                    </li>
-                    <li>
-                        <a class="app-mobile-link-button" href="{{ route('register') }}">
-                            Registrácia
-                        </a>
-                    </li>
-                @else
+                <ul class="app-mobile-nav-list">
                     <li>
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
@@ -667,10 +645,10 @@
                             </button>
                         </form>
                     </li>
-                @endguest
-            </ul>
+                </ul>
+            </div>
         </div>
-    </div>
+    @endauth
 @endif
 
 <main class="@if(!empty($overlayTopbar)) p-0 @else py-4 @endif">
