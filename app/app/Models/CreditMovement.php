@@ -12,6 +12,7 @@ class CreditMovement extends Model
 
     protected $fillable = [
         'user_id',
+        'training_id',
         'amount',
         'type',
         'description',
@@ -27,5 +28,9 @@ class CreditMovement extends Model
     {
         return $this->belongsTo(User::class);
     }
-}
 
+    public function training(): BelongsTo
+    {
+        return $this->belongsTo(Training::class);
+    }
+}

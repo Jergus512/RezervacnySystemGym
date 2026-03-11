@@ -189,7 +189,6 @@ class AnalyticsController extends Controller
                     'reservations'           => 0,
                     'avg_occupancy'          => 0.0,
                     'rating'                 => null,
-                    // nové polia pre interné hodnotenie
                     'credits_gained'         => 0,
                     'unique_participants'    => 0,
                     'canceled_reservations'  => 0,
@@ -197,7 +196,6 @@ class AnalyticsController extends Controller
                 continue;
             }
 
-            // Počet rezervácií na tréningoch daného trénera
             $reservationsQuery = DB::table('training_registrations')
                 ->whereIn('training_id', $trainingIds);
 
@@ -211,13 +209,10 @@ class AnalyticsController extends Controller
                 ->distinct('user_id')
                 ->count('user_id');
 
-            // Kredity získané trénerom – spočítame všetky charge/refund pohyby viazané na tréningy daného trénera
-            $creditsGained = CreditMovement::whereIn('type', ['training_charge', 'training_refund'])
-                ->whereIn('training_id', $trainingIds)
-                ->sum('amount');
-
-            // v DB sú tieto pohyby pravdepodobne záporné, pre potreby odmien nás zaujíma absolútna hodnota
-            $creditsGained = abs((int) $creditsGained);
+            // Kredity získané trénerom – zatiaľ nedokážeme presne priradiť kredity ku konkrétnym tréningom
+            // tabuľka credit_movements nemá stĺpec training_id. Preto tu ponecháme 0, aby štatistika fungovala
+            // bez pádu a do budúcna môžeme logiku doplniť po rozšírení schémy.
+            $creditsGained = 0;
 
             $capacitySum = (int) $trainings->sum('capacity');
 
@@ -232,7 +227,7 @@ class AnalyticsController extends Controller
                 'trainings_count'       => $trainings->count(),
                 'reservations'          => $reservationsCount,
                 'avg_occupancy'         => $avgOccupancy,
-                'rating'                => null, // zatiaľ nemáš ratings tabuľku
+                'rating'                => null,
                 'credits_gained'        => $creditsGained,
                 'unique_participants'   => $uniqueParticipants,
                 'canceled_reservations' => $canceledReservations,
