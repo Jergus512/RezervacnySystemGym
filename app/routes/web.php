@@ -10,6 +10,7 @@ use App\Http\Controllers\MeController;
 use App\Http\Controllers\MyTrainingsController;
 use App\Http\Controllers\Reception\CreditsController as ReceptionCreditsController;
 use App\Http\Controllers\Trainer\TrainingManageController;
+use App\Http\Controllers\Trainer\TrainerStatisticsController;
 use App\Http\Controllers\TrainingCalendarController;
 use App\Http\Controllers\TrainingRegistrationController;
 use Illuminate\Support\Facades\Route;
@@ -132,7 +133,7 @@ Route::middleware('auth')->group(function () {
             ->name('trainings.destroy');
 
         // Štatistiky trénera - využijeme existujúcu AnalyticsController logiku
-        Route::get('/statistiky', [\App\Http\Controllers\Admin\AnalyticsController::class, 'index'])
+        Route::get('/statistiky', [TrainerStatisticsController::class, 'index'])
             ->name('stats.index');
     });
 });
