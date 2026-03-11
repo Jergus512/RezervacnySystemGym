@@ -65,6 +65,7 @@ class TrainingRegistrationController extends Controller
 
                 CreditMovement::create([
                     'user_id' => $user->id,
+                    'training_id' => $training->id,
                     'amount' => -$price,
                     'type' => 'training_charge',
                     'description' => 'Rezervácia tréningu: '.$training->title,
@@ -162,6 +163,7 @@ class TrainingRegistrationController extends Controller
 
                     CreditMovement::create([
                         'user_id' => $user->id,
+                        'training_id' => $training->id,
                         'amount' => $refundAmount,
                         'type' => 'training_refund',
                         'description' => 'Vrátenie kreditov za zrušený tréning: '.$training->title,
