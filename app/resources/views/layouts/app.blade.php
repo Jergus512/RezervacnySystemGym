@@ -412,6 +412,7 @@
                                 $isUsersActive         = request()->routeIs('admin.users.*');
                                 $isTrainerCreateActive = request()->routeIs('trainer.trainings.create');
                                 $isTrainerIndexActive  = request()->routeIs('trainer.trainings.index');
+                                $isTrainerStatsActive  = request()->routeIs('trainer.stats.*');
                                 $isAnnouncementsList   = request()->routeIs('announcements.index');
                                 $isReceptionCredits    = request()->routeIs('reception.credits.*');
                                 $isSettingsActive      = request()->routeIs('admin.settings.*');
@@ -549,6 +550,9 @@
                                 <li class="nav-item">
                                     <a class="nav-link {{ $isTrainerIndexActive ? 'nav-link-active' : '' }}" href="{{ route('trainer.trainings.index') }}">Vytvorené tréningy</a>
                                 </li>
+                                <li class="nav-item">
+                                    <a class="nav-link {{ $isTrainerStatsActive ? 'nav-link-active' : '' }}" href="{{ route('trainer.stats.index') }}">Moje štatistiky</a>
+                                </li>
                             @endif
                         @endauth
                     </ul>
@@ -633,6 +637,7 @@
             $isUsersActive         = request()->routeIs('admin.users.*');
             $isTrainerCreateActive = request()->routeIs('trainer.trainings.create');
             $isTrainerIndexActive  = request()->routeIs('trainer.trainings.index');
+            $isTrainerStatsActive  = request()->routeIs('trainer.stats.*');
             $isAnnouncementsList   = request()->routeIs('announcements.index');
             $isReceptionCredits    = request()->routeIs('reception.credits.*');
             $isSettingsActive      = request()->routeIs('admin.settings.*');
@@ -713,6 +718,7 @@
                     @if($isTrainer)
                         <li><a class="app-mobile-link {{ $isTrainerCreateActive ? 'app-mobile-link-active' : '' }}" href="{{ route('trainer.trainings.create') }}">Vytvorenie tréningu</a></li>
                         <li><a class="app-mobile-link {{ $isTrainerIndexActive ? 'app-mobile-link-active' : '' }}" href="{{ route('trainer.trainings.index') }}">Vytvorené tréningy</a></li>
+                        <li><a class="app-mobile-link {{ $isTrainerStatsActive ? 'app-mobile-link-active' : '' }}" href="{{ route('trainer.stats.index') }}">Moje štatistiky</a></li>
                     @endif
                 </ul>
 
