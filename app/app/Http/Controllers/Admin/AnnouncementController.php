@@ -12,10 +12,6 @@ class AnnouncementController extends Controller
     public function index(Request $request)
     {
         $q = trim((string) $request->query('q', ''));
-        $now = now();
-
-        // Currently active announcements (visible now)
-        $announcements = Announcement::query()
             ->with('creator:id,name')
             ->currentlyActive($now)
             ->when($q !== '', function ($query) use ($q) {
@@ -56,11 +52,7 @@ class AnnouncementController extends Controller
         $now = now();
 
         $announcements = Announcement::query()
-            ->with('creator:id,name')
-            ->where(function ($query) use ($now) {
-                // not active by flag OR already ended
-                $query->where('is_active', false)
-                    ->orWhere(function ($q) use ($now) {
+        $q = trim((string) $request->query('q', ''));
                         $q->whereNotNull('active_to')->where('active_to', '<', $now);
                     });
             })

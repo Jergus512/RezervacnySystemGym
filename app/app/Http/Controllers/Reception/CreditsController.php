@@ -16,11 +16,11 @@ class CreditsController extends Controller
     }
 
     public function search(Request $request)
-    {
-        $q = trim((string) $request->query('q', ''));
-        if ($q === '') {
-            return response()->json([]);
-        }
+        $validated = $request->validate([
+            'q' => ['nullable', 'string', 'max:255'],
+        ]);
+
+        $q = trim((string) ($validated['q'] ?? ''));
 
         $users = User::query()
             ->where('email', 'like', $q.'%')
