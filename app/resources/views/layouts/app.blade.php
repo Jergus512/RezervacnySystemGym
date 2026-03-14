@@ -415,6 +415,7 @@
                                 $isTrainerStatsActive  = request()->routeIs('trainer.stats.*');
                                 $isAnnouncementsList   = request()->routeIs('announcements.index');
                                 $isReceptionCredits    = request()->routeIs('reception.credits.*');
+                                $isReceptionTrainings  = request()->routeIs('reception.trainings.*');
                                 $isSettingsActive      = request()->routeIs('admin.settings.*');
                                 $isAnalyticsActive     = request()->routeIs('admin.analytics.*');
                             @endphp
@@ -431,6 +432,9 @@
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link {{ $isReceptionCredits ? 'nav-link-active' : '' }}" href="{{ route('reception.credits.create') }}">Pridanie kreditov</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link {{ $isReceptionTrainings ? 'nav-link-active' : '' }}" href="{{ route('reception.trainings.index') }}">Zrušenie tréningov</a>
                                 </li>
                             @else
                                 <li class="nav-item">
@@ -640,6 +644,7 @@
             $isTrainerStatsActive  = request()->routeIs('trainer.stats.*');
             $isAnnouncementsList   = request()->routeIs('announcements.index');
             $isReceptionCredits    = request()->routeIs('reception.credits.*');
+            $isReceptionTrainings  = request()->routeIs('reception.trainings.*');
             $isSettingsActive      = request()->routeIs('admin.settings.*');
             $isAnalyticsActive     = request()->routeIs('admin.analytics.*');
         @endphp
@@ -652,6 +657,7 @@
                         <li><a class="app-mobile-link {{ $isCalendarActive ? 'app-mobile-link-active' : '' }}" href="{{ route('reception.calendar') }}">Kalendár tréningov</a></li>
                         <li><a class="app-mobile-link {{ $isAnnouncementsList ? 'app-mobile-link-active' : '' }}" href="{{ route('announcements.index') }}">Oznamy</a></li>
                         <li><a class="app-mobile-link {{ $isReceptionCredits ? 'app-mobile-link-active' : '' }}" href="{{ route('reception.credits.create') }}">Pridanie kreditov</a></li>
+                        <li><a class="app-mobile-link {{ $isReceptionTrainings ? 'app-mobile-link-active' : '' }}" href="{{ route('reception.trainings.index') }}">Zrušenie tréningov</a></li>
                     @else
                         <li><a class="app-mobile-link {{ $isHomeActive ? 'app-mobile-link-active' : '' }}" href="{{ url('/') }}">Domov</a></li>
                         <li><a class="app-mobile-link {{ $isCalendarActive ? 'app-mobile-link-active' : '' }}" href="{{ route('training-calendar.index') }}">Kalendár tréningov</a></li>

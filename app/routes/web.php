@@ -9,6 +9,7 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\MeController;
 use App\Http\Controllers\MyTrainingsController;
 use App\Http\Controllers\Reception\CreditsController as ReceptionCreditsController;
+use App\Http\Controllers\Reception\TrainingController as ReceptionTrainingController;
 use App\Http\Controllers\Trainer\TrainingManageController;
 use App\Http\Controllers\Trainer\TrainerStatisticsController;
 use App\Http\Controllers\TrainingCalendarController;
@@ -76,6 +77,10 @@ Route::middleware('auth')->group(function () {
         Route::get('/pridanie-kreditov/search', [ReceptionCreditsController::class, 'search'])->name('credits.search');
         Route::post('/pridanie-kreditov', [ReceptionCreditsController::class, 'store'])->name('credits.store');
         Route::get('/pridanie-kreditov/{user}/credits', [ReceptionCreditsController::class, 'credits'])->name('credits.current');
+
+        // Reception training cancellation page
+        Route::get('/zrusenie-treningov', [ReceptionTrainingController::class, 'index'])->name('trainings.index');
+        Route::post('/treningy/{training}/toggle-active', [ReceptionTrainingController::class, 'toggleActive'])->name('trainings.toggle');
     });
 
     Route::prefix('admin')->name('admin.')->group(function () {
