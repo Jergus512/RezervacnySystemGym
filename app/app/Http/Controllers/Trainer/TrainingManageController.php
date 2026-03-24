@@ -47,7 +47,7 @@ class TrainingManageController extends Controller
         }
         // if 'all' or anything else => no filter
 
-        $trainings = $query->paginate(15)->withQueryString();
+        $trainings = $query->get(); // Fetch all trainings without pagination
 
         return view('trainer.trainings.index', compact('trainings', 'search', 'showActive'));
     }

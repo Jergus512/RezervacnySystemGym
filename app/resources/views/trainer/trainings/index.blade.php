@@ -92,5 +92,36 @@
             {{ $trainings->links() }}
         </div>
     @endif
+
+    <div id="trainings-container">
+        @foreach ($trainings as $training)
+            {{-- Render training details here --}}
+            <div class="training-item">
+                <h5>{{ $training->title }}</h5>
+                <p>{{ $training->description }}</p>
+                <p><strong>Začiatok:</strong> {{ $training->start_at }}</p>
+                <p><strong>Koniec:</strong> {{ $training->end_at }}</p>
+            </div>
+        @endforeach
+    </div>
+
+    <script>
+        let page = 1;
+        const container = document.getElementById('trainings-container');
+
+        window.addEventListener('scroll', () => {
+            if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
+                page++;
+                fetch(`/trainer/trainings?page=${page}`)
+                    .then(response => response.text())
+                    .then(html => {
+                        const tempDiv = document.createElement('div');
+                        tempDiv.innerHTML = html;
+                        const newTrainings = tempDiv.querySelector('#trainings-container').innerHTML;
+                        container.innerHTML += newTrainings;
+                    });
+            }
+        });
+    </script>
 @endsection
 
