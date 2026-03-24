@@ -48,28 +48,44 @@
     </div>
 </form>
 
-<div id="users-container" class="table-responsive">
-    @foreach ($users as $user)
-        <div class="user-item">
-            <div class="d-flex justify-content-between align-items-center py-2">
-                <div>
-                    <div class="fw-semibold">{{ $user->name }}</div>
-                    <div class="small text-muted">{{ $user->email }}</div>
-                </div>
-                <div>
-                    @if($user->is_admin)
-                        <span class="badge bg-success">Admin</span>
-                    @elseif($user->is_trainer)
-                        <span class="badge bg-info text-dark">Tréner</span>
-                    @elseif($user->is_reception)
-                        <span class="badge bg-warning text-dark">Recepcia</span>
-                    @else
-                        <span class="badge bg-secondary">Bežný</span>
-                    @endif
-                </div>
-            </div>
-        </div>
-    @endforeach
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Meno</th>
+                <th>Email</th>
+                <th>Typ</th>
+                <th>Akcie</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach ($users as $user)
+                <tr>
+                    <td>{{ $user->name }}</td>
+                    <td>{{ $user->email }}</td>
+                    <td>
+                        @if($user->is_admin)
+                            <span class="badge bg-success">Admin</span>
+                        @elseif($user->is_trainer)
+                            <span class="badge bg-info text-dark">Tréner</span>
+                        @elseif($user->is_reception)
+                            <span class="badge bg-warning text-dark">Recepcia</span>
+                        @else
+                            <span class="badge bg-secondary">Bežný</span>
+                        @endif
+                    </td>
+                    <td>
+                        <a href="{{ route('admin.users.edit', $user) }}" class="btn btn-sm btn-primary">Upraviť</a>
+                        <form method="POST" action="{{ route('admin.users.destroy', $user) }}" class="d-inline">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Naozaj chcete odstrániť tohto používateľa?')">Odstrániť</button>
+                        </form>
+                    </td>
+                </tr>
+            @endforeach
+        </tbody>
+    </table>
 </div>
 
 <script>
