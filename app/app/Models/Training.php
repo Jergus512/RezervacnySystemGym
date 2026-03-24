@@ -64,6 +64,7 @@ class Training extends Model
         // Vrátenie kreditov používateľom
         foreach ($this->users as $user) {
             $user->increment('credits', $this->price);
+            $this->users()->detach($user->id); // Odstránenie používateľa z tréningu
         }
 
         // Odoslanie notifikácií o zrušení tréningu
