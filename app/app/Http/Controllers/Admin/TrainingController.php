@@ -119,4 +119,17 @@ class TrainingController extends Controller
         return redirect()->route('training-calendar.index')
             ->with('status', 'Tréning bol odstránený (admin).');
     }
+
+    public function cancel(Request $request, Training $training): RedirectResponse
+    {
+        $this->requireAdmin($request);
+
+        if (! $training->is_active) {
+            return redirect()->back()->with('error', 'Training is already inactive.');
+        }
+
+        $training->cancelTraining();
+
+        return redirect()->route('admin.trainings.index')->with('success', 'Training has been cancelled successfully.');
+    }
 }

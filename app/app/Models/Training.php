@@ -56,14 +56,17 @@ class Training extends Model
         return $this->hasMany(TrainingRegistration::class);
     }
 
-    public function cancelTraining()
+    public function cancelTraining(): void
     {
+        // Označenie tréningu za neaktívny
         $this->update(['is_active' => false]);
 
-        foreach ($this->registrations as $registration) {
-            $registration->update(['status' => 'refunded']);
-            $registration->user->increment('credits', $this->price);
-            Notification::send($registration->user, new TrainingCancelledNotification($this));
+        // Vrátenie kreditov používateľom
+        foreach ($this->users as $user) {
+            $user->increment('credits', $this->price);
         }
+
+        // Odoslanie notifikácií o zrušení tréningu
+        Notification::send($this->users, new TrainingCancelledNotification($this));
     }
 }
