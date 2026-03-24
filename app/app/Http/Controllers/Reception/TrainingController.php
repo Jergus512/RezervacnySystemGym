@@ -7,6 +7,8 @@ use App\Models\Training;
 use App\Models\TrainingAudit;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
+use App\Notifications\TrainingCancelledNotification;
+use Illuminate\Support\Facades\Notification;
 
 class TrainingController extends Controller
 {
@@ -20,9 +22,14 @@ class TrainingController extends Controller
 
         // Filtering based on "show"
         if ($show === 'upcoming') {
-            $query->where('start_at', '>=', $now);
+            $query->where('start_at', '>=', $now)->where('is_active', true);
         } elseif ($show === 'cancelled') {
             $query->where('is_active', false);
+        } // "all" filter shows both active and inactive trainings
+        elseif ($show === 'all') {
+            $query->where(function ($w) use ($now) {
+                $w->where('start_at', '>=', $now)->orWhere('is_active', false);
+            });
         }
 
         if ($q !== '') {
@@ -53,6 +60,21 @@ class TrainingController extends Controller
 
         if ($action === 'deactivate') {
             $training->update(['is_active' => false]);
+
+            // Notify participants and handle refunds
+            foreach ($training->registrations as $registration) {
+                // Notify the user about the cancellation
+                $user = $registration->user;
+                if ($user) {
+                    Notification::send($user, new TrainingCancelledNotification($training));
+                }
+
+                // Handle refund logic (if applicable)
+                if ($registration->status === 'active') {
+                    $registration->update(['status' => 'refunded']);
+                }
+            }
+
             $msg = 'Tréning bol zrušený (deaktivovaný).';
             $performedAction = 'deactivate';
         } else {

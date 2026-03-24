@@ -15,25 +15,6 @@ class CreditsController extends Controller
         return view('reception.credits.create');
     }
 
-    public function search(Request $request)
-        $validated = $request->validate([
-            'q' => ['nullable', 'string', 'max:255'],
-        ]);
-
-        $q = trim((string) ($validated['q'] ?? ''));
-
-        $users = User::query()
-            ->where('email', 'like', $q.'%')
-            ->where('is_admin', false)
-            ->where('is_trainer', false)
-            ->where('is_reception', false)
-            ->orderBy('email')
-            ->limit(10)
-            ->get(['id', 'name', 'email', 'credits']);
-
-        return response()->json($users);
-    }
-
     public function store(Request $request)
     {
         $validated = $request->validate([
