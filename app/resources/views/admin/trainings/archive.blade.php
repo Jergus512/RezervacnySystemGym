@@ -36,39 +36,74 @@
     <div class="card">
         <div class="card-body p-0">
             <div class="table-responsive">
-                <div id="trainings-container">
+                <table class="table table-hover mb-0">
+                    <thead>
+                    <tr>
+                        <th>Názov</th>
+                        <th>Začiatok</th>
+                        <th>Koniec</th>
+                        <th>Vytvoril</th>
+                        <th>Kapacita</th>
+                        <th>Aktívny</th>
+                        <th class="text-end">Akcie</th>
+                    </tr>
+                    </thead>
+                    <tbody id="trainings-container">
                     @foreach ($trainings as $t)
-                        <div class="training-row">
-                            <div class="fw-semibold">{{ $t->title }}</div>
-                            <div>{{ $t->start_at?->format('d.m.Y H:i') }}</div>
-                            <!-- Other training details here -->
-                        </div>
+                        <tr>
+                            <td>
+                                <div class="fw-semibold">{{ $t->title }}</div>
+                                @if($t->description)
+                                    <div class="text-muted small">{{ \Illuminate\Support\Str::limit($t->description, 80) }}</div>
+                                @endif
+                            </td>
+                            <td>{{ $t->start_at?->format('d.m.Y H:i') }}</td>
+                            <td>{{ $t->end_at?->format('d.m.Y H:i') }}</td>
+                            <td>{{ $t->creator?->name ?? '—' }}</td>
+                            <td>{{ $t->capacity }}</td>
+                            <td>
+                                @if($t->is_active)
+                                    <span class="badge text-bg-success">áno</span>
+                                @else
+                                    <span class="badge text-bg-secondary">nie</span>
+                                @endif
+                            </td>
+                            <td class="text-end">
+                                <div class="d-flex justify-content-end gap-2">
+                                    <a class="btn btn-sm btn-outline-primary" href="{{ route('admin.trainings.edit', $t) }}">Upraviť</a>
+
+                                    <form method="POST" action="{{ route('admin.trainings.destroy', $t) }}" class="m-0"
+                                          onsubmit="return confirm('Naozaj chceš odstrániť tento tréning?');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">Zmazať</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
                     @endforeach
-                </div>
-
-                <script>
-                    let page = 1;
-                    const container = document.getElementById('trainings-container');
-
-                    window.addEventListener('scroll', () => {
-                        if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
-                            page++;
-                            fetch(`/admin/trainings/archive?page=${page}`)
-                                .then(response => response.text())
-                                .then(html => {
-                                    const tempDiv = document.createElement('div');
-                                    tempDiv.innerHTML = html;
-                                    const newTrainings = tempDiv.querySelector('#trainings-container').innerHTML;
-                                    container.innerHTML += newTrainings;
-                                });
-                        }
-                    });
-                </script>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 
-    <div class="mt-3">
-        {{ $trainings->links() }}
-    </div>
+    <script>
+        let page = 1;
+        const container = document.getElementById('trainings-container');
+
+        window.addEventListener('scroll', () => {
+            if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
+                page++;
+                fetch(`/admin/trainings/archive?page=${page}`)
+                    .then(response => response.text())
+                    .then(html => {
+                        const tempDiv = document.createElement('div');
+                        tempDiv.innerHTML = html;
+                        const newTrainings = tempDiv.querySelector('#trainings-container').innerHTML;
+                        container.innerHTML += newTrainings;
+                    });
+            }
+        });
+    </script>
 @endsection
