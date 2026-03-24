@@ -182,4 +182,57 @@ class TrainingRegistrationController extends Controller
 
         return back()->with('status', 'Odhlásenie z tréningu bolo úspešné.');
     }
+
+    public function cancelTraining(Request $request, Training $training): RedirectResponse
+    {
+        $user = $request->user();
+
+        if (! $user || (!$user->isAdmin() && !$user->isTrainer())) {
+            abort(403, 'Iba tréner alebo admin môže zrušiť tréning.');
+        }
+
+        DB::transaction(function () use ($training, $user) {
+            $training->refresh();
+
+            // Mark the training as inactive
+            $training->is_active = false;
+            $training->save();
+
+            // Get all active registrations for the training
+            $registrations = TrainingRegistration::where('training_id', $training->id)
+                ->where('status', 'active')
+                ->get();
+
+            foreach ($registrations as $registration) {
+                $registeredUser = $registration->user;
+
+                // Refund credits
+                $price = (int) ($training->price ?? 0);
+                if ($price > 0) {
+                    $registeredUser->increment('credits', $price);
+
+                    CreditMovement::create([
+                        'user_id' => $registeredUser->id,
+                        'training_id' => $training->id,
+                        'amount' => $price,
+                        'type' => 'training_refund',
+                        'description' => 'Zrušenie tréningu: ' . $training->title,
+                        'meta' => [
+                            'training_id' => $training->id,
+                            'start_at' => optional($training->start_at)->toIso8601String(),
+                        ],
+                    ]);
+                }
+
+                // Update registration status to canceled
+                $registration->status = 'canceled';
+                $registration->save();
+
+                // Send email notification
+                $registeredUser->notify(new TrainingCancelledNotification($training));
+            }
+        });
+
+        return redirect()->route('admin.trainings.index')->with('status', 'Tréning bol úspešne zrušený a kredity boli vrátené.');
+    }
 }
