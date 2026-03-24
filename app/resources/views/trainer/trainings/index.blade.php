@@ -87,10 +87,6 @@
                 </table>
             </div>
         </div>
-
-        <div class="mt-3">
-            {{ $trainings->links() }}
-        </div>
     @endif
 
     <div id="trainings-container">
