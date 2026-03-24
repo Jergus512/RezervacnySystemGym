@@ -20,6 +20,9 @@
 
         .fc .fc-timegrid-now-indicator-arrow {
             border-color: #f97316 !important;
+            border-width: 4px !important; /* Adjust arrow size */
+            height: 8px; /* Set a fixed height */
+            width: 8px; /* Set a fixed width */
         }
 
         /* Month view: always show events as full bars (not dot/list-item)

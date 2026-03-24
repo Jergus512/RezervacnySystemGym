@@ -65,4 +65,12 @@ class TrainingCancelledNotification extends Notification implements ShouldQueue
             'start_at' => $this->training->start_at,
         ];
     }
+
+    /**
+     * Get the training associated with the notification.
+     */
+    public function getTraining()
+    {
+        return $this->training;
+    }
 }

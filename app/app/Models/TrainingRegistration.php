@@ -28,4 +28,9 @@ class TrainingRegistration extends Pivot
             $query->where('training_registrations.status', '!=', 'canceled');
         });
     }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }
