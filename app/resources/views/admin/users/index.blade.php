@@ -48,24 +48,15 @@
     </div>
 </form>
 
-<div class="table-responsive">
-    <table class="table table-striped table-hover align-middle mb-0">
-        <thead>
-        <tr>
-            <th>ID</th>
-            <th>Meno</th>
-            <th>Email</th>
-            <th>Typ</th>
-            <th class="text-end">Akcie</th>
-        </tr>
-        </thead>
-        <tbody>
-        @forelse($users as $user)
-            <tr>
-                <td>{{ $user->id }}</td>
-                <td>{{ $user->name }}</td>
-                <td>{{ $user->email }}</td>
-                <td>
+<div id="users-container" class="table-responsive">
+    @foreach ($users as $user)
+        <div class="user-item">
+            <div class="d-flex justify-content-between align-items-center py-2">
+                <div>
+                    <div class="fw-semibold">{{ $user->name }}</div>
+                    <div class="small text-muted">{{ $user->email }}</div>
+                </div>
+                <div>
                     @if($user->is_admin)
                         <span class="badge bg-success">Admin</span>
                     @elseif($user->is_trainer)
@@ -75,32 +66,30 @@
                     @else
                         <span class="badge bg-secondary">Bežný</span>
                     @endif
-                </td>
-                <td class="text-end">
-                    <div class="d-flex flex-column flex-sm-row gap-2 align-items-stretch justify-content-end">
-                        <a href="{{ route('admin.users.edit', $user) }}" class="btn btn-sm btn-outline-primary w-100 w-sm-auto">Upraviť</a>
-
-                        <form action="{{ route('admin.users.destroy', $user) }}" method="POST" class="m-0 w-100 w-sm-auto"
-                              onsubmit="return confirm('Naozaj chceš zmazať tohto používateľa?');">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn btn-sm btn-outline-danger w-100 w-sm-auto">Zmazať</button>
-                        </form>
-                    </div>
-                </td>
-            </tr>
-        @empty
-            <tr>
-                <td colspan="5" class="text-center">Žiadni používatelia.</td>
-            </tr>
-        @endforelse
-        </tbody>
-    </table>
+                </div>
+            </div>
+        </div>
+    @endforeach
 </div>
 
-<div class="mt-3">
-    {{ $users->links('partials.pagination-no-arrows') }}
-</div>
+<script>
+    let page = 1;
+    const container = document.getElementById('users-container');
+
+    window.addEventListener('scroll', () => {
+        if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
+            page++;
+            fetch(`/admin/users?page=${page}`)
+                .then(response => response.text())
+                .then(html => {
+                    const tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = html;
+                    const newUsers = tempDiv.querySelector('#users-container').innerHTML;
+                    container.innerHTML += newUsers;
+                });
+        }
+    });
+</script>
 
 <script>
 (function () {
