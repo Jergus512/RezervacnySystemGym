@@ -17,6 +17,7 @@ class MyTrainingsController extends Controller
         // Upcoming trainings that the user is registered for ("zakúpené")
         $trainings = $user->trainings()
             ->where('start_at', '>=', now())
+            ->where('is_active', true)
             ->orderBy('start_at')
             ->get();
 

@@ -70,7 +70,10 @@ class TrainingController extends Controller
                 }
 
                 // Handle refund logic (if applicable)
-                if ($registration->status === 'active') {
+                // Ensure full refund for all active registrations
+                $price = (int) ($training->price ?? 0);
+                if ($price > 0 && $registration->status === 'active') {
+                    $registration->user->increment('credits', $price);
                     $registration->update(['status' => 'refunded']);
                 }
             }
