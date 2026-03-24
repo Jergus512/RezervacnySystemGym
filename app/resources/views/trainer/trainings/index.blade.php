@@ -91,13 +91,7 @@
 
     <div id="trainings-container">
         @foreach ($trainings as $training)
-            {{-- Render training details here --}}
-            <div class="training-item">
-                <h5>{{ $training->title }}</h5>
-                <p>{{ $training->description }}</p>
-                <p><strong>Začiatok:</strong> {{ $training->start_at }}</p>
-                <p><strong>Koniec:</strong> {{ $training->end_at }}</p>
-            </div>
+            {{-- Removed duplicate training details text --}}
         @endforeach
     </div>
 
