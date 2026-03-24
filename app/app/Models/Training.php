@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Notifications\TrainingCancelledNotification;
+use Illuminate\Support\Facades\Notification;
 
 class Training extends Model
 {
@@ -52,5 +54,16 @@ class Training extends Model
     public function registrations(): HasMany
     {
         return $this->hasMany(TrainingRegistration::class);
+    }
+
+    public function cancelTraining()
+    {
+        $this->update(['is_active' => false]);
+
+        foreach ($this->registrations as $registration) {
+            $registration->update(['status' => 'refunded']);
+            $registration->user->increment('credits', $this->price);
+            Notification::send($registration->user, new TrainingCancelledNotification($this));
+        }
     }
 }
