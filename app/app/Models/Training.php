@@ -60,6 +60,8 @@ class Training extends Model
 
     public function cancelTraining(): void
     {
+        \Log::info("cancelTraining() called for training ID: " . $this->id);
+
         // Skontrolovať, či je tréning aktívny
         if (!$this->is_active) {
             throw new \Exception('Len aktívne tréningy je možné zrušiť.');
@@ -71,8 +73,12 @@ class Training extends Model
             'canceled_at' => now(),
         ]);
 
+        \Log::info("Training ID " . $this->id . " marked as canceled");
+
         // Vrátenie kreditov používateľom a zmena statusu registrácie
         foreach ($this->users as $user) {
+            \Log::info("Processing user: " . $user->email . " for training: " . $this->id);
+
             // Vrátenie plných kreditov bez časového limitu
             $user->increment('credits', $this->price);
 
@@ -80,7 +86,10 @@ class Training extends Model
             $this->users()->updateExistingPivot($user->id, ['status' => 'canceled']);
 
             // Odoslanie notifikácie o zrušení tréningu
+            \Log::info("Sending notification to user: " . $user->email);
             $user->notify(new TrainingCancelledNotification($this));
         }
+
+        \Log::info("cancelTraining() completed for training ID: " . $this->id);
     }
 }

@@ -41,6 +41,8 @@ class TrainingCancelledNotification extends Notification
      */
     public function toMail($notifiable)
     {
+        \Log::info("Sending training cancellation email to: " . $notifiable->email);
+
         return (new MailMessage)
             ->subject('Tréning bol zrušený')
             ->greeting('Dobrý deň, ' . $notifiable->name)
