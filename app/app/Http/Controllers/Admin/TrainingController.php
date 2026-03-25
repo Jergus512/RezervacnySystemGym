@@ -92,8 +92,25 @@ class TrainingController extends Controller
             'price' => ['required', 'integer', 'min:0'],
             'is_active' => ['sometimes', 'boolean'],
             'created_by_user_id' => ['nullable', 'integer', 'exists:users,id'],
+            'cancel_training' => ['sometimes', 'boolean'],
         ]);
 
+        // Ak je požiadavka na zrušenie tréningu
+        if ($request->boolean('cancel_training')) {
+            if (!$training->is_active) {
+                return redirect()->back()->with('error', 'Len aktívne tréningy je možné zrušiť.');
+            }
+
+            try {
+                $training->cancelTraining();
+                return redirect()->route('admin.trainings.index')
+                    ->with('status', 'Tréning bol úspešne zrušený a používatelia dostali notifikáciu.');
+            } catch (\Exception $e) {
+                return redirect()->back()->with('error', $e->getMessage());
+            }
+        }
+
+        // Normálna aktualizácia tréningu
         $training->update([
             'training_type_id' => $validated['training_type_id'] ?? null,
             'title' => $validated['title'],
@@ -106,7 +123,7 @@ class TrainingController extends Controller
             'created_by_user_id' => $validated['created_by_user_id'] ?? null,
         ]);
 
-        return redirect()->route('training-calendar.index')
+        return redirect()->route('admin.trainings.index')
             ->with('status', 'Tréning bol upravený (admin).');
     }
 

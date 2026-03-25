@@ -24,6 +24,7 @@ class Training extends Model
         'capacity',
         'price',
         'is_active',
+        'canceled_at',
     ];
 
     protected $casts = [
@@ -32,6 +33,7 @@ class Training extends Model
         'capacity' => 'integer',
         'price' => 'integer',
         'is_active' => 'boolean',
+        'canceled_at' => 'datetime',
     ];
 
     public function users(): BelongsToMany
@@ -58,13 +60,24 @@ class Training extends Model
 
     public function cancelTraining(): void
     {
-        // Označenie tréningu za neaktívny
-        $this->update(['is_active' => false]);
+        // Skontrolovať, či je tréning aktívny
+        if (!$this->is_active) {
+            throw new \Exception('Len aktívne tréningy je možné zrušiť.');
+        }
 
-        // Vrátenie kreditov používateľom a ich odhlásenie
+        // Označenie tréningu ako zrušeného
+        $this->update([
+            'is_active' => false,
+            'canceled_at' => now(),
+        ]);
+
+        // Vrátenie kreditov používateľom a zmena statusu registrácie
         foreach ($this->users as $user) {
-            $user->increment('credits', $this->price); // Pripísanie plných kreditov
-            $this->users()->detach($user->id); // Odhlásenie používateľa z tréningu
+            // Vrátenie plných kreditov bez časového limitu
+            $user->increment('credits', $this->price);
+
+            // Zmena statusu registrácie na 'canceled' namiesto vymazania
+            $this->users()->updateExistingPivot($user->id, ['status' => 'canceled']);
 
             // Odoslanie notifikácie o zrušení tréningu
             $user->notify(new TrainingCancelledNotification($this));
