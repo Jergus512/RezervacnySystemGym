@@ -79,6 +79,14 @@
                 </div>
 
                 <button type="submit" class="btn btn-primary">Uložiť zmeny</button>
+
+                <button type="submit" form="delete-training" class="btn btn-outline-danger">Zrušiť tréning</button>
+            </form>
+
+            <form id="delete-training" method="POST" action="{{ route('trainer.trainings.destroy', $training) }}" class="d-none"
+                  onsubmit="return confirm('Naozaj chceš zrušiť tento tréning?');">
+                @csrf
+                @method('DELETE')
             </form>
         </div>
     </div>
