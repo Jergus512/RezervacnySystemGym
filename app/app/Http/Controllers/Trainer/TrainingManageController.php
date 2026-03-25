@@ -148,6 +148,9 @@ class TrainingManageController extends Controller
             'is_active' => ['sometimes', 'boolean'],
         ]);
 
+        $wasActive = $training->is_active;
+        $isActive = $request->boolean('is_active');
+
         $training->update([
             'training_type_id' => $validated['training_type_id'] ?? null,
             'title' => $validated['title'],
@@ -156,8 +159,22 @@ class TrainingManageController extends Controller
             'end_at' => $validated['end_at'],
             'capacity' => (int) $validated['capacity'],
             'price' => (int) $validated['price'],
-            'is_active' => $request->boolean('is_active'),
+            'is_active' => $isActive,
         ]);
+
+        // Cancel training if it was active and is now inactive
+        if ($wasActive && !$isActive) {
+            // Notify users about the cancellation
+            foreach ($training->registrations as $registration) {
+                $registration->user->notify(new TrainingCancelledNotification($training));
+            }
+
+            // Unregister all users by marking their registrations as canceled
+            $training->users()->updateExistingPivot(null, ['status' => 'canceled']);
+
+            // Log the cancellation
+            \Log::info("Training ID {$training->id} was canceled by admin ID {$request->user()->id}.");
+        }
 
         return redirect()->route('trainer.trainings.index')
             ->with('status', 'Tréning bol upravený.');
