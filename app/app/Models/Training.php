@@ -61,13 +61,13 @@ class Training extends Model
         // Označenie tréningu za neaktívny
         $this->update(['is_active' => false]);
 
-        // Vrátenie kreditov používateľom
+        // Vrátenie kreditov používateľom a ich odhlásenie
         foreach ($this->users as $user) {
-            $user->increment('credits', $this->price);
-            $this->users()->detach($user->id); // Odstránenie používateľa z tréningu
-        }
+            $user->increment('credits', $this->price); // Pripísanie plných kreditov
+            $this->users()->detach($user->id); // Odhlásenie používateľa z tréningu
 
-        // Odoslanie notifikácií o zrušení tréningu
-        Notification::send($this->users, new TrainingCancelledNotification($this));
+            // Odoslanie notifikácie o zrušení tréningu
+            $user->notify(new TrainingCancelledNotification($this));
+        }
     }
 }
