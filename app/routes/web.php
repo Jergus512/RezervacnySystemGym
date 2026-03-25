@@ -137,6 +137,9 @@ Route::middleware('auth')->group(function () {
         Route::delete('/treningy/{training}', [TrainingManageController::class, 'destroy'])
             ->name('trainings.destroy');
 
+        Route::post('/treningy/{training}/cancel', [TrainingManageController::class, 'cancel'])
+            ->name('trainings.cancel');
+
         // Štatistiky trénera - využijeme existujúcu AnalyticsController logiku
         Route::get('/statistiky', [TrainerStatisticsController::class, 'index'])
             ->name('stats.index');

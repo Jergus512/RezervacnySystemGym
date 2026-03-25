@@ -78,16 +78,20 @@
                     <label class="form-check-label" for="is_active">Aktívny (is_active)</label>
                 </div>
 
-                <button type="submit" class="btn btn-primary">Uložiť zmeny</button>
-
-                <button type="submit" form="delete-training" class="btn btn-outline-danger">Zrušiť tréning</button>
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">Uložiť zmeny</button>
+                    @if($training->is_active)
+                        <button type="submit" form="cancel-training" class="btn btn-outline-danger">Zrušiť tréning</button>
+                    @endif
+                </div>
             </form>
 
-            <form id="delete-training" method="POST" action="{{ route('trainer.trainings.destroy', $training) }}" class="d-none"
-                  onsubmit="return confirm('Naozaj chceš zrušiť tento tréning?');">
-                @csrf
-                @method('DELETE')
-            </form>
+            @if($training->is_active)
+                <form id="cancel-training" method="POST" action="{{ route('trainer.trainings.cancel', $training) }}" class="d-none"
+                      onsubmit="return confirm('Naozaj chceš zrušiť tento tréning? Všetci účastníci budú informovaní a vráti sa im kredity.');">
+                    @csrf
+                </form>
+            @endif
         </div>
     </div>
 @endsection
