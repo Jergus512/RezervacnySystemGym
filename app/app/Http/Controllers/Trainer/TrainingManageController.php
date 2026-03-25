@@ -194,4 +194,18 @@ class TrainingManageController extends Controller
         return redirect()->route('trainer.trainings.index')
             ->with('status', 'Tréning bol odstránený.');
     }
+
+    public function cancel(Request $request, Training $training): RedirectResponse
+    {
+        $this->requireTrainer($request);
+
+        if ((int) $training->created_by_user_id !== (int) $request->user()->id) {
+            abort(403);
+        }
+
+        $training->cancelTraining();
+
+        return redirect()->route('trainer.trainings.edit', $training)
+            ->with('status', 'Tréning bol zrušený a všetci účastníci boli informovaní.');
+    }
 }
