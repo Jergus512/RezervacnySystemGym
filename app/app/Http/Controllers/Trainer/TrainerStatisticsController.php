@@ -29,6 +29,7 @@ class TrainerStatisticsController extends Controller
 
         // tréner vidí len svoje tréningy
         $trainings = Training::where('created_by_user_id', $user->id)
+            ->where('is_active', true)
             ->whereBetween('start_at', [$start, $end])
             ->get();
 

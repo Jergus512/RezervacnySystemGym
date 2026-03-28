@@ -83,6 +83,20 @@ class Training extends Model
             // Vrátenie plných kreditov bez časového limitu
             $user->increment('credits', $this->price);
 
+            // Zaznamenanie refundu do CreditMovement
+            CreditMovement::create([
+                'user_id' => $user->id,
+                'training_id' => $this->id,
+                'amount' => $this->price,
+                'type' => 'training_refund',
+                'description' => 'Vrátenie kreditov za zrušený tréning: ' . $this->title,
+                'meta' => [
+                    'training_id' => $this->id,
+                    'start_at' => optional($this->start_at)->toIso8601String(),
+                    'reason' => 'training_canceled',
+                ],
+            ]);
+
             // Zmena statusu registrácie na 'canceled' namiesto vymazania
             $this->users()->updateExistingPivot($user->id, ['status' => 'canceled']);
 
