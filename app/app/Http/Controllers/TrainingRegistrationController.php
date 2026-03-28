@@ -166,10 +166,12 @@ class TrainingRegistrationController extends Controller
                         'training_id' => $training->id,
                         'amount' => $refundAmount,
                         'type' => 'training_refund',
-                        'description' => 'Vrátenie kreditov za zrušený tréning: '.$training->title,
+                        'description' => 'Vrátenie kreditov za odhlásený tréning: '.$training->title,
                         'meta' => [
                             'training_id' => $training->id,
                             'start_at' => optional($training->start_at)->toIso8601String(),
+                            'refund_amount' => $refundAmount,
+                            'penalty_applied' => $refundAmount < $price,
                         ],
                     ]);
                 }

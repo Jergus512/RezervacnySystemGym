@@ -158,7 +158,7 @@ class UnregistrationController extends Controller
                         'training_id' => $training->id,
                         'amount' => $refundAmount,
                         'type' => 'training_refund',
-                        'description' => 'Vrátenie kreditov za zrušený tréning (recepcia): ' . $training->title,
+                        'description' => 'Vrátenie kreditov za odhlásený tréning (recepcia): ' . $training->title,
                         'meta' => [
                             'training_id' => $training->id,
                             'start_at' => optional($training->start_at)->toIso8601String(),
