@@ -165,16 +165,39 @@ class TrainingManageController extends Controller
 
         // Cancel training if it was active and is now inactive
         if ($wasActive && !$isActive) {
-            // Notify users about the cancellation
+            // Notify users about the cancellation and handle refunds
             foreach ($training->registrations as $registration) {
-                $registration->user->notify(new TrainingCancelledNotification($training));
+                $user = $registration->user;
+                $user->notify(new TrainingCancelledNotification($training));
+
+                // Zaznamenaj vrátenie kreditov v CreditMovement
+                $price = (int) ($training->price ?? 0);
+                if ($price > 0) {
+                    $user->increment('credits', $price);
+
+                    \App\Models\CreditMovement::create([
+                        'user_id' => $user->id,
+                        'training_id' => $training->id,
+                        'amount' => $price,
+                        'type' => 'training_refund',
+                        'description' => 'Vrátenie kreditov za zrušený tréning (tréner): ' . $training->title,
+                        'meta' => [
+                            'training_id' => $training->id,
+                            'start_at' => optional($training->start_at)->toIso8601String(),
+                            'reason' => 'training_canceled_by_trainer',
+                        ],
+                    ]);
+                }
             }
 
             // Unregister all users by marking their registrations as canceled
             $training->users()->updateExistingPivot(null, ['status' => 'canceled']);
 
+            // Zaznamená aj čas zrušenia
+            $training->update(['canceled_at' => now()]);
+
             // Log the cancellation
-            \Log::info("Training ID {$training->id} was canceled by admin ID {$request->user()->id}.");
+            \Log::info("Training ID {$training->id} was canceled by trainer ID {$request->user()->id}.");
         }
 
         return redirect()->route('trainer.trainings.index')

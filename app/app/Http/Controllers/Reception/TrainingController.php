@@ -59,7 +59,7 @@ class TrainingController extends Controller
         $old = (bool) Training::whereKey($training->id)->value('is_active');
 
         if ($action === 'deactivate') {
-            $training->update(['is_active' => false]);
+            $training->update(['is_active' => false, 'canceled_at' => now()]);
 
             // Notify participants and handle refunds
             foreach ($training->registrations as $registration) {
@@ -73,8 +73,23 @@ class TrainingController extends Controller
                 // Ensure full refund for all registrations regardless of status
                 $price = (int) ($training->price ?? 0);
                 if ($price > 0) {
-                    $registration->user->increment('credits', $price);
-                    $registration->update(['status' => 'refunded']);
+                    $user->increment('credits', $price);
+
+                    // Zaznamenaj zmenu kreditov v CreditMovement
+                    \App\Models\CreditMovement::create([
+                        'user_id' => $user->id,
+                        'training_id' => $training->id,
+                        'amount' => $price,
+                        'type' => 'training_refund',
+                        'description' => 'Vrátenie kreditov za zrušený tréning (recepcia): ' . $training->title,
+                        'meta' => [
+                            'training_id' => $training->id,
+                            'start_at' => optional($training->start_at)->toIso8601String(),
+                            'reason' => 'training_canceled_by_reception',
+                        ],
+                    ]);
+
+                    $registration->update(['status' => 'canceled']);
                 }
             }
 
