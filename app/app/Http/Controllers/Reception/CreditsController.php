@@ -82,4 +82,28 @@ class CreditsController extends Controller
             'credits' => (int) ($user->credits ?? 0),
         ]);
     }
+
+    public function search(Request $request)
+    {
+        $q = trim((string) $request->query('q', ''));
+
+        if (strlen($q) < 2) {
+            return response()->json([]);
+        }
+
+        // Search for users by email or name - only regular users
+        $users = User::query()
+            ->where('is_admin', false)
+            ->where('is_trainer', false)
+            ->where('is_reception', false)
+            ->where(function ($query) use ($q) {
+                $query->where('email', 'like', '%' . $q . '%')
+                    ->orWhere('name', 'like', '%' . $q . '%');
+            })
+            ->orderBy('email')
+            ->limit(10)
+            ->get(['id', 'name', 'email', 'credits']);
+
+        return response()->json($users);
+    }
 }
