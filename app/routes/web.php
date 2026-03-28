@@ -10,6 +10,7 @@ use App\Http\Controllers\MeController;
 use App\Http\Controllers\MyTrainingsController;
 use App\Http\Controllers\Reception\CreditsController as ReceptionCreditsController;
 use App\Http\Controllers\Reception\TrainingController as ReceptionTrainingController;
+use App\Http\Controllers\Reception\UnregistrationController as ReceptionUnregistrationController;
 use App\Http\Controllers\Trainer\TrainingManageController;
 use App\Http\Controllers\Trainer\TrainerStatisticsController;
 use App\Http\Controllers\TrainingCalendarController;
@@ -77,6 +78,12 @@ Route::middleware('auth')->group(function () {
         Route::get('/pridanie-kreditov/search', [ReceptionCreditsController::class, 'search'])->name('credits.search');
         Route::post('/pridanie-kreditov', [ReceptionCreditsController::class, 'store'])->name('credits.store');
         Route::get('/pridanie-kreditov/{user}/credits', [ReceptionCreditsController::class, 'credits'])->name('credits.current');
+
+        // Reception user unregistration from trainings
+        Route::get('/odhlasenie-z-treningov', [ReceptionUnregistrationController::class, 'index'])->name('unregistration.index');
+        Route::get('/odhlasenie-z-treningov/search', [ReceptionUnregistrationController::class, 'search'])->name('unregistration.search');
+        Route::get('/odhlasenie-z-treningov/{user}/trainings', [ReceptionUnregistrationController::class, 'trainings'])->name('unregistration.trainings');
+        Route::post('/odhlasenie-z-treningov', [ReceptionUnregistrationController::class, 'unregister'])->name('unregistration.unregister');
 
         // Reception training cancellation page
         Route::get('/zrusenie-treningov', [ReceptionTrainingController::class, 'index'])->name('trainings.index');

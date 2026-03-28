@@ -434,6 +434,9 @@
                                     <a class="nav-link {{ $isReceptionCredits ? 'nav-link-active' : '' }}" href="{{ route('reception.credits.create') }}">Pridanie kreditov</a>
                                 </li>
                                 <li class="nav-item">
+                                    <a class="nav-link {{ $isReceptionUnregistration ? 'nav-link-active' : '' }}" href="{{ route('reception.unregistration.index') }}">Odhlásenie z tréningu</a>
+                                </li>
+                                <li class="nav-item">
                                     <a class="nav-link {{ $isReceptionTrainings ? 'nav-link-active' : '' }}" href="{{ route('reception.trainings.index') }}">Zrušenie tréningov</a>
                                 </li>
                             @else
@@ -657,6 +660,7 @@
                         <li><a class="app-mobile-link {{ $isCalendarActive ? 'app-mobile-link-active' : '' }}" href="{{ route('reception.calendar') }}">Kalendár tréningov</a></li>
                         <li><a class="app-mobile-link {{ $isAnnouncementsList ? 'app-mobile-link-active' : '' }}" href="{{ route('announcements.index') }}">Oznamy</a></li>
                         <li><a class="app-mobile-link {{ $isReceptionCredits ? 'app-mobile-link-active' : '' }}" href="{{ route('reception.credits.create') }}">Pridanie kreditov</a></li>
+                        <li><a class="app-mobile-link {{ $isReceptionUnregistration ? 'app-mobile-link-active' : '' }}" href="{{ route('reception.unregistration.index') }}">Odhlásenie z tréningu</a></li>
                         <li><a class="app-mobile-link {{ $isReceptionTrainings ? 'app-mobile-link-active' : '' }}" href="{{ route('reception.trainings.index') }}">Zrušenie tréningov</a></li>
                     @else
                         <li><a class="app-mobile-link {{ $isHomeActive ? 'app-mobile-link-active' : '' }}" href="{{ url('/') }}">Domov</a></li>
