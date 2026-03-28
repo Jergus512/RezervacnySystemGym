@@ -36,7 +36,10 @@ class TrainingCalendarController extends Controller
                 // Show both upcoming and past trainings; only hide ones that are explicitly inactive.
                 $q->whereNull('is_active')->orWhere('is_active', true);
             })
-            ->withCount('users')
+            ->withCount(['users' => function ($query) {
+                // Count only active registrations, excluding canceled ones
+                $query->where('training_registrations.status', 'active');
+            }])
             ->with(['users:id,name', 'creator:id,name'])
             ->when($forRegistrationUser && $userId, function ($q) use ($userId) {
                 $q->withExists([

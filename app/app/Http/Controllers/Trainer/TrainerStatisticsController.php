@@ -47,13 +47,18 @@ class TrainerStatisticsController extends Controller
             $reservationsQuery = DB::table('training_registrations')
                 ->whereIn('training_id', $trainingIds);
 
-            $stats['reservations'] = (clone $reservationsQuery)->count();
+            // Count only ACTIVE reservations
+            $stats['reservations'] = (clone $reservationsQuery)
+                ->where('status', 'active')
+                ->count();
 
             $stats['canceled_reservations'] = (clone $reservationsQuery)
                 ->where('status', 'canceled')
                 ->count();
 
+            // Unique participants - only count active registrations
             $stats['unique_participants'] = (clone $reservationsQuery)
+                ->where('status', 'active')
                 ->distinct('user_id')
                 ->count('user_id');
 
@@ -75,4 +80,3 @@ class TrainerStatisticsController extends Controller
         return view('trainer.statistics.index', compact('start', 'end', 'stats', 'trainings'));
     }
 }
-
