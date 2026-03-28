@@ -216,11 +216,16 @@
         btn.textContent = 'Spracovávam...';
 
         try {
+            // Get CSRF token from the page
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content ||
+                             document.querySelector('input[name="_token"]')?.value ||
+                             @json(csrf_token());
+
             const res = await fetch(@json(route('reception.unregistration.unregister')), {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'X-CSRF-TOKEN': csrfToken,
                     'Accept': 'application/json',
                     'X-Requested-With': 'XMLHttpRequest'
                 },
