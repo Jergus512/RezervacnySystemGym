@@ -416,6 +416,7 @@
                                 $isAnnouncementsList   = request()->routeIs('announcements.index');
                                 $isReceptionCredits    = request()->routeIs('reception.credits.*');
                                 $isReceptionTrainings  = request()->routeIs('reception.trainings.*');
+                                $isReceptionUnregistration = request()->routeIs('reception.unregistration.*');
                                 $isSettingsActive      = request()->routeIs('admin.settings.*');
                                 $isAnalyticsActive     = request()->routeIs('admin.analytics.*');
                             @endphp
@@ -648,6 +649,7 @@
             $isAnnouncementsList   = request()->routeIs('announcements.index');
             $isReceptionCredits    = request()->routeIs('reception.credits.*');
             $isReceptionTrainings  = request()->routeIs('reception.trainings.*');
+            $isReceptionUnregistration = request()->routeIs('reception.unregistration.*');
             $isSettingsActive      = request()->routeIs('admin.settings.*');
             $isAnalyticsActive     = request()->routeIs('admin.analytics.*');
         @endphp
