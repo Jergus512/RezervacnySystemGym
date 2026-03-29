@@ -1,61 +1,162 @@
 <!-- resources/views/components/trainer-rating-form.blade.php -->
 <div class="trainer-rating-wrapper mb-3">
-    <div class="card">
-        <div class="card-body">
-            <h6 class="card-title mb-3">⭐ Ohodnoť tohto trénera</h6>
+    @php
+        // Skontroluj či už existuje hodnotenie pre tohto trénera a tréning
+        $existingRating = null;
+        if($training ?? false) {
+            $existingRating = \App\Models\TrainerRating::where('trainer_id', $trainer->id)
+                ->where('training_id', $training->id)
+                ->where('user_id', auth()->id())
+                ->first();
+        }
+    @endphp
 
-            <form method="POST" action="{{ route('trainer-ratings.store', $trainer) }}">
-                @csrf
-
-                <!-- Skryté pole pre training_id -->
-                @if($training ?? false)
-                    <input type="hidden" name="training_id" value="{{ $training->id }}">
-                @endif
-
-                <!-- Hviezdičky na kliknutie -->
-                <div class="mb-3">
-                    <label class="form-label small">Tvoje hodnotenie:</label>
-                    <div class="d-flex gap-2 mb-2">
-                        @for($i = 1; $i <= 5; $i++)
-                            <label style="cursor: pointer; font-size: 2rem;">
-                                <input
-                                    type="radio"
-                                    name="rating"
-                                    value="{{ $i }}"
-                                    style="display: none;"
-                                    class="rating-input"
-                                >
-                                <span class="rating-star" data-rating="{{ $i }}" style="color: #ddd; transition: all 0.2s;">★</span>
-                            </label>
-                        @endfor
+    @if($existingRating)
+        <!-- Zmenšená verzia - keď je už ohodnotenie uložené -->
+        <div class="card border-0 bg-light">
+            <div class="card-body p-3">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <small class="text-muted d-block mb-1">Tvoje hodnotenie:</small>
+                        <div style="font-size: 18px; color: #ff9800;">
+                            @for($i = 1; $i <= 5; $i++)
+                                {{ $i <= $existingRating->rating ? '★' : '☆' }}
+                            @endfor
+                            <span style="margin-left: 8px; font-weight: bold;">{{ $existingRating->rating }}/5</span>
+                        </div>
+                        @if($existingRating->comment)
+                            <small class="text-muted d-block mt-2">"{{ substr($existingRating->comment, 0, 50) }}{{ strlen($existingRating->comment) > 50 ? '...' : '' }}"</small>
+                        @endif
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button
+                            type="button"
+                            class="btn btn-sm btn-outline-secondary"
+                            onclick="toggleEditRating(this)"
+                        >
+                            <i class="bi bi-pencil"></i> Upraviť
+                        </button>
                     </div>
                 </div>
-
-                <!-- Komentár -->
-                <div class="mb-3">
-                    <label for="comment_{{ $trainer->id }}_{{ $training->id ?? 0 }}" class="form-label small">Komentár (voliteľný):</label>
-                    <textarea
-                        id="comment_{{ $trainer->id }}_{{ $training->id ?? 0 }}"
-                        name="comment"
-                        class="form-control form-control-sm"
-                        rows="2"
-                        placeholder="Napíš svoj komentár o tréneri..."
-                        maxlength="500"
-                    ></textarea>
-                </div>
-
-                <!-- Tlačidlá -->
-                <div class="d-flex gap-2">
-                    <button type="submit" class="btn btn-sm" style="background-color: #ff9800; color: white; border: none;">
-                        Uložiť hodnotenie
-                    </button>
-                    <button type="reset" class="btn btn-sm btn-outline-secondary">
-                        Zrušiť
-                    </button>
-                </div>
-            </form>
+            </div>
         </div>
-    </div>
+
+        <!-- Skrytý formulár na editáciu -->
+        <div class="edit-rating-form" style="display: none; margin-top: 12px;">
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="card-title mb-3">⭐ Uprav hodnotenie</h6>
+
+                    <form method="POST" action="{{ route('trainer-ratings.store', $trainer) }}">
+                        @csrf
+
+                        <input type="hidden" name="training_id" value="{{ $training->id }}">
+
+                        <!-- Hviezdičky na kliknutie -->
+                        <div class="mb-3">
+                            <label class="form-label small">Tvoje hodnotenie:</label>
+                            <div class="d-flex gap-2 mb-2">
+                                @for($i = 1; $i <= 5; $i++)
+                                    <label style="cursor: pointer; font-size: 2rem;">
+                                        <input
+                                            type="radio"
+                                            name="rating"
+                                            value="{{ $i }}"
+                                            style="display: none;"
+                                            class="rating-input"
+                                            {{ $existingRating->rating == $i ? 'checked' : '' }}
+                                        >
+                                        <span class="rating-star" data-rating="{{ $i }}" style="color: {{ $existingRating->rating >= $i ? '#ff9800' : '#ddd' }}; transition: all 0.2s;">★</span>
+                                    </label>
+                                @endfor
+                            </div>
+                        </div>
+
+                        <!-- Komentár -->
+                        <div class="mb-3">
+                            <label for="comment_edit_{{ $trainer->id }}_{{ $training->id }}" class="form-label small">Komentár (voliteľný):</label>
+                            <textarea
+                                id="comment_edit_{{ $trainer->id }}_{{ $training->id }}"
+                                name="comment"
+                                class="form-control form-control-sm"
+                                rows="2"
+                                placeholder="Napíš svoj komentár o tréneri..."
+                                maxlength="500"
+                            >{{ $existingRating->comment }}</textarea>
+                        </div>
+
+                        <!-- Tlačidlá -->
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-sm" style="background-color: #ff9800; color: white; border: none;">
+                                Uložiť zmeny
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="toggleEditRating(this)">
+                                Zrušiť
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    @else
+        <!-- Plný formulár - keď ešte nie je ohodnotenie -->
+        <div class="card">
+            <div class="card-body">
+                <h6 class="card-title mb-3">⭐ Ohodnoť tohto trénera</h6>
+
+                <form method="POST" action="{{ route('trainer-ratings.store', $trainer) }}">
+                    @csrf
+
+                    <!-- Skryté pole pre training_id -->
+                    @if($training ?? false)
+                        <input type="hidden" name="training_id" value="{{ $training->id }}">
+                    @endif
+
+                    <!-- Hviezdičky na kliknutie -->
+                    <div class="mb-3">
+                        <label class="form-label small">Tvoje hodnotenie:</label>
+                        <div class="d-flex gap-2 mb-2">
+                            @for($i = 1; $i <= 5; $i++)
+                                <label style="cursor: pointer; font-size: 2rem;">
+                                    <input
+                                        type="radio"
+                                        name="rating"
+                                        value="{{ $i }}"
+                                        style="display: none;"
+                                        class="rating-input"
+                                    >
+                                    <span class="rating-star" data-rating="{{ $i }}" style="color: #ddd; transition: all 0.2s;">★</span>
+                                </label>
+                            @endfor
+                        </div>
+                    </div>
+
+                    <!-- Komentár -->
+                    <div class="mb-3">
+                        <label for="comment_{{ $trainer->id }}_{{ $training->id ?? 0 }}" class="form-label small">Komentár (voliteľný):</label>
+                        <textarea
+                            id="comment_{{ $trainer->id }}_{{ $training->id ?? 0 }}"
+                            name="comment"
+                            class="form-control form-control-sm"
+                            rows="2"
+                            placeholder="Napíš svoj komentár o tréneri..."
+                            maxlength="500"
+                        ></textarea>
+                    </div>
+
+                    <!-- Tlačidlá -->
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-sm" style="background-color: #ff9800; color: white; border: none;">
+                            Uložiť hodnotenie
+                        </button>
+                        <button type="reset" class="btn btn-sm btn-outline-secondary">
+                            Zrušiť
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    @endif
 </div>
 
 <style>
@@ -78,6 +179,19 @@ input[type="radio"]:checked ~ .rating-star::after {
 </style>
 
 <script>
+function toggleEditRating(button) {
+    const wrapper = button.closest('.trainer-rating-wrapper');
+    const editForm = wrapper.querySelector('.edit-rating-form');
+
+    if (editForm.style.display === 'none') {
+        editForm.style.display = 'block';
+        button.innerHTML = '<i class="bi bi-x-circle"></i> Zatvoriť';
+    } else {
+        editForm.style.display = 'none';
+        button.innerHTML = '<i class="bi bi-pencil"></i> Upraviť';
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     // Nájdi všetky rating wrappery
     const wrappers = document.querySelectorAll('.trainer-rating-wrapper');
@@ -94,16 +208,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 inputs.forEach((input, index) => {
                     if (index + 1 <= rating) {
                         input.checked = true;
-                        // Zisti hviezdu a aktivuj ju
-                        wrapper.querySelectorAll('.rating-star').forEach((s, i) => {
-                            if (i < rating) {
-                                s.classList.add('active');
-                                s.style.color = '#ff9800';
-                            } else {
-                                s.classList.remove('active');
-                                s.style.color = '#ddd';
-                            }
-                        });
+                    }
+                });
+
+                // Uprav farby hviezdičiek
+                wrapper.querySelectorAll('.rating-star').forEach((s, i) => {
+                    if (i < rating) {
+                        s.classList.add('active');
+                        s.style.color = '#ff9800';
+                    } else {
+                        s.classList.remove('active');
+                        s.style.color = '#ddd';
                     }
                 });
             });
@@ -122,19 +237,21 @@ document.addEventListener('DOMContentLoaded', function() {
 
         wrapper.addEventListener('mouseleave', function() {
             // Vráť späť na pôvodný stav
+            let hasChecked = false;
+            let checkedIndex = 0;
+
             inputs.forEach((input, index) => {
                 if (input.checked) {
-                    wrapper.querySelectorAll('.rating-star').forEach((s, i) => {
-                        if (i < index + 1) {
-                            s.style.color = '#ff9800';
-                        } else {
-                            s.style.color = '#ddd';
-                        }
-                    });
+                    hasChecked = true;
+                    checkedIndex = index;
+                }
+            });
+
+            wrapper.querySelectorAll('.rating-star').forEach((s, i) => {
+                if (hasChecked && i < checkedIndex + 1) {
+                    s.style.color = '#ff9800';
                 } else {
-                    wrapper.querySelectorAll('.rating-star').forEach(s => {
-                        s.style.color = '#ddd';
-                    });
+                    s.style.color = '#ddd';
                 }
             });
         });
