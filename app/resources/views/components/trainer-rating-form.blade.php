@@ -3,7 +3,7 @@
     @php
         // Skontroluj či už existuje hodnotenie pre tohto trénera a tréning
         $existingRating = null;
-        if($training ?? false) {
+        if(isset($trainer) && isset($training) && $training) {
             $existingRating = \App\Models\TrainerRating::where('trainer_id', $trainer->id)
                 ->where('training_id', $training->id)
                 ->where('user_id', auth()->id())
@@ -24,9 +24,6 @@
                             @endfor
                             <span style="margin-left: 8px; font-weight: bold;">{{ $existingRating->rating }}/5</span>
                         </div>
-                        @if($existingRating->comment)
-                            <small class="text-muted d-block mt-2">"{{ substr($existingRating->comment, 0, 50) }}{{ strlen($existingRating->comment) > 50 ? '...' : '' }}"</small>
-                        @endif
                     </div>
                     <div class="d-flex gap-2">
                         <button
@@ -72,19 +69,6 @@
                             </div>
                         </div>
 
-                        <!-- Komentár -->
-                        <div class="mb-3">
-                            <label for="comment_edit_{{ $trainer->id }}_{{ $training->id }}" class="form-label small">Komentár (voliteľný):</label>
-                            <textarea
-                                id="comment_edit_{{ $trainer->id }}_{{ $training->id }}"
-                                name="comment"
-                                class="form-control form-control-sm"
-                                rows="2"
-                                placeholder="Napíš svoj komentár o tréneri..."
-                                maxlength="500"
-                            >{{ $existingRating->comment }}</textarea>
-                        </div>
-
                         <!-- Tlačidlá -->
                         <div class="d-flex gap-2">
                             <button type="submit" class="btn btn-sm" style="background-color: #ff9800; color: white; border: none;">
@@ -108,7 +92,7 @@
                     @csrf
 
                     <!-- Skryté pole pre training_id -->
-                    @if($training ?? false)
+                    @if(isset($training) && $training)
                         <input type="hidden" name="training_id" value="{{ $training->id }}">
                     @endif
 
@@ -129,19 +113,6 @@
                                 </label>
                             @endfor
                         </div>
-                    </div>
-
-                    <!-- Komentár -->
-                    <div class="mb-3">
-                        <label for="comment_{{ $trainer->id }}_{{ $training->id ?? 0 }}" class="form-label small">Komentár (voliteľný):</label>
-                        <textarea
-                            id="comment_{{ $trainer->id }}_{{ $training->id ?? 0 }}"
-                            name="comment"
-                            class="form-control form-control-sm"
-                            rows="2"
-                            placeholder="Napíš svoj komentár o tréneri..."
-                            maxlength="500"
-                        ></textarea>
                     </div>
 
                     <!-- Tlačidlá -->
