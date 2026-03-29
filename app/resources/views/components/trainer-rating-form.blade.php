@@ -58,7 +58,7 @@
 
                     <!-- Tlačidlá -->
                     <div class="d-flex gap-2">
-                        <button type="submit" class="btn btn-primary">
+                        <button type="submit" class="btn" style="background-color: #ff9800; color: white; border: none;">
                             Uložiť hodnotenie
                         </button>
                         <button type="reset" class="btn btn-outline-secondary">
@@ -80,9 +80,9 @@
                     </div>
                 @endif
             @else
-                <div class="alert alert-info">
+                <div class="alert" style="background-color: #fff3e0; border-color: #ff9800; color: #e65100;">
                     <p class="mb-0">
-                        <a href="{{ route('login') }}" class="alert-link">Prihlásiť sa</a>
+                        <a href="{{ route('login') }}" style="color: #e65100;">Prihlásiť sa</a>
                         aby si mohol ohodnotiť tohto trénera.
                     </p>
                 </div>
@@ -91,7 +91,7 @@
     </div>
 </div>
 
-<style scoped>
+<style>
 .rating-stars {
     display: flex;
     gap: 0.5rem;
@@ -115,7 +115,7 @@
 #star3:checked ~ label,
 #star4:checked ~ label,
 #star5:checked ~ label {
-    color: #ffc107;
+    color: #ff9800;
 }
 
 .star-label i {
@@ -125,7 +125,6 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Počítanie znakov v komentári
     const commentInput = document.getElementById('comment');
     const charCount = document.getElementById('charCount');
 
@@ -133,10 +132,6 @@ document.addEventListener('DOMContentLoaded', function() {
         commentInput.addEventListener('input', function() {
             charCount.textContent = this.value.length;
         });
-    }
-
-    // Inicializácia počítadla
-    if (commentInput && charCount) {
         charCount.textContent = commentInput.value.length;
     }
 });

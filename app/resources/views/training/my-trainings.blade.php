@@ -4,15 +4,14 @@
 
 @section('content')
 <div class="container mt-4">
-    <h1 class="mb-4">📅 Moje tréningy</h1>
+    <h1 class="mb-4">Moje tréningy</h1>
 
     <div class="row">
         <div class="col-lg-8">
             <!-- Nadchádzajúce tréningy -->
-            <div class="card mb-4">
-                <div class="card-header bg-primary text-white">
+            <div class="card mb-4 border-top border-5" style="border-top-color: #ff9800 !important;">
+                <div class="card-header" style="background-color: #ff9800; color: white;">
                     <h5 class="mb-0">
-                        <i class="fas fa-calendar-alt"></i>
                         Nadchádzajúce tréningy ({{ $upcomingTrainings->count() }})
                     </h5>
                 </div>
@@ -23,34 +22,32 @@
                                 <div class="card-body">
                                     <div class="row">
                                         <div class="col-md-8">
-                                            <h6 class="card-title mb-2">
-                                                {{ $training->title }}
-                                            </h6>
+                                            <h6 class="card-title mb-2">{{ $training->title }}</h6>
                                             <p class="text-muted mb-2">
-                                                <i class="far fa-calendar"></i>
-                                                {{ $training->start_at->format('d.m.Y H:i') }}
-                                                -
-                                                {{ $training->end_at->format('H:i') }}
+                                                {{ $training->start_at->format('d.m.Y H:i') }} - {{ $training->end_at->format('H:i') }}
                                             </p>
                                             <p class="mb-0">
-                                                <strong>Tréner:</strong> {{ $training->creator->name }}<br>
-                                                <span class="badge bg-info">
+                                                <strong>Tréner:</strong> {{ $training->creator->name }}
+                                            </p>
+                                            <p class="mb-0">
+                                                <span class="badge" style="background-color: #ff9800;">
                                                     {{ $training->trainingType?->name ?? 'Bez typu' }}
                                                 </span>
                                             </p>
                                         </div>
-                                        <div class="col-md-4 text-end">
-                                            <p class="mb-2">
+                                        <div class="col-md-4">
+                                            <div class="mb-2">
                                                 <strong>Cena:</strong>
-                                                <span class="badge bg-warning text-dark">
+                                                <span class="badge" style="background-color: #ff9800;">
                                                     {{ $training->price ?? 0 }} kreditov
                                                 </span>
-                                            </p>
+                                            </div>
                                             <button
-                                                class="btn btn-sm btn-danger"
+                                                class="btn btn-sm"
+                                                style="background-color: #ff9800; color: white; border: none;"
                                                 onclick="unregisterFromTraining({{ $training->id }})"
                                             >
-                                                <i class="fas fa-times"></i> Odhlásiť sa
+                                                Odhlásiť sa
                                             </button>
                                         </div>
                                     </div>
@@ -58,22 +55,18 @@
                             </div>
                         @endforeach
                     @else
-                        <div class="alert alert-info mb-0">
-                            <i class="fas fa-info-circle"></i>
+                        <div class="alert mb-0" style="background-color: #fff3e0; border-color: #ff9800; color: #e65100;">
                             Nemáš žiadne nadchádzajúce tréningy.
-                            <a href="{{ route('training-calendar.index') }}" class="alert-link">Prihlásiť sa na tréning</a>
+                            <a href="{{ route('training-calendar.index') }}" style="color: #e65100;">Prihlásiť sa na tréning</a>
                         </div>
                     @endif
                 </div>
             </div>
 
             <!-- Minulé tréningy s možnosťou hodnotenia -->
-            <div class="card">
-                <div class="card-header bg-success text-white">
-                    <h5 class="mb-0">
-                        <i class="fas fa-check-circle"></i>
-                        Absolvované tréningy ({{ $pastTrainings->count() }})
-                    </h5>
+            <div class="card border-top border-5" style="border-top-color: #ff9800 !important;">
+                <div class="card-header" style="background-color: #ff9800; color: white;">
+                    <h5 class="mb-0">Absolvované tréningy ({{ $pastTrainings->count() }})</h5>
                 </div>
                 <div class="card-body">
                     @if($pastTrainings->count() > 0)
@@ -85,19 +78,15 @@
                                         <div class="col-md-8">
                                             <h6 class="card-title mb-2">{{ $training->title }}</h6>
                                             <p class="text-muted mb-2">
-                                                <i class="far fa-calendar"></i>
-                                                {{ $training->start_at->format('d.m.Y H:i') }}
-                                                -
-                                                {{ $training->end_at->format('H:i') }}
+                                                {{ $training->start_at->format('d.m.Y H:i') }} - {{ $training->end_at->format('H:i') }}
                                             </p>
                                             <p class="mb-0">
-                                                <strong>Tréner:</strong> {{ $training->creator->name }}<br>
-                                                <span class="badge bg-success">Absolvované</span>
+                                                <strong>Tréner:</strong> {{ $training->creator->name }}
                                             </p>
                                         </div>
-                                        <div class="col-md-4 text-end">
-                                            <span class="badge bg-success" style="font-size: 14px;">
-                                                <i class="fas fa-star"></i> Absolvované
+                                        <div class="col-md-4">
+                                            <span class="badge" style="background-color: #ff9800; font-size: 12px;">
+                                                Absolvované
                                             </span>
                                         </div>
                                     </div>
@@ -111,7 +100,7 @@
                                         />
                                     </div>
 
-                                    <!-- Blade komponent na zobrazenie hodnotení -->
+                                    <!-- Zobrazenie hodnotení -->
                                     @if(App\Models\TrainerRating::where('trainer_id', $training->created_by_user_id)->exists())
                                         <hr class="my-3">
                                         <div class="trainer-ratings-section">
@@ -122,8 +111,7 @@
                             </div>
                         @endforeach
                     @else
-                        <div class="alert alert-info mb-0">
-                            <i class="fas fa-info-circle"></i>
+                        <div class="alert mb-0" style="background-color: #fff3e0; border-color: #ff9800; color: #e65100;">
                             Zatiaľ si neabsolvoval žiadne tréningy.
                         </div>
                     @endif
@@ -134,27 +122,27 @@
         <!-- Sidebar - Štatistika a Rýchle Odkazy -->
         <div class="col-lg-4">
             <!-- Štatistika -->
-            <div class="card mb-4">
-                <div class="card-header bg-secondary text-white">
-                    <h5 class="mb-0">📊 Tvoje štatistiky</h5>
+            <div class="card mb-4 border-top border-5" style="border-top-color: #ff9800 !important;">
+                <div class="card-header" style="background-color: #ff9800; color: white;">
+                    <h5 class="mb-0">Tvoje štatistiky</h5>
                 </div>
                 <div class="card-body">
                     <ul class="list-unstyled">
                         <li class="mb-3">
                             <strong>Dostupné kredity:</strong>
-                            <span class="badge bg-primary float-end" style="font-size: 14px;">
+                            <span class="badge float-end" style="background-color: #ff9800; font-size: 14px;">
                                 {{ auth()->user()->credits ?? 0 }}
                             </span>
                         </li>
                         <li class="mb-3">
                             <strong>Nadchádzajúce:</strong>
-                            <span class="badge bg-info float-end" style="font-size: 14px;">
+                            <span class="badge float-end" style="background-color: #ff9800; font-size: 14px;">
                                 {{ $upcomingTrainings->count() }}
                             </span>
                         </li>
                         <li class="mb-0">
                             <strong>Absolvované:</strong>
-                            <span class="badge bg-success float-end" style="font-size: 14px;">
+                            <span class="badge float-end" style="background-color: #ff9800; font-size: 14px;">
                                 {{ $pastTrainings->count() }}
                             </span>
                         </li>
@@ -163,28 +151,27 @@
             </div>
 
             <!-- Rýchle Odkazy -->
-            <div class="card mb-4">
-                <div class="card-header bg-info text-white">
-                    <h5 class="mb-0">🔗 Rýchle odkazy</h5>
+            <div class="card mb-4 border-top border-5" style="border-top-color: #ff9800 !important;">
+                <div class="card-header" style="background-color: #ff9800; color: white;">
+                    <h5 class="mb-0">Rýchle odkazy</h5>
                 </div>
                 <div class="card-body">
                     <div class="d-grid gap-2">
-                        <a href="{{ route('training-calendar.index') }}" class="btn btn-primary btn-sm">
-                            <i class="fas fa-plus"></i> Nový tréning
+                        <a href="{{ route('training-calendar.index') }}" class="btn btn-sm" style="background-color: #ff9800; color: white; border: none;">
+                            Nový tréning
                         </a>
-                        <a href="{{ route('user-credits.history') }}" class="btn btn-secondary btn-sm">
-                            <i class="fas fa-list"></i> História kreditov
+                        <a href="{{ route('user-credits.history') }}" class="btn btn-sm" style="background-color: #ff9800; color: white; border: none;">
+                            História kreditov
                         </a>
                     </div>
                 </div>
             </div>
 
             <!-- Info Box -->
-            <div class="alert alert-info">
-                <h6 class="alert-heading">💡 Tip</h6>
-                <small>
-                    Keď absolvuješ tréning, môžeš ohodnotiť trénera hviezdičkami.
-                    Tvoje hodnotenie pomáha iným používateľom vybrať si ten správny tréning!
+            <div class="alert" style="background-color: #fff3e0; border-color: #ff9800; border-left: 4px solid #ff9800;">
+                <h6 style="color: #e65100;">Tip</h6>
+                <small style="color: #e65100;">
+                    Keď absolvuješ tréning, môžeš ohodnotiť trénera. Tvoje hodnotenie pomáha iným používateľom.
                 </small>
             </div>
         </div>
@@ -193,41 +180,37 @@
 
 <script>
 function unregisterFromTraining(trainingId) {
-    if (confirm('Naozaj sa chceš odhlásiť z tohto tréningu? Kredity ti budú vrátené podľa politiky vrátenia.')) {
-        fetch(`/trainings/${trainingId}/register`, {
-            method: 'DELETE',
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                'Accept': 'application/json'
-            }
-        })
-        .then(response => {
-            if (response.ok || response.status === 204) {
-                // Úspech - obnov stránku
-                location.reload();
-            } else {
-                alert('Chyba pri odhlasovaní z tréningu.');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Chyba pri komunikácii so serverom.');
-        });
+    if (confirm('Naozaj sa chceš odhlásiť z tohto tréningu?')) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/trainings/${trainingId}/register`;
+        form.innerHTML = `
+            <input type="hidden" name="_method" value="DELETE">
+            <input type="hidden" name="_token" value="${document.querySelector('meta[name="csrf-token"]').content}">
+        `;
+        document.body.appendChild(form);
+        form.submit();
     }
 }
 </script>
 
 <style>
 .trainer-rating-section {
-    background-color: #f8f9fa;
+    background-color: #fff3e0;
     padding: 1rem;
     border-radius: 0.25rem;
+    border-left: 4px solid #ff9800;
 }
 
 .trainer-ratings-section {
-    background-color: #f0f7ff;
+    background-color: #fff3e0;
     padding: 1rem;
     border-radius: 0.25rem;
+    border-left: 4px solid #ff9800;
+}
+
+.btn:hover {
+    opacity: 0.9;
 }
 </style>
 @endsection
