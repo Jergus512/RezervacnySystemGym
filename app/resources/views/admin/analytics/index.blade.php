@@ -175,7 +175,6 @@
                         <th>Priemerné zaplnenie (%)</th>
                         <th>Zrušené rezervácie</th>
                         <th>Získané kredity</th>
-                        <th>Hodnotenie</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -187,17 +186,10 @@
                             <td>{{ $row['avg_occupancy'] }}</td>
                             <td>{{ $row['canceled_reservations'] }}</td>
                             <td>{{ $row['credits_gained'] }}</td>
-                            <td>
-                                @if($row['rating'] === null)
-                                    <span class="text-muted small">nie je k dispozícii</span>
-                                @else
-                                    {{ number_format($row['rating'], 1) }} / 5
-                                @endif
-                            </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="text-center text-muted py-3">Žiadne dáta.</td>
+                            <td colspan="6" class="text-center text-muted py-3">Žiadne dáta.</td>
                         </tr>
                     @endforelse
                     </tbody>
