@@ -26,27 +26,7 @@
                                 </label>
                             @endfor
                         </div>
-                        <small class="text-muted">Vyberte počet hviezd</small>
                         @error('rating')
-                            <div class="text-danger small mt-2">{{ $message }}</div>
-                        @enderror
-                    </div>
-
-                    <!-- Komentár -->
-                    <div class="mb-3">
-                        <label for="comment" class="form-label">Komentár (voliteľný):</label>
-                        <textarea
-                            id="comment"
-                            name="comment"
-                            class="form-control @error('comment') is-invalid @enderror"
-                            rows="3"
-                            placeholder="Napíš svoj komentár o tréneri..."
-                            maxlength="500"
-                        >{{ old('comment') }}</textarea>
-                        <small class="text-muted">
-                            <span id="charCount">0</span>/500
-                        </small>
-                        @error('comment')
                             <div class="text-danger small mt-2">{{ $message }}</div>
                         @enderror
                     </div>
@@ -56,7 +36,7 @@
                         <input type="hidden" name="training_id" value="{{ $training->id }}">
                     @endif
 
-                    <!-- Tlačidlá -->
+                    <!-- Tlačidlo -->
                     <div class="d-flex gap-2">
                         <button type="submit" class="btn" style="background-color: #ff9800; color: white; border: none;">
                             Uložiť hodnotenie
@@ -94,45 +74,48 @@
 <style>
 .rating-stars {
     display: flex;
-    gap: 0.5rem;
+    gap: 1rem;
     flex-direction: row-reverse;
     justify-content: flex-end;
     width: fit-content;
 }
 
 .star-label {
-    font-size: 28px;
-    color: #ddd;
     cursor: pointer;
-    transition: color 0.2s ease;
-    padding: 0.25rem;
+    font-size: 2.5rem;
+    color: #d0d0d0;
+    transition: all 0.2s ease;
+    border: 2px solid #ccc;
+    border-radius: 8px;
+    padding: 8px 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.star-label:hover,
-.star-label:hover ~ label,
-#star1:checked ~ label,
-#star2:checked ~ label,
-#star3:checked ~ label,
-#star4:checked ~ label,
-#star5:checked ~ label {
+.star-label:hover {
     color: #ff9800;
+    border-color: #ff9800;
+    background-color: #fff9f0;
+    transform: scale(1.1);
 }
 
-.star-label i {
-    display: inline-block;
+#ratingStars input:checked + .star-label,
+#ratingStars input:checked ~ .star-label:hover {
+    color: #ff9800;
+    border-color: #ff9800;
+    background-color: #fff9f0;
+}
+
+/* Interaktivita - pri hoveru sa zvýraznia aj všetky hviezdy vľavo */
+#ratingStars label:hover ~ .star-label {
+    color: #ff9800;
+    border-color: #ff9800;
+}
+
+#ratingStars input:checked ~ label {
+    color: #ff9800;
+    border-color: #ff9800;
+    background-color: #fff9f0;
 }
 </style>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const commentInput = document.getElementById('comment');
-    const charCount = document.getElementById('charCount');
-
-    if (commentInput && charCount) {
-        commentInput.addEventListener('input', function() {
-            charCount.textContent = this.value.length;
-        });
-        charCount.textContent = commentInput.value.length;
-    }
-});
-</script>

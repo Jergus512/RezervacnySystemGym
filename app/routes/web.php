@@ -120,6 +120,10 @@ Route::middleware('auth')->group(function () {
             Route::get('analytics', [\App\Http\Controllers\Admin\AnalyticsController::class, 'index'])
                 ->name('analytics.index');
 
+            // Odmeny trénerov podľa hodnotenia
+            Route::get('analytics/trainer-rewards', [\App\Http\Controllers\Admin\AnalyticsController::class, 'trainerRewards'])
+                ->name('analytics.trainer-rewards');
+
             // Admin settings - penalty configuration for refunds
             Route::get('settings', [\App\Http\Controllers\Admin\PenaltySettingController::class, 'edit'])
                 ->name('settings.edit');

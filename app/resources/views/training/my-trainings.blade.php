@@ -193,7 +193,7 @@
                     Tip
                 </h6>
                 <small style="color: #d84315;">
-                    Keď absolvuješ tréning, môžeš ohodnotiť trénera. Tvoje hodnotenie pomáha iným používateľom pri výbere.
+                    Ohodnoť trénera hviezdičkami a pripíš sa k bonusom. Tréneri s najvyšším priemerným hodnotením za mesiac získavajú odmeny.
                 </small>
             </div>
         </div>

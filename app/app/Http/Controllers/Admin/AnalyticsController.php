@@ -58,6 +58,102 @@ class AnalyticsController extends Controller
         ));
     }
 
+    /**
+     * Stránka s výpočtom odmien trénérov podľa hodnotenia za konkrétny mesiac
+     */
+    public function trainerRewards(Request $request): View
+    {
+        $monthInput = $request->input('month', now()->format('Y-m'));
+        $selectedMonth = $monthInput;
+
+        try {
+            $selectedDate = Carbon::parse($monthInput . '-01');
+        } catch (\Exception $e) {
+            $selectedDate = now();
+            $monthInput = $selectedDate->format('Y-m');
+        }
+
+        $monthStart = $selectedDate->copy()->startOfMonth();
+        $monthEnd = $selectedDate->copy()->endOfMonth();
+
+        // Získaj top 3 trénérov za vybraný mesiac
+        $topTrainers = $this->getTopTrainersByRatingForMonth($monthStart, $monthEnd);
+
+        // Získaj históriu posledných 12 mesiacov
+        $rewardsHistory = $this->getTrainerRewardsHistory(12);
+
+        return view('admin.analytics.trainer-rewards', compact(
+            'selectedMonth',
+            'topTrainers',
+            'rewardsHistory',
+        ));
+    }
+
+    /**
+     * Výpočet top 3 trénérov podľa priemerného hodnotenia za konkrétny mesiac
+     */
+    protected function getTopTrainersByRatingForMonth(Carbon $start, Carbon $end): array
+    {
+        $trainers = User::where('is_trainer', true)->get();
+        $rows = [];
+
+        foreach ($trainers as $trainer) {
+            // Získaj všetky hodnotenia pre trénera v danom časovom období
+            $ratings = DB::table('trainer_ratings')
+                ->where('trainer_id', $trainer->id)
+                ->whereBetween('created_at', [$start, $end])
+                ->get();
+
+            if ($ratings->isEmpty()) {
+                continue; // Preskočiť trénerov bez hodnotení v danom období
+            }
+
+            $avgRating = $ratings->avg('rating');
+            $ratingCount = $ratings->count();
+
+            $rows[] = [
+                'trainer' => $trainer,
+                'avg_rating' => (float) number_format($avgRating, 2, '.', ''),
+                'rating_count' => $ratingCount,
+            ];
+        }
+
+        // Zoradiť podľa priemerného hodnotenia (descending)
+        usort($rows, static function (array $a, array $b): int {
+            return $b['avg_rating'] <=> $a['avg_rating'];
+        });
+
+        // Vrátiť len top 3
+        return array_slice($rows, 0, 3);
+    }
+
+    /**
+     * História odmien za posledných N mesiacov
+     */
+    protected function getTrainerRewardsHistory(int $months = 12): array
+    {
+        $result = [];
+        $trainers = User::where('is_trainer', true)->get();
+
+        for ($i = $months - 1; $i >= 0; $i--) {
+            $monthStart = now()->copy()->subMonths($i)->startOfMonth();
+            $monthEnd = $monthStart->copy()->endOfMonth();
+
+            $topThree = $this->getTopTrainersByRatingForMonth($monthStart, $monthEnd);
+
+            foreach ($topThree as $data) {
+                $result[] = [
+                    'month' => $monthStart->format('m/Y'),
+                    'trainer' => $data['trainer'],
+                    'avg_rating' => $data['avg_rating'],
+                    'rating_count' => $data['rating_count'],
+                ];
+            }
+        }
+
+        return $result;
+    }
+
     protected function getMonthlyStats(Carbon $start, Carbon $end): array
     {
         $period = CarbonPeriod::create($start->copy()->startOfMonth(), '1 month', $end->copy()->endOfMonth());
