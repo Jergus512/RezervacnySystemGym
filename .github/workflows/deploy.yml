@@ -43,7 +43,19 @@ jobs:
           FTP_PORT: ${{ secrets.FTP_PORT || 22 }}
           FTP_PATH: ${{ secrets.FTP_PATH }}
         run: |
-          # Create lftp script
+          # Export variables so they are available in the script
+          export FTP_HOST="$FTP_HOST"
+          export FTP_USER="$FTP_USER"
+          export FTP_PASS="$FTP_PASS"
+          export FTP_PORT="${FTP_PORT:-22}"
+          export FTP_PATH="$FTP_PATH"
+          
+          # Debug: print values (without password for security)
+          echo "DEBUG - FTP_HOST: $FTP_HOST"
+          echo "DEBUG - FTP_PORT: $FTP_PORT"
+          echo "DEBUG - FTP_PATH: $FTP_PATH"
+          
+          # Create lftp script using envsubst to substitute variables
           cat > /tmp/deploy.lftp << 'SCRIPT'
           set sftp:auto-confirm yes
           set net:max-retries 3
@@ -77,8 +89,15 @@ jobs:
           quit
           SCRIPT
           
-          # Run lftp with the script
-          lftp -f /tmp/deploy.lftp || {
+          # Use envsubst to replace variables in the script
+          envsubst < /tmp/deploy.lftp > /tmp/deploy_expanded.lftp
+          
+          # Debug: show first 30 lines of expanded script (sanitized)
+          echo "DEBUG - First lines of expanded script:"
+          head -5 /tmp/deploy_expanded.lftp | sed 's/:[^@]*@/:***PASSWORD***@/g'
+          
+          # Run lftp with the expanded script
+          lftp -f /tmp/deploy_expanded.lftp || {
             echo "Deployment failed with lftp"
             exit 1
           }
