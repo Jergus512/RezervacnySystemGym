@@ -204,10 +204,13 @@ class AnalyticsController extends Controller
                 ->where('status', 'canceled')
                 ->count();
 
-            // Kredity získané trénerom – zatiaľ nedokážeme presne priradiť kredity ku konkrétnym tréningom
-            // tabuľka credit_movements nemá stĺpec training_id. Preto tu ponecháme 0, aby štatistika fungovala
-            // bez pádu a do budúcna môžeme logiku doplniť po rozšírení schémy.
-            $creditsGained = 0;
+            // Kredity získané trénerom - suma všetkých training_charge pohybov pre jeho tréningy
+            $creditsGained = (int) DB::table('credit_movements')
+                ->whereIn('training_id', $trainingIds)
+                ->where('type', 'training_charge')
+                ->sum('amount');
+            // training_charge je záporné, takže berieme absolútnu hodnotu
+            $creditsGained = abs($creditsGained);
 
             $capacitySum = (int) $trainings->sum('capacity');
 
