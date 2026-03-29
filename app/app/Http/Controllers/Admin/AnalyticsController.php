@@ -190,7 +190,6 @@ class AnalyticsController extends Controller
                     'avg_occupancy'          => 0.0,
                     'rating'                 => null,
                     'credits_gained'         => 0,
-                    'unique_participants'    => 0,
                     'canceled_reservations'  => 0,
                 ];
                 continue;
@@ -204,10 +203,6 @@ class AnalyticsController extends Controller
             $canceledReservations = (clone $reservationsQuery)
                 ->where('status', 'canceled')
                 ->count();
-
-            $uniqueParticipants = (clone $reservationsQuery)
-                ->distinct('user_id')
-                ->count('user_id');
 
             // Kredity získané trénerom – zatiaľ nedokážeme presne priradiť kredity ku konkrétnym tréningom
             // tabuľka credit_movements nemá stĺpec training_id. Preto tu ponecháme 0, aby štatistika fungovala
@@ -229,7 +224,6 @@ class AnalyticsController extends Controller
                 'avg_occupancy'         => $avgOccupancy,
                 'rating'                => null,
                 'credits_gained'        => $creditsGained,
-                'unique_participants'   => $uniqueParticipants,
                 'canceled_reservations' => $canceledReservations,
             ];
         }
