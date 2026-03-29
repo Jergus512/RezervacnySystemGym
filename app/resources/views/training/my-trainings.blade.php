@@ -169,10 +169,10 @@
 
                                     <!-- Hodnotenie trénera -->
                                     <div class="mt-4 pt-4" style="border-top: 1px solid #eee;">
-                                        <trainer-rating-form
-                                            :trainer-id="{{ $training->created_by_user_id }}"
-                                            :training-id="{{ $training->id }}"
-                                        />
+                                        @include('components.trainer-rating-form', [
+                                            'trainer' => $training->creator,
+                                            'training' => $training
+                                        ])
                                     </div>
                                 </div>
                             </div>
