@@ -1,4 +1,5 @@
 import './bootstrap';
+import './trainer-rating-form';
 import { createApp } from 'vue';
 import TrainerRatingForm from '@/components/TrainerRatingForm.vue';
 import TrainerRatingComponent from '@/components/TrainerRatingComponent.vue';
