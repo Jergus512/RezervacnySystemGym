@@ -163,28 +163,33 @@ function toggleEditRating(button) {
     }
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-    // Nájdi všetky rating wrappery
+// Inicializácia rating foriem - toto sa spúšťa vždy keď sa DOM zmení
+function initializeRatingForms() {
     const wrappers = document.querySelectorAll('.trainer-rating-wrapper');
 
     wrappers.forEach(wrapper => {
+        // Preskočiť ak sú event listenery už inicializované
+        if (wrapper.dataset.initialized) {
+            return;
+        }
+        wrapper.dataset.initialized = 'true';
+
         const stars = wrapper.querySelectorAll('.rating-star');
         const inputs = wrapper.querySelectorAll('.rating-input');
 
-        stars.forEach(star => {
-            star.addEventListener('click', function() {
-                const rating = this.getAttribute('data-rating');
+        stars.forEach((star, index) => {
+            star.addEventListener('click', function(e) {
+                e.preventDefault();
+                const ratingValue = parseInt(this.getAttribute('data-rating'));
 
-                // Nájdi zodpovedajúci input
-                inputs.forEach((input, index) => {
-                    if (index + 1 <= rating) {
-                        input.checked = true;
-                    }
+                // Nastav správny input ako checked
+                inputs.forEach((input, inputIndex) => {
+                    input.checked = (inputIndex + 1) === ratingValue;
                 });
 
-                // Uprav farby hviezdičiek
+                // Uprav vizuál hviezd
                 wrapper.querySelectorAll('.rating-star').forEach((s, i) => {
-                    if (i < rating) {
+                    if ((i + 1) <= ratingValue) {
                         s.classList.add('active');
                         s.style.color = '#ff9800';
                     } else {
@@ -195,9 +200,9 @@ document.addEventListener('DOMContentLoaded', function() {
             });
 
             star.addEventListener('mouseover', function() {
-                const rating = this.getAttribute('data-rating');
+                const ratingValue = parseInt(this.getAttribute('data-rating'));
                 wrapper.querySelectorAll('.rating-star').forEach((s, i) => {
-                    if (i < rating) {
+                    if ((i + 1) <= ratingValue) {
                         s.style.color = '#ff9800';
                     } else {
                         s.style.color = '#ddd';
@@ -207,19 +212,16 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
         wrapper.addEventListener('mouseleave', function() {
-            // Vráť späť na pôvodný stav
-            let hasChecked = false;
-            let checkedIndex = 0;
+            let checkedIndex = -1;
 
             inputs.forEach((input, index) => {
                 if (input.checked) {
-                    hasChecked = true;
                     checkedIndex = index;
                 }
             });
 
             wrapper.querySelectorAll('.rating-star').forEach((s, i) => {
-                if (hasChecked && i < checkedIndex + 1) {
+                if (checkedIndex >= 0 && i <= checkedIndex) {
                     s.style.color = '#ff9800';
                 } else {
                     s.style.color = '#ddd';
@@ -227,5 +229,15 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     });
+}
+
+// Spusti inicializáciu keď sa stránka načíta
+document.addEventListener('DOMContentLoaded', initializeRatingForms);
+
+// Spusti inicializáciu keď sa DOM zmení (filter mesiacov atď)
+const observer = new MutationObserver(initializeRatingForms);
+observer.observe(document.body, {
+    childList: true,
+    subtree: true
 });
 </script>
