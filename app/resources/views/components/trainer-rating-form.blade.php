@@ -138,8 +138,7 @@
     transition: all 0.2s ease;
 }
 
-.rating-star:hover,
-.rating-star.active {
+.rating-star:hover {
     color: #ff9800;
 }
 
@@ -179,7 +178,7 @@ function initializeRatingForms() {
         const inputs = wrapper.querySelectorAll('.rating-input');
 
         // Klik na hviezdu - nastav rating
-        stars.forEach((star, index) => {
+        stars.forEach((star) => {
             star.addEventListener('click', function(e) {
                 e.preventDefault();
                 e.stopPropagation();
@@ -259,13 +258,17 @@ function initializeRatingForms() {
                     }
                 })
                 .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
+                    return response.json().then(data => ({
+                        status: response.status,
+                        ok: response.ok,
+                        data: data
+                    }));
                 })
-                .then(data => {
-                    console.log('Success:', data);
+                .then(result => {
+                    console.log('Response:', result);
+                    if (!result.ok) {
+                        throw new Error(result.data.message || 'Chyba pri ukladaní');
+                    }
                     alert('Hodnotenie bolo úspešne uložené! 🎉');
                     // Reload stránky aby sa zobrazilo uložené hodnotenie
                     setTimeout(() => {

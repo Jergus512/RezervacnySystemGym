@@ -42,7 +42,6 @@ class TrainerRatingController extends Controller
             $hasAttended = DB::table('training_registrations')
                 ->where('training_id', $training->id)
                 ->where('user_id', $user->id)
-                ->where('status', 'active')
                 ->exists();
 
             if (!$hasAttended) {
@@ -108,15 +107,26 @@ class TrainerRatingController extends Controller
             $count = TrainerRating::where('trainer_id', $trainer->id)
                 ->where('rating', $i)
                 ->count();
+            $percentage = 0;
+            if ($ratingCount > 0) {
+                $percent = ($count / $ratingCount) * 100;
+                $percentage = (int)floor($percent + 0.5);
+            }
             $ratingDistribution[$i] = [
                 'count' => $count,
-                'percentage' => $ratingCount > 0 ? round(($count / $ratingCount) * 100) : 0,
+                'percentage' => $percentage,
             ];
+        }
+
+        $avgRatingValue = 0.0;
+        if ($avgRating) {
+            $ratingValue = $avgRating * 100;
+            $avgRatingValue = (float)(floor($ratingValue + 0.5) / 100);
         }
 
         return response()->json([
             'trainer' => $trainer,
-            'avg_rating' => $avgRating ? round($avgRating, 2) : 0,
+            'avg_rating' => $avgRatingValue,
             'total_ratings' => $ratingCount,
             'distribution' => $ratingDistribution,
             'ratings' => $ratings,
