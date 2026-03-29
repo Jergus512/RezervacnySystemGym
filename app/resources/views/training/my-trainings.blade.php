@@ -144,7 +144,6 @@
                             <div
                                 class="col-12 training-card"
                                 data-month="{{ $training->start_at->format('Y-m') }}"
-                                style="display: none;"
                             >
                                 <div class="p-4 rounded-3" style="background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border-left: 5px solid #2196F3; transition: all 0.3s ease;">
                                     <!-- Základné informácie -->
@@ -239,14 +238,31 @@ function unregisterFromTraining(event, trainingId) {
 
 function filterByMonth(month) {
     const cards = document.querySelectorAll('.training-card');
-    cards.forEach(card => {
-        if (month === '' || card.getAttribute('data-month') === month) {
+
+    if (month === '') {
+        // Ak je mesiac prázdny, zobraz všetky karty
+        cards.forEach(card => {
             card.style.display = 'block';
-        } else {
-            card.style.display = 'none';
-        }
-    });
+        });
+    } else {
+        // Inak zobraz iba karty s vybraným mesiacom
+        cards.forEach(card => {
+            if (card.getAttribute('data-month') === month) {
+                card.style.display = 'block';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    }
 }
+
+// Inicializácia - zobraz všetky karty na začiatku
+document.addEventListener('DOMContentLoaded', function() {
+    const cards = document.querySelectorAll('.training-card');
+    cards.forEach(card => {
+        card.style.display = 'block';
+    });
+});
 </script>
 
 <style>
