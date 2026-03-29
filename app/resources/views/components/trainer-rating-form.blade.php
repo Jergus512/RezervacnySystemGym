@@ -174,12 +174,15 @@ function initializeRatingForms() {
         }
         wrapper.dataset.initialized = 'true';
 
+        const form = wrapper.querySelector('form');
         const stars = wrapper.querySelectorAll('.rating-star');
         const inputs = wrapper.querySelectorAll('.rating-input');
 
+        // Klik na hviezdu - nastav rating
         stars.forEach((star, index) => {
             star.addEventListener('click', function(e) {
                 e.preventDefault();
+                e.stopPropagation();
                 const ratingValue = parseInt(this.getAttribute('data-rating'));
 
                 // Nastav správny input ako checked
@@ -199,6 +202,7 @@ function initializeRatingForms() {
                 });
             });
 
+            // Hover efekt
             star.addEventListener('mouseover', function() {
                 const ratingValue = parseInt(this.getAttribute('data-rating'));
                 wrapper.querySelectorAll('.rating-star').forEach((s, i) => {
@@ -211,6 +215,7 @@ function initializeRatingForms() {
             });
         });
 
+        // Mouse leave - vráť na aktuálne vybrané hodnotenie
         wrapper.addEventListener('mouseleave', function() {
             let checkedIndex = -1;
 
@@ -228,6 +233,51 @@ function initializeRatingForms() {
                 }
             });
         });
+
+        // Odoslanie formulára - preventDefault a ajax
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                // Skontroluj či je vybrané hodnotenie
+                const checkedInput = wrapper.querySelector('.rating-input:checked');
+                if (!checkedInput) {
+                    alert('Prosím vyber hodnotenie (1-5 hviezd)');
+                    return false;
+                }
+
+                // Odošli formulár cez AJAX
+                const formData = new FormData(form);
+                const url = form.getAttribute('action');
+
+                fetch(url, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Success:', data);
+                    alert('Hodnotenie bolo úspešne uložené! 🎉');
+                    // Reload stránky aby sa zobrazilo uložené hodnotenie
+                    setTimeout(() => {
+                        location.reload();
+                    }, 500);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Chyba pri ukladaní hodnotenia: ' + error.message);
+                });
+            });
+        }
     });
 }
 
