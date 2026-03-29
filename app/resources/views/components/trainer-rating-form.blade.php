@@ -44,7 +44,7 @@
                 <div class="card-body">
                     <h6 class="card-title mb-3">⭐ Uprav hodnotenie</h6>
 
-                    <form method="POST" action="{{ route('trainer-ratings.store', $trainer) }}">
+                    <form method="POST" action="{{ route('trainer-ratings.store', $trainer) }}" class="rating-form">
                         @csrf
 
                         <input type="hidden" name="training_id" value="{{ $training->id }}">
@@ -63,7 +63,7 @@
                                             class="rating-input"
                                             {{ $existingRating->rating == $i ? 'checked' : '' }}
                                         >
-                                        <span class="rating-star" data-rating="{{ $i }}" style="color: {{ $existingRating->rating >= $i ? '#ff9800' : '#ddd' }}; transition: all 0.2s;">★</span>
+                                        <span class="rating-star" data-rating="{{ $i }}" style="color: {{ $existingRating->rating >= $i ? '#ff9800' : '#ddd' }}; transition: all 0.2s; cursor: pointer;">★</span>
                                     </label>
                                 @endfor
                             </div>
@@ -88,7 +88,7 @@
             <div class="card-body">
                 <h6 class="card-title mb-3">⭐ Ohodnoť tohto trénera</h6>
 
-                <form method="POST" action="{{ route('trainer-ratings.store', $trainer) }}">
+                <form method="POST" action="{{ route('trainer-ratings.store', $trainer) }}" class="rating-form">
                     @csrf
 
                     <!-- Skryté pole pre training_id -->
@@ -109,7 +109,7 @@
                                         style="display: none;"
                                         class="rating-input"
                                     >
-                                    <span class="rating-star" data-rating="{{ $i }}" style="color: #ddd; transition: all 0.2s;">★</span>
+                                    <span class="rating-star" data-rating="{{ $i }}" style="color: #ddd; transition: all 0.2s; cursor: pointer;">★</span>
                                 </label>
                             @endfor
                         </div>
@@ -132,19 +132,13 @@
 
 <style>
 .rating-star {
-    cursor: pointer;
-    font-size: 2rem;
-    color: #ddd;
-    transition: all 0.2s ease;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
 }
 
 .rating-star:hover {
-    color: #ff9800;
-}
-
-input[type="radio"]:checked ~ .rating-star,
-input[type="radio"]:checked ~ .rating-star::after {
-    color: #ff9800;
+    color: #ff9800 !important;
 }
 </style>
 
@@ -153,179 +147,136 @@ function toggleEditRating(button) {
     const wrapper = button.closest('.trainer-rating-wrapper');
     const editForm = wrapper.querySelector('.edit-rating-form');
 
-    if (editForm.style.display === 'none') {
-        editForm.style.display = 'block';
-        button.innerHTML = '<i class="bi bi-x-circle"></i> Zatvoriť';
-    } else {
-        editForm.style.display = 'none';
-        button.innerHTML = '<i class="bi bi-pencil"></i> Upraviť';
+    if (editForm) {
+        if (editForm.style.display === 'none') {
+            editForm.style.display = 'block';
+            button.innerHTML = '<i class="bi bi-x-circle"></i> Zatvoriť';
+        } else {
+            editForm.style.display = 'none';
+            button.innerHTML = '<i class="bi bi-pencil"></i> Upraviť';
+        }
     }
 }
 
-// Inicializácia rating foriem - toto sa spúšťa vždy keď sa DOM zmení
-function initializeRatingForms() {
-    const wrappers = document.querySelectorAll('.trainer-rating-wrapper');
+document.addEventListener('DOMContentLoaded', function() {
+    // Inicializuj všetky rating formy
+    initializeAllRatingForms();
+});
 
-    wrappers.forEach(wrapper => {
-        // Preskočiť ak sú event listenery už inicializované
-        if (wrapper.dataset.initialized) {
-            return;
-        }
-        wrapper.dataset.initialized = 'true';
+// Re-inicializuj keď sa DOM zmení
+const observer = new MutationObserver(function(mutations) {
+    initializeAllRatingForms();
+});
 
-        const form = wrapper.querySelector('form');
-        const stars = wrapper.querySelectorAll('.rating-star');
-        const inputs = wrapper.querySelectorAll('.rating-input');
-
-        // Klik na hviezdu - nastav rating
-        stars.forEach((star) => {
-            star.addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                const ratingValue = parseInt(this.getAttribute('data-rating'));
-
-                // Nastav správny input ako checked
-                inputs.forEach((input, inputIndex) => {
-                    input.checked = (inputIndex + 1) === ratingValue;
-                });
-
-                // Uprav vizuál hviezd
-                wrapper.querySelectorAll('.rating-star').forEach((s, i) => {
-                    if ((i + 1) <= ratingValue) {
-                        s.classList.add('active');
-                        s.style.color = '#ff9800';
-                    } else {
-                        s.classList.remove('active');
-                        s.style.color = '#ddd';
-                    }
-                });
-            });
-
-            // Hover efekt
-            star.addEventListener('mouseover', function() {
-                const ratingValue = parseInt(this.getAttribute('data-rating'));
-                wrapper.querySelectorAll('.rating-star').forEach((s, i) => {
-                    if ((i + 1) <= ratingValue) {
-                        s.style.color = '#ff9800';
-                    } else {
-                        s.style.color = '#ddd';
-                    }
-                });
-            });
-        });
-
-        // Mouse leave - vráť na aktuálne vybrané hodnotenie
-        wrapper.addEventListener('mouseleave', function() {
-            let checkedIndex = -1;
-
-            inputs.forEach((input, index) => {
-                if (input.checked) {
-                    checkedIndex = index;
-                }
-            });
-
-            wrapper.querySelectorAll('.rating-star').forEach((s, i) => {
-                if (checkedIndex >= 0 && i <= checkedIndex) {
-                    s.style.color = '#ff9800';
-                } else {
-                    s.style.color = '#ddd';
-                }
-            });
-        });
-
-        // Odoslanie formulára - preventDefault a ajax
-        if (form) {
-            form.addEventListener('submit', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-
-                // Skontroluj či je vybrané hodnotenie
-                const checkedInput = wrapper.querySelector('.rating-input:checked');
-                if (!checkedInput) {
-                    alert('Prosím vyber hodnotenie (1-5 hviezd)');
-                    return false;
-                }
-
-                // Zobraz loading state
-                const submitBtn = wrapper.querySelector('button[type="submit"]');
-                const originalText = submitBtn.innerHTML;
-                submitBtn.disabled = true;
-                submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Ukladám...';
-
-                // Odošli formulár cez AJAX
-                const formData = new FormData(form);
-                const url = form.getAttribute('action');
-
-                console.log('Sending request to:', url);
-                console.log('Form data:', {
-                    rating: formData.get('rating'),
-                    training_id: formData.get('training_id'),
-                    comment: formData.get('comment')
-                });
-
-                fetch(url, {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'Accept': 'application/json'
-                    }
-                })
-                .then(response => {
-                    console.log('Response status:', response.status);
-                    console.log('Response ok:', response.ok);
-
-                    if (!response.ok) {
-                        return response.text().then(text => {
-                            console.log('Response body:', text);
-                            try {
-                                return JSON.parse(text);
-                            } catch (e) {
-                                throw new Error(`HTTP ${response.status}: ${text}`);
-                            }
-                        });
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    console.log('Success response:', data);
-                    alert('Hodnotenie bolo úspešne uložené! 🎉');
-
-                    // Reload stránky aby sa zobrazilo uložené hodnotenie
-                    setTimeout(() => {
-                        location.reload();
-                    }, 500);
-                })
-                .catch(error => {
-                    console.error('Full error object:', error);
-                    console.error('Error message:', error.message);
-
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = originalText;
-
-                    let errorMsg = error.message;
-
-                    // Skúsime získať lepšiu chybovú správu
-                    if (error.message && error.message.includes('HTTP')) {
-                        errorMsg = error.message;
-                    } else {
-                        errorMsg = 'Chyba pri ukladaní hodnotenia: ' + error.message;
-                    }
-
-                    alert(errorMsg);
-                });
-            });
-        }
-    });
-}
-
-// Spusti inicializáciu keď sa stránka načíta
-document.addEventListener('DOMContentLoaded', initializeRatingForms);
-
-// Spusti inicializáciu keď sa DOM zmení (filter mesiacov atď)
-const observer = new MutationObserver(initializeRatingForms);
 observer.observe(document.body, {
     childList: true,
     subtree: true
 });
+
+function initializeAllRatingForms() {
+    // Najdi všetky rating formy
+    document.querySelectorAll('.rating-form').forEach(form => {
+        // Ak je už inicializovaná, preskoč
+        if (form.dataset.initialized === 'true') {
+            return;
+        }
+        form.dataset.initialized = 'true';
+
+        const wrapper = form.closest('.trainer-rating-wrapper');
+        const stars = form.querySelectorAll('.rating-star');
+        const inputs = form.querySelectorAll('.rating-input');
+
+        // Pridaj event listenery na hviezdy
+        stars.forEach(star => {
+            star.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                const ratingValue = parseInt(this.getAttribute('data-rating'));
+
+                // Nastav radio input
+                inputs.forEach(input => {
+                    input.checked = parseInt(input.value) === ratingValue;
+                });
+
+                // Update vizuálu
+                updateStarsDisplay(wrapper);
+            });
+
+            star.addEventListener('mouseover', function() {
+                const hoverValue = parseInt(this.getAttribute('data-rating'));
+                stars.forEach(s => {
+                    const val = parseInt(s.getAttribute('data-rating'));
+                    s.style.color = val <= hoverValue ? '#ff9800' : '#ddd';
+                });
+            });
+        });
+
+        wrapper.addEventListener('mouseleave', function() {
+            updateStarsDisplay(wrapper);
+        });
+
+        // Submit handler
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const checkedInput = form.querySelector('.rating-input:checked');
+            if (!checkedInput) {
+                alert('Prosím vyber hodnotenie (1-5 hviezd)');
+                return false;
+            }
+
+            // Vytvor FormData a odošli
+            const formData = new FormData(form);
+            const action = form.getAttribute('action');
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = 'Ukladám...';
+
+            fetch(action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                alert('Hodnotenie bolo úspešne uložené! 🎉');
+                location.reload();
+            })
+            .catch(error => {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+                console.error('Error:', error);
+                alert('Chyba pri ukladaní: ' + error.message);
+            });
+        });
+    });
+}
+
+function updateStarsDisplay(wrapper) {
+    const inputs = wrapper.querySelectorAll('.rating-input');
+    const stars = wrapper.querySelectorAll('.rating-star');
+
+    let checkedValue = 0;
+    inputs.forEach(input => {
+        if (input.checked) {
+            checkedValue = parseInt(input.value);
+        }
+    });
+
+    stars.forEach(star => {
+        const val = parseInt(star.getAttribute('data-rating'));
+        star.style.color = val <= checkedValue ? '#ff9800' : '#ddd';
+    });
+}
 </script>
