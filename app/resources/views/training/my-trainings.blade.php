@@ -112,16 +112,41 @@
 
             <!-- Absolvované tréningy -->
             <div>
-                <h2 class="h4 fw-bold mb-4" style="color: #1a1a1a;">
-                    <i class="bi bi-check-circle" style="color: #2196F3; margin-right: 10px;"></i>
-                    Absolvované tréningy
-                </h2>
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="h4 fw-bold" style="color: #1a1a1a; margin: 0;">
+                        <i class="bi bi-check-circle" style="color: #2196F3; margin-right: 10px;"></i>
+                        Absolvované tréningy
+                    </h2>
+                    <!-- Filter na mesiac -->
+                    <div style="min-width: 220px;">
+                        <select id="monthFilter" class="form-select form-select-sm" onchange="filterByMonth(this.value)">
+                            <option value="">Všetky mesiace</option>
+                            @php
+                                $months = [];
+                                foreach ($pastTrainings as $training) {
+                                    $monthKey = $training->start_at->format('Y-m');
+                                    if (!isset($months[$monthKey])) {
+                                        $months[$monthKey] = $training->start_at->format('F Y');
+                                    }
+                                }
+                                arsort($months);
+                                foreach ($months as $key => $label) {
+                                    echo "<option value=\"$key\">$label</option>";
+                                }
+                            @endphp
+                        </select>
+                    </div>
+                </div>
 
                 @if($pastTrainings->count() > 0)
                     <div class="row g-3">
                         @foreach($pastTrainings as $training)
-                            <div class="col-12">
-                                <div class="p-4 rounded-3" style="background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border-left: 5px solid #2196F3;">
+                            <div
+                                class="col-12 training-card"
+                                data-month="{{ $training->start_at->format('Y-m') }}"
+                                style="display: none;"
+                            >
+                                <div class="p-4 rounded-3" style="background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border-left: 5px solid #2196F3; transition: all 0.3s ease;">
                                     <!-- Základné informácie -->
                                     <div class="row align-items-start">
                                         <div class="col-md-8 mb-3 mb-md-0">
@@ -144,18 +169,11 @@
 
                                     <!-- Hodnotenie trénera -->
                                     <div class="mt-4 pt-4" style="border-top: 1px solid #eee;">
-                                        <x-trainer-rating-form
-                                            :trainer="$training->creator"
-                                            :training="$training"
+                                        <trainer-rating-form
+                                            :trainer-id="{{ $training->created_by_user_id }}"
+                                            :training-id="{{ $training->id }}"
                                         />
                                     </div>
-
-                                    <!-- Zobrazenie hodnotení -->
-                                    @if(App\Models\TrainerRating::where('trainer_id', $training->created_by_user_id)->exists())
-                                        <div class="mt-4">
-                                            <x-trainer-ratings-display :trainer="$training->creator" />
-                                        </div>
-                                    @endif
                                 </div>
                             </div>
                         @endforeach
@@ -217,6 +235,17 @@ function unregisterFromTraining(event, trainingId) {
         form.action = `/trainings/${trainingId}/register`;
         form.submit();
     }
+}
+
+function filterByMonth(month) {
+    const cards = document.querySelectorAll('.training-card');
+    cards.forEach(card => {
+        if (month === '' || card.getAttribute('data-month') === month) {
+            card.style.display = 'block';
+        } else {
+            card.style.display = 'none';
+        }
+    });
 }
 </script>
 

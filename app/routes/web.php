@@ -161,6 +161,8 @@ Route::middleware('auth')->group(function () {
         ->name('trainer-ratings.store');
     Route::get('/trainers/{trainer}/ratings', [\App\Http\Controllers\TrainerRatingController::class, 'getTrainerRatings'])
         ->name('trainer-ratings.index');
+    Route::get('/trainers/{trainer}/ratings/check', [\App\Http\Controllers\TrainerRatingController::class, 'getUserRatingForTraining'])
+        ->name('trainer-ratings.check');
     Route::get('/trainings/{training}/my-rating', [\App\Http\Controllers\TrainerRatingController::class, 'getUserRatingForTraining'])
         ->name('trainer-ratings.my-rating');
 });

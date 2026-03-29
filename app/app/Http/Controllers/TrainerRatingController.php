@@ -126,18 +126,23 @@ class TrainerRatingController extends Controller
     /**
      * Príslušnosť: Vrátenie hodnotenia pre konkrétny tréning
      */
-    public function getUserRatingForTraining(Request $request, Training $training): JsonResponse
+    public function getUserRatingForTraining(Request $request, User $trainer): JsonResponse
     {
         $user = $request->user();
+        $trainingId = $request->query('training_id');
 
         if (!$user) {
             return response()->json(['rating' => null], 401);
         }
 
-        $rating = TrainerRating::where('training_id', $training->id)
-            ->where('trainer_id', $training->created_by_user_id)
-            ->where('user_id', $user->id)
-            ->first();
+        $query = TrainerRating::where('trainer_id', $trainer->id)
+            ->where('user_id', $user->id);
+
+        if ($trainingId) {
+            $query->where('training_id', $trainingId);
+        }
+
+        $rating = $query->first();
 
         return response()->json([
             'rating' => $rating?->rating,
