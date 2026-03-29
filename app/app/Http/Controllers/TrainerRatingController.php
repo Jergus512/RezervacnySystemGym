@@ -28,24 +28,44 @@ class TrainerRatingController extends Controller
         }
 
         // Validuj vstup
-        $validated = $request->validate([
-            'rating' => 'required|integer|min:1|max:5',
-            'comment' => 'nullable|string|max:500',
-            'training_id' => 'nullable|exists:trainings,id',
-        ]);
+        try {
+            $validated = $request->validate([
+                'rating' => 'required|integer|min:1|max:5',
+                'comment' => 'nullable|string|max:500',
+                'training_id' => 'nullable|integer',
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => 'Validačná chyba',
+                    'errors' => $e->errors(),
+                ], 422);
+            }
+            throw $e;
+        }
 
         // Ak je zadaný training_id, skontroluj či používateľ naozaj navštevoval tréning
-        if ($validated['training_id']) {
-            $training = Training::findOrFail($validated['training_id']);
+        if (!empty($validated['training_id'])) {
+            try {
+                $training = Training::findOrFail($validated['training_id']);
 
-            // Skontroluj či používateľ mal rezerváciu na tomto tréningu
-            $hasAttended = DB::table('training_registrations')
-                ->where('training_id', $training->id)
-                ->where('user_id', $user->id)
-                ->exists();
+                // Skontroluj či používateľ mal rezerváciu na tomto tréningu
+                $hasAttended = DB::table('training_registrations')
+                    ->where('training_id', $training->id)
+                    ->where('user_id', $user->id)
+                    ->exists();
 
-            if (!$hasAttended) {
-                abort(403, 'Môžeš hodnotiť iba trénerov, ktorých tréningy si navštevoval.');
+                if (!$hasAttended) {
+                    abort(403, 'Môžeš hodnotiť iba trénerov, ktorých tréningy si navštevoval.');
+                }
+            } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'message' => 'Tréning nenájdený',
+                        'error' => 'Invalid training_id',
+                    ], 422);
+                }
+                abort(404, 'Tréning nenájdený.');
             }
         }
 
@@ -54,11 +74,11 @@ class TrainerRatingController extends Controller
                 [
                     'trainer_id' => $trainer->id,
                     'user_id' => $user->id,
-                    'training_id' => $validated['training_id'],
+                    'training_id' => $validated['training_id'] ?? null,
                 ],
                 [
                     'rating' => $validated['rating'],
-                    'comment' => $validated['comment'],
+                    'comment' => $validated['comment'] ?? null,
                 ]
             );
 
