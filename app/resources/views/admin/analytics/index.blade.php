@@ -173,7 +173,7 @@
                         <th>Počet tréningov</th>
                         <th>Počet rezervácií</th>
                         <th>Priemerné zaplnenie (%)</th>
-prvy top tr                        <th>Zrušené rezervácie</th>
+                        <th>Zrušené rezervácie</th>
                         <th>Získané kredity</th>
                         <th>Hodnotenie</th>
                     </tr>
@@ -198,134 +198,6 @@ prvy top tr                        <th>Zrušené rezervácie</th>
                     @empty
                         <tr>
                             <td colspan="7" class="text-center text-muted py-3">Žiadne dáta.</td>
-                        </tr>
-                    @endforelse
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <div class="card mb-4">
-        <div class="card-body">
-            <h2 class="h5 mb-3">💰 Odmeny trénerov za obdobie</h2>
-            <p class="text-muted small mb-3">Odmeny sú vypočítané na základe počtu tréningov, obsadenosti, hodnotenia od zákazníkov a získaných kreditov.</p>
-            <div class="table-responsive">
-                <table class="table table-sm mb-0 align-middle">
-                    <thead>
-                    <tr>
-                        <th>Tréner</th>
-                        <th>Počet mesiacov</th>
-                        <th>Celková odmena (€)</th>
-                        <th>Detaily</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    @forelse($trainerRewards as $row)
-                        <tr>
-                            <td><strong>{{ $row['trainer']->name }}</strong></td>
-                            <td>
-                                <span class="badge bg-secondary">{{ $row['rewards_count'] }}</span>
-                            </td>
-                            <td>
-                                <strong style="font-size: 18px; color: #28a745;">€{{ number_format($row['total_amount'], 2) }}</strong>
-                            </td>
-                            <td>
-                                <button class="btn btn-sm btn-outline-info" data-bs-toggle="collapse" data-bs-target="#reward-details-{{ $row['trainer']->id }}" aria-expanded="false">
-                                    Zobraziť 👁️
-                                </button>
-                            </td>
-                        </tr>
-                        <tr class="collapse" id="reward-details-{{ $row['trainer']->id }}">
-                            <td colspan="4" class="p-3 bg-light">
-                                <h6 class="mb-2">Podrobný rozpad odmeny za {{ $start->format('d.m.Y') }} - {{ $end->format('d.m.Y') }}:</h6>
-                                <div class="row">
-                                    @php
-                                        $rewardDetails = \App\Models\TrainerReward::where('trainer_id', $row['trainer']->id)
-                                            ->whereBetween('created_at', [$start, $end])
-                                            ->orderBy('period_start', 'desc')
-                                            ->get();
-                                    @endphp
-                                    @forelse($rewardDetails as $reward)
-                                        <div class="col-md-6 mb-3">
-                                            <div class="card border-0 bg-white">
-                                                <div class="card-body p-2">
-                                                    <h6 class="card-title mb-2">
-                                                        Mesiac: {{ \Carbon\Carbon::parse($reward->period_start)->format('m/Y') }}
-                                                    </h6>
-                                                    <ul class="list-unstyled small">
-                                                        <li><strong>Tréningy:</strong> {{ $reward->trainings_count }}</li>
-                                                        <li><strong>Rezervácie:</strong> {{ $reward->total_registrations }} (zrušené: {{ $reward->canceled_registrations }})</li>
-                                                        <li><strong>Obsadenosť:</strong> {{ number_format($reward->avg_occupancy, 1) }}%</li>
-                                                        <li><strong>Kredity:</strong> {{ $reward->credits_gained }}</li>
-                                                        @if($reward->avg_user_rating)
-                                                            <li><strong>Hodnotenie:</strong> {{ number_format($reward->avg_user_rating, 2) }}/5 ⭐</li>
-                                                        @endif
-                                                    </ul>
-                                                    <hr class="my-2">
-                                                    <ul class="list-unstyled small text-success">
-                                                        <li><strong>Základná odmena:</strong> €{{ number_format($reward->base_reward, 2) }}</li>
-                                                        <li><strong>Bonus za hodnotenie:</strong> €{{ number_format($reward->rating_bonus, 2) }}</li>
-                                                        <li><strong>Bonus za obsadenosť:</strong> €{{ number_format($reward->performance_bonus, 2) }}</li>
-                                                    </ul>
-                                                    <hr class="my-2">
-                                                    <div class="alert alert-success mb-0 p-2">
-                                                        <strong>CELKOM: €{{ number_format($reward->total_reward, 2) }}</strong>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    @empty
-                                        <div class="col-12">
-                                            <p class="text-muted small">Nie sú k dispozícii detaily odmeny.</p>
-                                        </div>
-                                    @endforelse
-                                </div>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="4" class="text-center text-muted py-3">Žiadne zmeny.</td>
-                        </tr>
-                    @endforelse
-                    </tbody>
-                </table>
-            </div>
-            <div class="mt-3 alert alert-info">
-                <h6 class="alert-heading">📋 Spôsob výpočtu odmien:</h6>
-                <ul class="mb-0 small">
-                    <li><strong>Základná odmena:</strong> 10% z celkových kreditov, ktoré tréner získal</li>
-                    <li><strong>Bonus za hodnotenie:</strong> €50 za každú hviezdu v priemere (max €250 za 5 hviezd)</li>
-                    <li><strong>Bonus za obsadenosť:</strong> €2 za každý % priemernej obsadenosti (max €200 za 100%)</li>
-                </ul>
-            </div>
-        </div>
-    </div>
-
-    <div class="card mb-4">
-        <div class="card-body">
-            <h2 class="h5 mb-3">Obľúbenosť typov tréningov</h2>
-            <div class="table-responsive">
-                <table class="table table-sm mb-0 align-middle">
-                    <thead>
-                    <tr>
-                        <th>Typ tréningu</th>
-                        <th>Počet tréningov</th>
-                        <th>Počet rezervácií</th>
-                        <th>Priemerné zaplnenie (%)</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    @forelse($trainingPopularity as $row)
-                        <tr>
-                            <td>{{ $row['type']?->name ?? 'Neznámy typ' }}</td>
-                            <td>{{ $row['trainings_count'] }}</td>
-                            <td>{{ $row['reservations'] }}</td>
-                            <td>{{ $row['avg_occupancy'] }}</td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="4" class="text-center text-muted py-3">Žiadne dáta.</td>
                         </tr>
                     @endforelse
                     </tbody>
