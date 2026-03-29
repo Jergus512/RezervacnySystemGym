@@ -44,7 +44,7 @@ jobs:
           FTP_PATH: ${{ secrets.FTP_PATH }}
         run: |
           # Create lftp script
-          cat > /tmp/deploy.lftp << "SCRIPT"
+          cat > /tmp/deploy.lftp << 'SCRIPT'
           set sftp:auto-confirm yes
           set net:max-retries 3
           set net:timeout 30
