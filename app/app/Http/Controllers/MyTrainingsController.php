@@ -14,15 +14,25 @@ class MyTrainingsController extends Controller
             abort(403);
         }
 
-        // Upcoming trainings that the user is registered for ("zakúpené")
-        $trainings = $user->trainings()
+        // Nadchádzajúce tréningy - ktoré majú rezerváciu
+        $upcomingTrainings = $user->trainings()
             ->where('start_at', '>=', now())
-            ->where('is_active', true) // Exclude inactive trainings
+            ->where('is_active', true)
             ->orderBy('start_at')
+            ->with('creator', 'trainingType')
+            ->get();
+
+        // Minulé tréningy - ktoré už prebehli
+        $pastTrainings = $user->trainings()
+            ->where('start_at', '<', now())
+            ->where('is_active', true)
+            ->orderBy('start_at', 'desc')
+            ->with('creator', 'trainingType')
             ->get();
 
         return view('training.my-trainings', [
-            'trainings' => $trainings,
+            'upcomingTrainings' => $upcomingTrainings,
+            'pastTrainings' => $pastTrainings,
         ]);
     }
 }

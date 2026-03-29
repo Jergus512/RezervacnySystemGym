@@ -151,4 +151,12 @@ Route::middleware('auth')->group(function () {
         Route::get('/statistiky', [TrainerStatisticsController::class, 'index'])
             ->name('stats.index');
     });
+
+    // Routes pre hodnotenie trénerov (pre všetkých prihlásenych používateľov)
+    Route::post('/trainers/{trainer}/ratings', [\App\Http\Controllers\TrainerRatingController::class, 'store'])
+        ->name('trainer-ratings.store');
+    Route::get('/trainers/{trainer}/ratings', [\App\Http\Controllers\TrainerRatingController::class, 'getTrainerRatings'])
+        ->name('trainer-ratings.index');
+    Route::get('/trainings/{training}/my-rating', [\App\Http\Controllers\TrainerRatingController::class, 'getUserRatingForTraining'])
+        ->name('trainer-ratings.my-rating');
 });

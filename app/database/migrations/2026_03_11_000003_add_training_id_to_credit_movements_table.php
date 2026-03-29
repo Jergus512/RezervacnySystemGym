@@ -24,13 +24,11 @@ return new class extends Migration {
     public function down(): void
     {
         Schema::table('credit_movements', function (Blueprint $table) {
-            // Musíme najprv zhodiť FK a index a až potom stĺpec
             if (Schema::hasColumn('credit_movements', 'training_id')) {
-                $table->dropForeign('credit_movements_training_id_foreign');
-                $table->dropIndex('credit_movements_training_id_index');
+                $table->dropForeign(['training_id']);
+                $table->dropIndex(['training_id']);
                 $table->dropColumn('training_id');
             }
         });
     }
 };
-

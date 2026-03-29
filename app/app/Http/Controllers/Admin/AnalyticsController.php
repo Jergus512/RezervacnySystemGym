@@ -6,7 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Models\CreditMovement;
 use App\Models\Training;
 use App\Models\TrainingType;
+use App\Models\TrainerReward;
 use App\Models\User;
+use App\Services\TrainerStatisticsService;
+use App\Services\TrainerRewardService;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use Illuminate\Contracts\View\View;
@@ -15,6 +18,15 @@ use Illuminate\Support\Facades\DB;
 
 class AnalyticsController extends Controller
 {
+    protected TrainerStatisticsService $trainerStatsService;
+    protected TrainerRewardService $trainerRewardService;
+
+    public function __construct(TrainerStatisticsService $trainerStatsService, TrainerRewardService $trainerRewardService)
+    {
+        $this->trainerStatsService = $trainerStatsService;
+        $this->trainerRewardService = $trainerRewardService;
+    }
+
     public function index(Request $request): View
     {
         $startInput = $request->input('start');
@@ -31,6 +43,7 @@ class AnalyticsController extends Controller
         $reservationStats   = $this->getReservationStats($start, $end);
         $financialOverview  = $this->getFinancialOverview($start, $end);
         $trainerPerformance = $this->getTrainerPerformance($start, $end);
+        $trainerRewards     = $this->getTrainerRewards($start, $end);
         $trainingPopularity = $this->getTrainingPopularity($start, $end);
 
         return view('admin.analytics.index', compact(
@@ -40,6 +53,7 @@ class AnalyticsController extends Controller
             'reservationStats',
             'financialOverview',
             'trainerPerformance',
+            'trainerRewards',
             'trainingPopularity',
         ));
     }
@@ -228,6 +242,28 @@ class AnalyticsController extends Controller
                 'rating'                => null,
                 'credits_gained'        => $creditsGained,
                 'canceled_reservations' => $canceledReservations,
+            ];
+        }
+
+        return $rows;
+    }
+
+    protected function getTrainerRewards(Carbon $start, Carbon $end): array
+    {
+        $trainers = User::where('is_trainer', true)->get();
+
+        $rows = [];
+        foreach ($trainers as $trainer) {
+            $rewards = TrainerReward::where('trainer_id', $trainer->id)
+                ->whereBetween('created_at', [$start, $end])
+                ->get();
+
+            $totalAmount = $rewards->sum('amount');
+
+            $rows[] = [
+                'trainer'     => $trainer,
+                'rewards_count' => $rewards->count(),
+                'total_amount'  => $totalAmount,
             ];
         }
 
