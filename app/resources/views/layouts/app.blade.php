@@ -537,8 +537,27 @@
                                         </ul>
                                     </li>
 
-                                    <li class="nav-item">
-                                        <a class="nav-link {{ $isAnalyticsActive ? 'nav-link-active' : '' }}" href="{{ route('admin.analytics.index') }}">Štatistiky</a>
+                                    <li class="nav-item dropdown">
+                                        <a class="nav-link dropdown-toggle {{ $analyticsOpen ? 'nav-link-active' : '' }}"
+                                           href="#"
+                                           id="analyticsDropdown"
+                                           role="button"
+                                           data-bs-toggle="dropdown"
+                                           aria-expanded="false">
+                                            Štatistiky
+                                        </a>
+                                        <ul class="dropdown-menu dropdown-menu-dark shadow" aria-labelledby="analyticsDropdown">
+                                            <li>
+                                                <a class="dropdown-item {{ request()->routeIs('admin.analytics.index') ? 'dropdown-item-active' : '' }}" href="{{ route('admin.analytics.index') }}">
+                                                    Všeobecné štatistiky
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a class="dropdown-item {{ request()->routeIs('admin.analytics.trainer-rewards') ? 'dropdown-item-active' : '' }}" href="{{ route('admin.analytics.trainer-rewards') }}">
+                                                    Odmeny trénerov
+                                                </a>
+                                            </li>
+                                        </ul>
                                     </li>
 
                                     <li class="nav-item">
