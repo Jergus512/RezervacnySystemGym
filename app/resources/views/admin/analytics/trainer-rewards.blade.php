@@ -141,7 +141,7 @@
     </div>
 
     <!-- Históri odmien -->
-    @if($rewardsHistory->isNotEmpty())
+    @if(count($rewardsHistory) > 0)
         <div class="card shadow-sm">
             <div class="card-header" style="background-color: #f8f9fa; border-bottom: 2px solid #e9ecef;">
                 <h5 class="card-title mb-0" style="color: #1a1a1a;">
