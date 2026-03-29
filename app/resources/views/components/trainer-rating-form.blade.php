@@ -237,6 +237,7 @@ function initializeRatingForms() {
         if (form) {
             form.addEventListener('submit', function(e) {
                 e.preventDefault();
+                e.stopPropagation();
 
                 // Skontroluj či je vybrané hodnotenie
                 const checkedInput = wrapper.querySelector('.rating-input:checked');
@@ -245,9 +246,22 @@ function initializeRatingForms() {
                     return false;
                 }
 
+                // Zobraz loading state
+                const submitBtn = wrapper.querySelector('button[type="submit"]');
+                const originalText = submitBtn.innerHTML;
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Ukladám...';
+
                 // Odošli formulár cez AJAX
                 const formData = new FormData(form);
                 const url = form.getAttribute('action');
+
+                console.log('Sending request to:', url);
+                console.log('Form data:', {
+                    rating: formData.get('rating'),
+                    training_id: formData.get('training_id'),
+                    comment: formData.get('comment')
+                });
 
                 fetch(url, {
                     method: 'POST',
@@ -258,26 +272,47 @@ function initializeRatingForms() {
                     }
                 })
                 .then(response => {
-                    return response.json().then(data => ({
-                        status: response.status,
-                        ok: response.ok,
-                        data: data
-                    }));
-                })
-                .then(result => {
-                    console.log('Response:', result);
-                    if (!result.ok) {
-                        throw new Error(result.data.message || 'Chyba pri ukladaní');
+                    console.log('Response status:', response.status);
+                    console.log('Response ok:', response.ok);
+
+                    if (!response.ok) {
+                        return response.text().then(text => {
+                            console.log('Response body:', text);
+                            try {
+                                return JSON.parse(text);
+                            } catch (e) {
+                                throw new Error(`HTTP ${response.status}: ${text}`);
+                            }
+                        });
                     }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Success response:', data);
                     alert('Hodnotenie bolo úspešne uložené! 🎉');
+
                     // Reload stránky aby sa zobrazilo uložené hodnotenie
                     setTimeout(() => {
                         location.reload();
                     }, 500);
                 })
                 .catch(error => {
-                    console.error('Error:', error);
-                    alert('Chyba pri ukladaní hodnotenia: ' + error.message);
+                    console.error('Full error object:', error);
+                    console.error('Error message:', error.message);
+
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalText;
+
+                    let errorMsg = error.message;
+
+                    // Skúsime získať lepšiu chybovú správu
+                    if (error.message && error.message.includes('HTTP')) {
+                        errorMsg = error.message;
+                    } else {
+                        errorMsg = 'Chyba pri ukladaní hodnotenia: ' + error.message;
+                    }
+
+                    alert(errorMsg);
                 });
             });
         }
