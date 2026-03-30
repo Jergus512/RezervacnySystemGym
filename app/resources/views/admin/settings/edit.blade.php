@@ -31,7 +31,7 @@
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                         <div class="form-text">
-                            Ak sa používateľ odhlási viac ako tento počet minút pred začiatkom tréningu, vráti sa mu určitá suma.
+                            Ak sa používateľ odhlási menej ako tento počet minút pred začiatkom tréningu, bude mu účtovaná penalizácia.
                             @php
                                 $minutes = old('refund_window_minutes', $settings->refund_window_minutes);
                                 $hours = intdiv($minutes, 60);
