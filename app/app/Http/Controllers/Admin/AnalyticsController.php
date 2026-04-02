@@ -255,27 +255,27 @@ class AnalyticsController extends Controller
             ->whereBetween('created_at', [$start, $end])
             ->sum('amount');
 
-        // Použité kredity na rezervácie (negatívne pohyby – odčítavajú sa z účtu)
+        // Používané kredity IBA za tréningy v danom časovom období
+        $trainingIds = Training::whereBetween('start_at', [$start, $end])
+            ->pluck('id');
+
         $creditsCharged = CreditMovement::where('type', 'training_charge')
-            ->whereBetween('created_at', [$start, $end])
+            ->whereIn('training_id', $trainingIds)
             ->sum('amount');
 
-        // Kredit vrátený klientom (napr. pri zrušení tréningu – pridáva sa späť na účet)
+        // Kredity vrátené klientom
         $creditsRefunded = CreditMovement::where('type', 'training_refund')
-            ->whereBetween('created_at', [$start, $end])
+            ->whereIn('training_id', $trainingIds)
             ->sum('amount');
 
-        // Čisté použitie = koľko kreditov reálne "zmizlo" z účtov kvôli tréningom
-        // Obidva pohyby sú v DB záporné čísla, takže sčítame a potom berieme absolútnu hodnotu
+        // Čisté použitie = charges (záporné) + refunds (kladné)
         $creditsUsedNet = (int) $creditsCharged + (int) $creditsRefunded;
 
         $totalRemaining = (int) User::sum('credits');
 
         return [
             'sold'          => (int) $creditsSold,
-            // absolútna hodnota iba charges (bez vrátení)
             'used'          => abs((int) $creditsCharged),
-            // čisté použitie po započítaní refundov
             'used_net'      => abs($creditsUsedNet),
             'refunded'      => abs((int) $creditsRefunded),
             'remaining'     => $totalRemaining,
