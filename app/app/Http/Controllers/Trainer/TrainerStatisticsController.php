@@ -48,18 +48,18 @@ class TrainerStatisticsController extends Controller
             $reservationsQuery = DB::table('training_registrations')
                 ->whereIn('training_id', $trainingIds);
 
-            // Count only ACTIVE reservations
+            // Počítaj všetky rezervácie OKREM zrušených
             $stats['reservations'] = (clone $reservationsQuery)
-                ->where('status', 'active')
+                ->where('status', '!=', 'canceled')
                 ->count();
 
             $stats['canceled_reservations'] = (clone $reservationsQuery)
                 ->where('status', 'canceled')
                 ->count();
 
-            // Unique participants - only count active registrations
+            // Unique participants - všetky okrem zrušených
             $stats['unique_participants'] = (clone $reservationsQuery)
-                ->where('status', 'active')
+                ->where('status', '!=', 'canceled')
                 ->distinct('user_id')
                 ->count('user_id');
 
@@ -70,7 +70,7 @@ class TrainerStatisticsController extends Controller
                 $stats['avg_occupancy'] = (float) number_format($ratio, 1, '.', '');
             }
 
-            // Kredity viazané na tréningy tohto trénera – použijeme nový stĺpec training_id
+            // Kredity viazané na tréningy tohto trénera
             $creditsGained = CreditMovement::whereIn('type', ['training_charge', 'training_refund'])
                 ->whereIn('training_id', $trainingIds)
                 ->sum('amount');
