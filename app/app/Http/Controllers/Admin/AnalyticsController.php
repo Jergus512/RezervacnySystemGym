@@ -256,7 +256,7 @@ class AnalyticsController extends Controller
             ->sum('amount');
 
         // Použité kredity na rezervácie (negatívne pohyby – odčítavajú sa z účtu)
-        $creditsUsed = CreditMovement::where('type', 'training_charge')
+        $creditsCharged = CreditMovement::where('type', 'training_charge')
             ->whereBetween('created_at', [$start, $end])
             ->sum('amount');
 
@@ -266,14 +266,15 @@ class AnalyticsController extends Controller
             ->sum('amount');
 
         // Čisté použitie = koľko kreditov reálne "zmizlo" z účtov kvôli tréningom
-        $creditsUsedNet = (int) $creditsUsed + (int) $creditsRefunded; // obidva pohyby sú v DB záporné čísla
+        // Obidva pohyby sú v DB záporné čísla, takže sčítame a potom berieme absolútnu hodnotu
+        $creditsUsedNet = (int) $creditsCharged + (int) $creditsRefunded;
 
         $totalRemaining = (int) User::sum('credits');
 
         return [
             'sold'          => (int) $creditsSold,
-            // absolútna hodnota skutočne minutých kreditov bez vrátených
-            'used'          => abs((int) $creditsUsed),
+            // absolútna hodnota iba charges (bez vrátení)
+            'used'          => abs((int) $creditsCharged),
             // čisté použitie po započítaní refundov
             'used_net'      => abs($creditsUsedNet),
             'refunded'      => abs((int) $creditsRefunded),
