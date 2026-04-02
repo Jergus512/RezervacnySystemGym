@@ -316,7 +316,7 @@ class AnalyticsController extends Controller
                 ->count();
 
             // Kredity získané trénerom - suma všetkých training_charge pohybov pre jeho tréningy
-            // Odpočítame aj training_refund pohyby (vrátené kredity)
+            // Sčítame aj training_refund pohyby (vrátené kredity - KLADNÉ čísla)
             $creditsCharged = (int) DB::table('credit_movements')
                 ->whereIn('training_id', $trainingIds)
                 ->where('type', 'training_charge')
@@ -327,7 +327,8 @@ class AnalyticsController extends Controller
                 ->where('type', 'training_refund')
                 ->sum('amount');
 
-            // Obidve sú záporné čísla, takže čisté = poplatky + vrátené (napr. -100 + (-50) = -150)
+            // charges sú záporné (napr. -100), refunds sú kladné (napr. +30)
+            // Čisté = charges + refunds (napr. -100 + 30 = -70, abs = 70)
             $creditsGained = abs($creditsCharged + $creditsRefunded);
 
             $capacitySum = (int) $trainings->sum('capacity');
