@@ -27,9 +27,8 @@ class TrainerStatisticsController extends Controller
             [$start, $end] = [$end->copy()->startOfMonth(), $start->copy()->endOfMonth()];
         }
 
-        // tréner vidí len svoje tréningy
+        // tréner vidí všetky svoje tréningy v danom období (aktívne aj neaktívne)
         $trainings = Training::where('created_by_user_id', $user->id)
-            ->where('is_active', true)
             ->whereBetween('start_at', [$start, $end])
             ->get();
 
