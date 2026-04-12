@@ -78,11 +78,46 @@
                         <div class="row mt-3">
                             <div class="col-md-6">
                                 <small class="text-muted d-block">Kapacita</small>
-                                <strong>{{ $audit->training->capacity }}</strong>
+                                <strong>
+                                    @if(isset($audit->meta['capacity']))
+                                        {{ $audit->meta['capacity'] }}
+                                    @else
+                                        {{ $audit->training->capacity }}
+                                    @endif
+                                </strong>
                             </div>
                             <div class="col-md-6">
                                 <small class="text-muted d-block">Cena (kredity)</small>
-                                <strong>{{ $audit->training->price }}</strong>
+                                <strong>
+                                    @if(isset($audit->meta['price']))
+                                        {{ $audit->meta['price'] }}
+                                    @else
+                                        {{ $audit->training->price }}
+                                    @endif
+                                </strong>
+                            </div>
+                        </div>
+                    @else
+                        <div class="row">
+                            <div class="col-md-6">
+                                <small class="text-muted d-block">Kapacita</small>
+                                <strong>
+                                    @if(isset($audit->meta['capacity']))
+                                        {{ $audit->meta['capacity'] }}
+                                    @else
+                                        -
+                                    @endif
+                                </strong>
+                            </div>
+                            <div class="col-md-6">
+                                <small class="text-muted d-block">Cena (kredity)</small>
+                                <strong>
+                                    @if(isset($audit->meta['price']))
+                                        {{ $audit->meta['price'] }}
+                                    @else
+                                        -
+                                    @endif
+                                </strong>
                             </div>
                         </div>
                     @endif
