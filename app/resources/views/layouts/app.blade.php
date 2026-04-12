@@ -564,6 +564,12 @@
                                         <a class="nav-link {{ $isSettingsActive ? 'nav-link-active' : '' }}" href="{{ route('admin.settings.edit') }}">Nastavenia</a>
                                     </li>
 
+                                    <li class="nav-item">
+                                        <a class="nav-link {{ request()->routeIs('admin.audit-logs.*') ? 'nav-link-active' : '' }}" href="{{ route('admin.audit-logs.index') }}">
+                                            <i class="bi bi-journal-text"></i> Audit Log
+                                        </a>
+                                    </li>
+
                                 @else
                                     <li class="nav-item">
                                         <a class="nav-link {{ $isAnnouncementsList ? 'nav-link-active' : '' }}" href="{{ route('announcements.index') }}">Oznamy</a>
@@ -742,6 +748,12 @@
                             </li>
 
                             <li><a class="app-mobile-link {{ $isSettingsActive ? 'app-mobile-link-active' : '' }}" href="{{ route('admin.settings.edit') }}">Nastavenia</a></li>
+
+                            <li>
+                                <a class="app-mobile-link {{ request()->routeIs('admin.audit-logs.*') ? 'app-mobile-link-active' : '' }}" href="{{ route('admin.audit-logs.index') }}">
+                                    <i class="bi bi-journal-text"></i> Audit Log
+                                </a>
+                            </li>
                         @else
                             <li><a class="app-mobile-link {{ $isAnnouncementsList ? 'app-mobile-link-active' : '' }}" href="{{ route('announcements.index') }}">Oznamy</a></li>
                         @endif
