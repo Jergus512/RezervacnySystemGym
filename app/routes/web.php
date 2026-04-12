@@ -101,9 +101,6 @@ Route::middleware('auth')->group(function () {
 
             return $next($request);
         }], function () {
-            Route::get('users/autocomplete', [AdminUserController::class, 'autocomplete'])->name('users.autocomplete');
-            Route::resource('users', AdminUserController::class)->except(['show']);
-
             // Admin training management
             Route::get('trainings', [AdminTrainingController::class, 'index'])->name('trainings.index');
             Route::get('trainings/archive', [AdminTrainingController::class, 'archive'])->name('trainings.archive');
@@ -129,6 +126,17 @@ Route::middleware('auth')->group(function () {
                 ->name('settings.edit');
             Route::put('settings', [\App\Http\Controllers\Admin\PenaltySettingController::class, 'update'])
                 ->name('settings.update');
+
+            // Admin audit logs
+            Route::get('audit-logs', [\App\Http\Controllers\Admin\AuditLogController::class, 'index'])
+                ->name('audit-logs.index');
+            Route::get('audit-logs/{audit}', [\App\Http\Controllers\Admin\AuditLogController::class, 'show'])
+                ->name('audit-logs.show');
+            Route::get('trainings/{training}/audit', [\App\Http\Controllers\Admin\AuditLogController::class, 'training'])
+                ->name('audit-logs.training');
+
+            Route::get('users/autocomplete', [AdminUserController::class, 'autocomplete'])->name('users.autocomplete');
+            Route::resource('users', AdminUserController::class)->except(['show']);
         });
     });
 

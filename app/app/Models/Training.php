@@ -68,6 +68,9 @@ class Training extends Model
             throw new \Exception('Len aktívne tréningy je možné zrušiť.');
         }
 
+        // Uložiť staré hodnoty pred aktualizáciou
+        $registrationsCount = $this->registrations()->count();
+
         // Označenie tréningu ako zrušeného
         $this->update([
             'is_active' => false,
@@ -103,6 +106,28 @@ class Training extends Model
             // Odoslanie notifikácie o zrušení tréningu
             \Log::info("Sending notification to user: " . $user->email);
             $user->notify(new TrainingCancelledNotification($this));
+        }
+
+        // Zaznamená audit s detailmi o zrušení
+        try {
+            TrainingAudit::create([
+                'training_id' => $this->id,
+                'performed_by_user_id' => \Illuminate\Support\Facades\Auth::id(),
+                'action' => 'cancel',
+                'meta' => [
+                    'title' => $this->title,
+                    'start_at' => $this->start_at?->toIso8601String(),
+                    'registrations_refunded' => $registrationsCount,
+                    'refund_amount_per_user' => $this->price,
+                    'total_refunded' => $registrationsCount * $this->price,
+                    'canceled_at' => $this->canceled_at?->toIso8601String(),
+                ],
+            ]);
+        } catch (\Throwable $e) {
+            \Log::error('Failed to create training cancel audit', [
+                'training_id' => $this->id,
+                'error' => $e->getMessage(),
+            ]);
         }
 
         \Log::info("cancelTraining() completed for training ID: " . $this->id);
