@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Training;
 use Illuminate\Http\Request;
 
 class MyTrainingsController extends Controller
@@ -23,8 +24,13 @@ class MyTrainingsController extends Controller
             ->get();
 
         // Minulé tréningy - všetky registrácie na minulých tréningoch (aj zrušené)
-        // Používame relaciju allTrainings() ktorá zahŕňa aj zrušené registrácie
-        $pastTrainings = $user->allTrainings()
+        // Načítame tréningy priamo z DB bez globálneho scope na registrácie
+        $pastTrainings = Training::query()
+            ->whereIn('id', function ($query) use ($user) {
+                $query->select('training_id')
+                    ->from('training_registrations')
+                    ->where('user_id', $user->id);
+            })
             ->where('start_at', '<', now())
             ->orderBy('start_at', 'desc')
             ->with('creator', 'trainingType')

@@ -56,8 +56,7 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Training::class, 'training_registrations')
             ->withPivot('status')
-            ->withTimestamps()
-            ->whereWithoutGlobalScope('only_active');
+            ->withTimestamps();
     }
 
     /**

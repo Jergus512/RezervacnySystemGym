@@ -49,8 +49,7 @@ class Training extends Model
     {
         return $this->belongsToMany(User::class, 'training_registrations')
             ->withPivot('status')
-            ->withTimestamps()
-            ->whereWithoutGlobalScope('only_active');
+            ->withTimestamps();
     }
 
     public function creator(): BelongsTo
