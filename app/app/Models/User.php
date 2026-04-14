@@ -50,6 +50,17 @@ class User extends Authenticatable
     }
 
     /**
+     * Get all user's trainings including canceled registrations.
+     */
+    public function allTrainings(): BelongsToMany
+    {
+        return $this->belongsToMany(Training::class, 'training_registrations')
+            ->withPivot('status')
+            ->withTimestamps()
+            ->whereWithoutGlobalScope('only_active');
+    }
+
+    /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>

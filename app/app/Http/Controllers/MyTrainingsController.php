@@ -14,7 +14,7 @@ class MyTrainingsController extends Controller
             abort(403);
         }
 
-        // Nadchádzajúce tréningy - ktoré majú rezerváciu
+        // Nadchádzajúce tréningy - aktívne registrácie na budúcich tréningoch
         $upcomingTrainings = $user->trainings()
             ->where('start_at', '>=', now())
             ->where('is_active', true)
@@ -22,10 +22,10 @@ class MyTrainingsController extends Controller
             ->with('creator', 'trainingType')
             ->get();
 
-        // Minulé tréningy - ktoré už prebehli
-        $pastTrainings = $user->trainings()
+        // Minulé tréningy - všetky registrácie na minulých tréningoch (aj zrušené)
+        // Používame relaciju allTrainings() ktorá zahŕňa aj zrušené registrácie
+        $pastTrainings = $user->allTrainings()
             ->where('start_at', '<', now())
-            ->where('is_active', true)
             ->orderBy('start_at', 'desc')
             ->with('creator', 'trainingType')
             ->get();

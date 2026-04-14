@@ -49,10 +49,11 @@ class TrainerRatingController extends Controller
             try {
                 $training = Training::findOrFail($validated['training_id']);
 
-                // Skontroluj či používateľ mal rezerváciu na tomto tréningu
+                // Skontroluj či používateľ mal rezerváciu na tomto tréningu (vrátane zrušených)
                 $hasAttended = DB::table('training_registrations')
                     ->where('training_id', $training->id)
                     ->where('user_id', $user->id)
+                    ->whereIn('status', ['active', 'canceled']) // Povol aj zrušené registrácie
                     ->exists();
 
                 if (!$hasAttended) {

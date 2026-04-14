@@ -44,6 +44,15 @@ class Training extends Model
             ->withTimestamps();
     }
 
+    // Všetci používatelia vrátane tých so zrušenými registráciami
+    public function allUsers(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'training_registrations')
+            ->withPivot('status')
+            ->withTimestamps()
+            ->whereWithoutGlobalScope('only_active');
+    }
+
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by_user_id');
