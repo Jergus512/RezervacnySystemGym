@@ -49,7 +49,7 @@
 </form>
 
 <div class="table-responsive">
-    <table class="table table-striped">
+    <table class="table table-striped" id="users-table">
         <thead>
             <tr>
                 <th>Meno</th>
@@ -58,7 +58,7 @@
                 <th>Akcie</th>
             </tr>
         </thead>
-        <tbody>
+        <tbody id="users-tbody">
             @foreach ($users as $user)
                 <tr>
                     <td>{{ $user->name }}</td>
@@ -88,25 +88,114 @@
     </table>
 </div>
 
-<script>
-    let page = 1;
-    const container = document.getElementById('users-container');
+<!-- Indikátor načítavania -->
+<div id="loading-indicator" style="display: none; text-align: center; padding: 20px;">
+    <div class="spinner-border spinner-border-sm" role="status">
+        <span class="visually-hidden">Načítavanie...</span>
+    </div>
+</div>
 
-    window.addEventListener('scroll', () => {
-        if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
-            page++;
-            fetch(`/admin/users?page=${page}`)
-                .then(response => response.text())
-                .then(html => {
-                    const tempDiv = document.createElement('div');
-                    tempDiv.innerHTML = html;
-                    const newUsers = tempDiv.querySelector('#users-container').innerHTML;
-                    container.innerHTML += newUsers;
-                });
+<!-- Správa ak nema viac položiek -->
+<div id="no-more-items" style="display: none; text-align: center; padding: 20px; color: #6c757d;">
+    Žiadne ďalšie používatelia
+</div>
+
+<script>
+(function () {
+    let currentPage = {{ $users->currentPage() }};
+    const lastPage = {{ $users->lastPage() }};
+    const searchQuery = '{{ $q ?? '' }}';
+    const roleFilter = '{{ $role ?? 'all' }}';
+
+    let isLoading = false;
+    let hasMorePages = currentPage < lastPage;
+
+    const tbody = document.getElementById('users-tbody');
+    const loadingIndicator = document.getElementById('loading-indicator');
+    const noMoreItems = document.getElementById('no-more-items');
+    const searchInput = document.getElementById('users-search');
+    const roleSelect = document.getElementById('users-role');
+
+    // Ak sa zmení vyhľadávanie alebo filter, resetuj pagination
+    searchInput.addEventListener('input', function() {
+        location.reload();
+    });
+
+    roleSelect.addEventListener('change', function() {
+        location.reload();
+    });
+
+    async function loadMoreUsers() {
+        if (isLoading || !hasMorePages) return;
+
+        isLoading = true;
+        loadingIndicator.style.display = 'block';
+        noMoreItems.style.display = 'none';
+
+        try {
+            const url = new URL(window.location.href);
+            url.searchParams.set('page', currentPage + 1);
+            url.searchParams.set('q', searchQuery);
+            url.searchParams.set('role', roleFilter);
+
+            const response = await fetch(url.toString(), {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Chyba pri načítaní údajov');
+            }
+
+            const html = await response.text();
+
+            // Parsuj HTML a extrakt nové riadky z tabuľky
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            const newRows = doc.querySelectorAll('#users-tbody tr');
+
+            // Pridaj nové riadky do tabuľky
+            newRows.forEach(row => {
+                tbody.appendChild(row.cloneNode(true));
+            });
+
+            currentPage++;
+
+            // Skontroluj či sú ešte ďalšie stránky
+            if (currentPage >= lastPage) {
+                hasMorePages = false;
+                loadingIndicator.style.display = 'none';
+                noMoreItems.style.display = 'block';
+            } else {
+                loadingIndicator.style.display = 'none';
+            }
+
+        } catch (error) {
+            console.error('Chyba pri načítaní ďalších používateľov:', error);
+            loadingIndicator.style.display = 'none';
+        } finally {
+            isLoading = false;
+        }
+    }
+
+    // Infinite scroll listener
+    window.addEventListener('scroll', function() {
+        // Ak je používateľ blízko konca stránky
+        if ((window.innerHeight + window.scrollY) >= (document.body.offsetHeight - 500)) {
+            loadMoreUsers();
         }
     });
+
+    // Skontroluj pri načítaní ak by sme mali hneď načítať ďalšu stránku
+    if (hasMorePages && tbody.children.length < 20) {
+        loadMoreUsers();
+    }
+})();
 </script>
 
+<!-- Autocomplete script -->
 <script>
 (function () {
     const input = document.getElementById('users-search');
@@ -196,7 +285,7 @@
                 const items = await fetchSuggestions(q);
                 render(items);
             } catch (e) {
-                // AbortError is fine (typing fast)
+                // AbortError je OK (rýchle písanie)
             }
         }, 200);
     });
