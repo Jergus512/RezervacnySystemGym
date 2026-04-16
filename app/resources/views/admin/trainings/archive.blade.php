@@ -6,7 +6,7 @@
     <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
         <div>
             <h1 class="h3 mb-0">Archív tréningov</h1>
-            <div class="text-muted small">Zobrazujú sa iba tréningy, ktoré už sú po aktuálnom dátume a čase.</div>
+            <div class="text-muted small">Zobrazujú sa tréningy, ktoré sú deaktivované alebo už sú po aktuálnom dátume a čase.</div>
         </div>
         <div class="d-flex gap-2">
             <a href="{{ route('admin.trainings.index') }}" class="btn btn-outline-secondary">Správa aktuálnych tréningov</a>

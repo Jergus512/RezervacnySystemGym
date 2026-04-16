@@ -32,10 +32,6 @@ class TrainingCalendarController extends Controller
         $trainings = Training::query()
             ->where('start_at', '<', $end)
             ->where('end_at', '>', $start)
-            ->where(function ($q) {
-                // Show both upcoming and past trainings; only hide ones that are explicitly inactive.
-                $q->whereNull('is_active')->orWhere('is_active', true);
-            })
             ->withCount(['users' => function ($query) {
                 // Count only active registrations, excluding canceled ones
                 $query->where('training_registrations.status', 'active');
@@ -60,16 +56,21 @@ class TrainingCalendarController extends Controller
             $isPast = $t->end_at ? $t->end_at->isPast() : ($t->start_at?->isPast() ?? false);
 
             // Styling rules:
-            // - Past trainings: light grey
-            // - Inactive (explicitly deactivated): light grey
-            // - Upcoming + registered: green (full event)
-            // - Upcoming + not registered: default (blue)
+            // - Inactive (explicitly deactivated) OR past: light grey
+            // - Upcoming + active + registered: green (full event)
+            // - Upcoming + active + not registered: default (blue)
             $bg = null;
             $border = null;
-            if ($isPast || ! $isActive) {
+            if (! $isActive) {
+                // Neaktívne tréningy sú vždy šedé, bez ohľadu na čas
+                $bg = '#e9ecef';
+                $border = '#ced4da';
+            } elseif ($isPast) {
+                // Minulé aktívne tréningy sú šedé
                 $bg = '#e9ecef';
                 $border = '#ced4da';
             } elseif ($isRegistered) {
+                // Budúce aktívne tréningy s registráciou sú zelené
                 $bg = '#198754';
                 $border = '#198754';
             }

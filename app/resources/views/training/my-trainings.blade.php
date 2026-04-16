@@ -65,7 +65,7 @@
                                                 </div>
                                                 <div class="d-flex align-items-center text-muted small mb-2">
                                                     <i class="bi bi-person-circle" style="margin-right: 8px; color: #2196F3;"></i>
-                                                    <strong>{{ $training->creator->name }}</strong>
+                                                    <strong>{{ $training->creator?->name ?? 'Neznámy tréner' }}</strong>
                                                 </div>
                                                 @if($training->trainingType)
                                                     <div>
@@ -156,7 +156,7 @@
                                             </div>
                                             <div class="d-flex align-items-center text-muted small">
                                                 <i class="bi bi-person-circle" style="margin-right: 8px; color: #2196F3;"></i>
-                                                <strong>{{ $training->creator->name }}</strong>
+                                                <strong>{{ $training->creator?->name ?? 'Neznámy tréner' }}</strong>
                                             </div>
                                         </div>
                                         <div class="col-md-4 text-md-end">

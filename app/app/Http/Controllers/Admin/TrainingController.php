@@ -50,7 +50,11 @@ class TrainingController extends Controller
 
         $trainings = Training::query()
             ->with('creator:id,name')
-            ->where('start_at', '<', $now)
+            ->where(function ($query) use ($now) {
+                // Tréningy v archíve sú: tie, ktoré majú start_at v minulosti ALEBO sú explicitne deaktivované
+                $query->where('start_at', '<', $now)
+                      ->orWhere('is_active', false);
+            })
             ->when($q !== '', function ($query) use ($q) {
                 $query->where(function ($w) use ($q) {
                     $w->where('title', 'like', '%'.$q.'%')
