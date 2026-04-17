@@ -56,9 +56,11 @@ class AnnouncementController extends Controller
 
         $announcements = Announcement::query()
             ->with('creator:id,name')
-            ->where('is_active', true)
-            ->whereNotNull('active_to')
-            ->where('active_to', '<', $now)
+            ->where(function ($query) use ($now) {
+                // Archívované sú oznamy, ktorých active_to je v minulosti
+                $query->whereNotNull('active_to')
+                    ->where('active_to', '<', $now);
+            })
             ->when($q !== '', function ($query) use ($q) {
                 $query->where(function ($w) use ($q) {
                     $w->where('title', 'like', '%'.$q.'%')
