@@ -43,13 +43,16 @@ class TrainingCancelledNotification extends Notification
     {
         \Log::info("Sending training cancellation email to: " . $notifiable->email);
 
+        $logoUrl = url('img/logo1.png');
+
         return (new MailMessage)
-            ->subject('Tréning bol zrušený')
-            ->greeting('Dobrý deň, ' . $notifiable->name)
-            ->line('S poľutovaním vám oznamujeme, že tréning s názvom "' . $this->training->title . '" bol zrušený.')
-            ->line('Dátum tréningu: ' . $this->training->start_at->format('d.m.Y H:i'))
-            ->line('Ak máte akékoľvek otázky, neváhajte nás kontaktovať.')
-            ->salutation('S pozdravom, Tím Rezervačného systému');
+            ->subject('Oznámenie o zrušení tréningu')
+            ->markdown('mail.training-cancelled', [
+                'userName' => $notifiable->name,
+                'trainingTitle' => $this->training->title,
+                'trainingDate' => $this->training->start_at->format('d.m.Y o H:i'),
+                'logoUrl' => $logoUrl,
+            ]);
     }
 
     /**
