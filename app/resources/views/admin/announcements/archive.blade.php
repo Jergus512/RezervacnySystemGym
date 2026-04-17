@@ -6,7 +6,7 @@
     <div class="d-flex justify-content-between align-items-center mb-3">
         <div>
             <h1 class="h3 mb-0">Archív oznamov</h1>
-            <div class="text-muted small">Zobrazujú sa iba neaktívne oznamy (po dátume).</div>
+            <div class="text-muted small">Zobrazujú sa iba oznamov ktorých čas platnosti skončil (active_to &lt; dnes).</div>
         </div>
         <div class="d-flex gap-2">
             <a href="{{ route('admin.announcements.index') }}" class="btn btn-outline-secondary">Aktuálne oznamy</a>
@@ -35,7 +35,6 @@
                     <tr>
                         <th>ID</th>
                         <th>Názov</th>
-                        <th>Aktívny</th>
                         <th>Od</th>
                         <th>Do</th>
                         <th>Autor</th>
@@ -49,13 +48,6 @@
                             <td>
                                 <div class="fw-semibold">{{ $a->title ?: '—' }}</div>
                                 <div class="text-muted small">{{ \Illuminate\Support\Str::limit(strip_tags($a->content), 80) }}</div>
-                            </td>
-                            <td>
-                                @if($a->is_active)
-                                    <span class="badge bg-success">Áno</span>
-                                @else
-                                    <span class="badge bg-secondary">Nie</span>
-                                @endif
                             </td>
                             <td>{{ optional($a->active_from)->format('d.m.Y H:i') ?: '—' }}</td>
                             <td>{{ optional($a->active_to)->format('d.m.Y H:i') ?: '—' }}</td>
@@ -72,7 +64,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="text-center text-muted py-4">Žiadne archivované oznamy.</td>
+                            <td colspan="6" class="text-center text-muted py-4">Žiadne archivované oznamy.</td>
                         </tr>
                     @endforelse
                     </tbody>
