@@ -722,7 +722,6 @@
 
                         @if($isAdmin)
                             <li><a class="app-mobile-link {{ $isUsersActive ? 'app-mobile-link-active' : '' }}" href="{{ route('admin.users.index') }}">Používatelia</a></li>
-                            <li><a class="app-mobile-link {{ $isAnalyticsActive ? 'app-mobile-link-active' : '' }}" href="{{ route('admin.analytics.index') }}">Štatistiky</a></li>
 
                             <li>
                                 <button class="app-mobile-submenu-toggle" type="button" data-mobile-submenu-toggle="trainings">
@@ -744,6 +743,18 @@
                                     <li><a class="app-mobile-link {{ request()->routeIs('admin.announcements.index') ? 'app-mobile-link-active' : '' }}" href="{{ route('admin.announcements.index') }}">Správa oznamov</a></li>
                                     <li><a class="app-mobile-link {{ request()->routeIs('admin.announcements.archive') ? 'app-mobile-link-active' : '' }}" href="{{ route('admin.announcements.archive') }}">Archív oznamov</a></li>
                                     <li><a class="app-mobile-link {{ $isAnnouncementsList ? 'app-mobile-link-active' : '' }}" href="{{ route('announcements.index') }}">Oznamy (zobrazenie)</a></li>
+                                </ul>
+                            </li>
+
+                            <li>
+                                @php $analyticsOpenMobile = request()->routeIs('admin.analytics.*'); @endphp
+                                <button class="app-mobile-submenu-toggle" type="button" data-mobile-submenu-toggle="analytics" aria-expanded="{{ $analyticsOpenMobile ? 'true' : 'false' }}">
+                                    <span>Štatistiky</span>
+                                    <span class="app-mobile-submenu-chevron">▾</span>
+                                </button>
+                                <ul class="app-mobile-nav-list mt-1" data-mobile-submenu="analytics" @if(!$analyticsOpenMobile) hidden @endif>
+                                    <li><a class="app-mobile-link {{ request()->routeIs('admin.analytics.index') ? 'app-mobile-link-active' : '' }}" href="{{ route('admin.analytics.index') }}">Všeobecné štatistiky</a></li>
+                                    <li><a class="app-mobile-link {{ request()->routeIs('admin.analytics.trainer-rewards') ? 'app-mobile-link-active' : '' }}" href="{{ route('admin.analytics.trainer-rewards') }}">Odmeny trénerov</a></li>
                                 </ul>
                             </li>
 
