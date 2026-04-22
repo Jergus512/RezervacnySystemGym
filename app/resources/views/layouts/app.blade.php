@@ -811,6 +811,17 @@
             shell.classList.add('is-open');
             toggleBtn.setAttribute('aria-expanded', 'true');
             document.body.style.overflow = 'hidden'; // lock scroll
+
+            // If any submenu is already expanded (server-side open), scroll it into view
+            const preOpen = panel.querySelector('[data-mobile-submenu][aria-hidden]') || panel.querySelector('[data-mobile-submenu]');
+            const expanded = panel.querySelector('[data-mobile-submenu-toggle][aria-expanded="true"]');
+            try {
+                if (expanded) {
+                    const key = expanded.getAttribute('data-mobile-submenu-toggle');
+                    const submenu = panel.querySelector('[data-mobile-submenu="' + key + '"]');
+                    if (submenu) submenu.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            } catch (e) { /* ignore scrolling errors on some environments */ }
         }
 
         function closeMenu() {
@@ -877,10 +888,13 @@
                 if (!isCurrentlyOpen) {
                     submenu.hidden = false;
                     btn.setAttribute('aria-expanded', 'true');
+                    try {
+                        submenu.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    } catch (e) { /* ignore if not supported */ }
                 }
-            });
-        });
-    })();
+             });
+         });
+     })();
 </script>
 
 @auth
