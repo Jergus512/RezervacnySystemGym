@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\CreditMovement;
 use App\Models\Training;
 use App\Models\TrainingRegistration;
+use App\Notifications\TrainingCancelledNotification;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -61,6 +62,11 @@ class TrainingRegistrationController extends Controller
             $price = (int) ($training->price ?? 0);
 
             if ($price > 0) {
+                // Check if user has enough credits
+                if ($user->credits < $price) {
+                    abort(422, 'Nemáš dostatok kreditov. Potrebuješ ' . $price . ' kreditov, máš len ' . $user->credits . '.');
+                }
+
                 $user->decrement('credits', $price);
 
                 CreditMovement::create([
