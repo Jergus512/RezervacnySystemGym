@@ -1,5 +1,7 @@
 @component('mail::message')
-# ![Super Gym Logo]({{ $logoUrl }})
+<div style="text-align: center; margin-bottom: 20px;">
+    <img src="{{ $logoUrl }}" alt="Super Gym Logo" style="width: 120px; height: auto;">
+</div>
 
 Dobrý deň {{ $userName }},
 
