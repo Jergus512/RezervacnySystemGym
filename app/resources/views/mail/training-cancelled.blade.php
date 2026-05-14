@@ -1,17 +1,18 @@
 @component('mail::message')
-<div style="text-align: center; margin-bottom: 20px;">
-    <img src="{{ $logoUrl }}" alt="Super Gym Logo" style="width: 120px; height: auto;">
+<div style="text-align: center; margin-bottom: 25px;">
+    <img src="{{ $logoUrl }}" alt="Super Gym Logo" style="width: 100px; height: auto;">
 </div>
 
-Dobrý deň {{ $userName }},
+<div style="font-size: 14px; line-height: 1.6; color: #333;">
+    <p>Dobrý deň {{ $userName }},</p>
 
-Oznamujeme Vám, že tréning **{{ $trainingTitle }}** bol zrušený.
+    <p>Oznamujeme Vám, že tréning <strong>{{ $trainingTitle }}</strong> bol zrušený.</p>
 
-**Dátum a čas tréningu:** {{ $trainingDate }}
+    <p><strong>Dátum a čas tréningu:</strong> {{ $trainingDate }}</p>
 
-Ďakujeme za pochopenie.
+    <p>Ďakujeme za pochopenie.</p>
 
-S pozdravom,
-**Tím Super Gym**
-
+    <p>S pozdravom,<br>
+    <strong>Tím Super Gym</strong></p>
+</div>
 @endcomponent

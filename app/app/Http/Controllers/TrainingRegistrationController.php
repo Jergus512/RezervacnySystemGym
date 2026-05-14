@@ -64,7 +64,7 @@ class TrainingRegistrationController extends Controller
             if ($price > 0) {
                 // Check if user has enough credits
                 if ($user->credits < $price) {
-                    abort(422, 'Nemáš dostatok kreditov. Potrebuješ ' . $price . ' kreditov, máš len ' . $user->credits . '.');
+                    abort(422, 'Nemáš dosť kreditov.');
                 }
 
                 $user->decrement('credits', $price);

@@ -95,9 +95,14 @@
     </div>
 </div>
 
+<!-- Tlačidlo na načítanie ďalších -->
+<div id="load-more-btn-container" style="text-align: center; padding: 20px;">
+    <button id="load-more-btn" class="btn btn-outline-secondary" style="display: none;">Načítať ďalších</button>
+</div>
+
 <!-- Správa ak nema viac položiek -->
 <div id="no-more-items" style="display: none; text-align: center; padding: 20px; color: #6c757d;">
-    Žiadne ďalšie používatelia
+    Všetci používatelia sú už načítaní
 </div>
 
 <script>
@@ -113,12 +118,14 @@
     const tbody = document.getElementById('users-tbody');
     const loadingIndicator = document.getElementById('loading-indicator');
     const noMoreItems = document.getElementById('no-more-items');
+    const loadMoreBtn = document.getElementById('load-more-btn');
     const searchInput = document.getElementById('users-search');
     const roleSelect = document.getElementById('users-role');
 
+    console.log('Initial state - currentPage:', currentPage, 'lastPage:', lastPage, 'hasMorePages:', hasMorePages, 'Total rows:', tbody.children.length);
+
     // Ak sa zmení vyhľadávanie alebo filter, resetuj pagination
     searchInput.addEventListener('input', function() {
-        // Malá úprava - form submit namiesto reload
         searchInput.form.submit();
     });
 
@@ -126,90 +133,103 @@
         roleSelect.form.submit();
     });
 
+    function updateLoadMoreButton() {
+        if (hasMorePages) {
+            loadMoreBtn.style.display = 'inline-block';
+            noMoreItems.style.display = 'none';
+        } else {
+            loadMoreBtn.style.display = 'none';
+            noMoreItems.style.display = 'block';
+        }
+    }
+
     async function loadMoreUsers() {
         if (isLoading || !hasMorePages) return;
 
         isLoading = true;
         loadingIndicator.style.display = 'block';
-        noMoreItems.style.display = 'none';
+        loadMoreBtn.style.display = 'none';
 
         try {
+            const nextPage = currentPage + 1;
             const url = new URL(window.location.href);
-            url.searchParams.set('page', currentPage + 1);
+            url.searchParams.set('page', nextPage);
             url.searchParams.set('q', searchQuery);
             url.searchParams.set('role', roleFilter);
 
+            console.log('Loading page:', nextPage, 'URL:', url.toString());
+
             const response = await fetch(url.toString(), {
                 headers: {
-                    'Accept': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'text/html'
                 }
             });
 
             if (!response.ok) {
-                throw new Error('Chyba pri načítaní údajov');
+                throw new Error('Chyba pri načítaní údajov: ' + response.status);
             }
 
             const html = await response.text();
+            console.log('Response length:', html.length, 'First 200 chars:', html.substring(0, 200));
 
             // Parsuj HTML a extrakt nové riadky z tabuľky
             const parser = new DOMParser();
             const doc = parser.parseFromString(html, 'text/html');
             const newRows = doc.querySelectorAll('#users-tbody tr');
 
+            console.log('Loaded rows count:', newRows.length);
+
             // Ak nie sú žiadne nové riadky, sme na konci
             if (newRows.length === 0) {
                 hasMorePages = false;
-                loadingIndicator.style.display = 'none';
-                noMoreItems.style.display = 'block';
-                return;
-            }
-
-            // Pridaj nové riadky do tabuľky
-            newRows.forEach(row => {
-                tbody.appendChild(row.cloneNode(true));
-            });
-
-            currentPage++;
-
-            // Skontroluj či sú ešte ďalšie stránky
-            if (currentPage >= lastPage) {
-                hasMorePages = false;
-                loadingIndicator.style.display = 'none';
-                noMoreItems.style.display = 'block';
+                console.log('No rows returned - reached end');
             } else {
-                loadingIndicator.style.display = 'none';
+                // Pridaj nové riadky do tabuľky
+                newRows.forEach(row => {
+                    tbody.appendChild(row.cloneNode(true));
+                });
+                currentPage = nextPage;
+                console.log('Added rows, currentPage now:', currentPage);
+
+                // Skontroluj či sú ešte ďalšie stránky
+                if (currentPage >= lastPage) {
+                    hasMorePages = false;
+                    console.log('Reached lastPage');
+                }
             }
 
         } catch (error) {
             console.error('Chyba pri načítaní ďalších používateľov:', error);
-            loadingIndicator.style.display = 'none';
         } finally {
             isLoading = false;
+            loadingIndicator.style.display = 'none';
+            updateLoadMoreButton();
         }
     }
 
-    // Infinite scroll listener s debounce
+    // Click handler na tlačidlo
+    loadMoreBtn.addEventListener('click', function() {
+        loadMoreUsers();
+    });
+
+    // Infinite scroll listener
     let scrollTimeout;
     window.addEventListener('scroll', function() {
+        if (!hasMorePages || isLoading) return;
+
         clearTimeout(scrollTimeout);
         scrollTimeout = setTimeout(function() {
-            // Ak je používateľ blízko konca stránky (500px pred koncom)
-            if ((window.innerHeight + window.scrollY) >= (document.body.offsetHeight - 500)) {
+            // Ak je používateľ blízko konca stránky
+            if ((window.innerHeight + window.scrollY) >= (document.body.offsetHeight - 300)) {
+                console.log('Auto-loading due to scroll');
                 loadMoreUsers();
             }
         }, 200);
     });
 
-    // Skontroluj pri načítaní ak by sme mali hneď načítať ďalšu stránku
-    if (hasMorePages && tbody.children.length > 0) {
-        // Počkaj trošku, aby sa DOM správne načítal
-        setTimeout(function() {
-            if ((window.innerHeight + window.scrollY) >= (document.body.offsetHeight - 500)) {
-                loadMoreUsers();
-            }
-        }, 100);
-    }
+    // Inicializácia - zobraz správne tlačidlo na začiatku
+    updateLoadMoreButton();
 })();
 </script>
 
