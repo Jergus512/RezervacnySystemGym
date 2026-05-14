@@ -46,7 +46,7 @@ class UserController extends Controller
                 break;
         }
 
-        $users = $usersQuery->orderBy('name')->paginate(3)->withQueryString();
+        $users = $usersQuery->orderBy('name')->paginate(10)->withQueryString();
 
         // Ak je AJAX požiadavka, vrát JSON s údajmi
         if ($request->expectsJson() || $request->header('X-Requested-With') === 'XMLHttpRequest') {
