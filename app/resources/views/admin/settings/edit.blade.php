@@ -49,7 +49,7 @@
                             </div>
                             <div class="form-check">
                                 <input class="form-check-input" type="radio" name="penalty_policy" id="policy_none" value="none" {{ old('penalty_policy', $settings->penalty_policy) === 'none' ? 'checked' : '' }}>
-                                <label class="form-check-label" for="policy_none">Nebude sa vrátená žiadna suma</label>
+                                <label class="form-check-label" for="policy_none">Nebude vrátená žiadna suma</label>
                             </div>
                         </div>
                         @error('penalty_policy')
