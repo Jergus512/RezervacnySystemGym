@@ -118,11 +118,12 @@
 
     // Ak sa zmení vyhľadávanie alebo filter, resetuj pagination
     searchInput.addEventListener('input', function() {
-        location.reload();
+        // Malá úprava - form submit namiesto reload
+        searchInput.form.submit();
     });
 
     roleSelect.addEventListener('change', function() {
-        location.reload();
+        roleSelect.form.submit();
     });
 
     async function loadMoreUsers() {
@@ -156,6 +157,14 @@
             const doc = parser.parseFromString(html, 'text/html');
             const newRows = doc.querySelectorAll('#users-tbody tr');
 
+            // Ak nie sú žiadne nové riadky, sme na konci
+            if (newRows.length === 0) {
+                hasMorePages = false;
+                loadingIndicator.style.display = 'none';
+                noMoreItems.style.display = 'block';
+                return;
+            }
+
             // Pridaj nové riadky do tabuľky
             newRows.forEach(row => {
                 tbody.appendChild(row.cloneNode(true));
@@ -180,17 +189,26 @@
         }
     }
 
-    // Infinite scroll listener
+    // Infinite scroll listener s debounce
+    let scrollTimeout;
     window.addEventListener('scroll', function() {
-        // Ak je používateľ blízko konca stránky
-        if ((window.innerHeight + window.scrollY) >= (document.body.offsetHeight - 500)) {
-            loadMoreUsers();
-        }
+        clearTimeout(scrollTimeout);
+        scrollTimeout = setTimeout(function() {
+            // Ak je používateľ blízko konca stránky (500px pred koncom)
+            if ((window.innerHeight + window.scrollY) >= (document.body.offsetHeight - 500)) {
+                loadMoreUsers();
+            }
+        }, 200);
     });
 
     // Skontroluj pri načítaní ak by sme mali hneď načítať ďalšu stránku
-    if (hasMorePages && tbody.children.length < 20) {
-        loadMoreUsers();
+    if (hasMorePages && tbody.children.length > 0) {
+        // Počkaj trošku, aby sa DOM správne načítal
+        setTimeout(function() {
+            if ((window.innerHeight + window.scrollY) >= (document.body.offsetHeight - 500)) {
+                loadMoreUsers();
+            }
+        }, 100);
     }
 })();
 </script>
