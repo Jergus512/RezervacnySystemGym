@@ -46,11 +46,17 @@ class UserController extends Controller
                 break;
         }
 
-        $users = $usersQuery->orderBy('name')->paginate(15)->withQueryString();
+        $users = $usersQuery->orderBy('name')->paginate(3)->withQueryString();
 
-        // Ak je AJAX požiadavka, vrát iba HTML fragment
+        // Ak je AJAX požiadavka, vrát JSON s údajmi
         if ($request->expectsJson() || $request->header('X-Requested-With') === 'XMLHttpRequest') {
-            return response()->view('admin.users.rows', compact('users'), 200);
+            return response()->json([
+                'data' => $users->items(),
+                'current_page' => $users->currentPage(),
+                'last_page' => $users->lastPage(),
+                'total' => $users->total(),
+                'per_page' => $users->perPage(),
+            ]);
         }
 
         return view('admin.users.index', compact('users', 'q', 'role'));

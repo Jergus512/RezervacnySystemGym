@@ -122,9 +122,9 @@
     const searchInput = document.getElementById('users-search');
     const roleSelect = document.getElementById('users-role');
 
-    console.log('Initial state - currentPage:', currentPage, 'lastPage:', lastPage, 'hasMorePages:', hasMorePages, 'Total rows:', tbody.children.length);
+    console.log('Initial - Page:', currentPage, 'LastPage:', lastPage, 'HasMore:', hasMorePages, 'Rows:', tbody.children.length);
 
-    // Ak sa zmení vyhľadávanie alebo filter, resetuj pagination
+    // Ak sa zmení vyhľadávanie alebo filter
     searchInput.addEventListener('input', function() {
         searchInput.form.submit();
     });
@@ -132,6 +132,42 @@
     roleSelect.addEventListener('change', function() {
         roleSelect.form.submit();
     });
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    function createUserRow(user) {
+        let typeHtml = '';
+        if (user.is_admin) {
+            typeHtml = '<span class="badge bg-success">Admin</span>';
+        } else if (user.is_trainer) {
+            typeHtml = '<span class="badge bg-info text-dark">Tréner</span>';
+        } else if (user.is_reception) {
+            typeHtml = '<span class="badge bg-warning text-dark">Recepcia</span>';
+        } else {
+            typeHtml = '<span class="badge bg-secondary">Bežný</span>';
+        }
+
+        const editUrl = '/admin/users/' + user.id + '/edit';
+        const deleteUrl = '/admin/users/' + user.id;
+
+        return `<tr>
+            <td>${escapeHtml(user.name)}</td>
+            <td>${escapeHtml(user.email)}</td>
+            <td>${typeHtml}</td>
+            <td>
+                <a href="${editUrl}" class="btn btn-sm btn-primary">Upraviť</a>
+                <form method="POST" action="${deleteUrl}" class="d-inline" onsubmit="return confirm('Naozaj chcete odstrániť tohto používateľa?')">
+                    <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="_method" value="DELETE">
+                    <button type="submit" class="btn btn-sm btn-danger">Odstrániť</button>
+                </form>
+            </td>
+        </tr>`;
+    }
 
     function updateLoadMoreButton() {
         if (hasMorePages) {
@@ -144,7 +180,10 @@
     }
 
     async function loadMoreUsers() {
-        if (isLoading || !hasMorePages) return;
+        if (isLoading || !hasMorePages) {
+            console.log('Skip - isLoading:', isLoading, 'hasMore:', hasMorePages);
+            return;
+        }
 
         isLoading = true;
         loadingIndicator.style.display = 'block';
@@ -157,50 +196,43 @@
             url.searchParams.set('q', searchQuery);
             url.searchParams.set('role', roleFilter);
 
-            console.log('Loading page:', nextPage, 'URL:', url.toString());
+            console.log('Loading page', nextPage);
 
             const response = await fetch(url.toString(), {
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest',
-                    'Accept': 'text/html'
+                    'Accept': 'application/json'
                 }
             });
 
             if (!response.ok) {
-                throw new Error('Chyba pri načítaní údajov: ' + response.status);
+                throw new Error('HTTP ' + response.status);
             }
 
-            const html = await response.text();
-            console.log('Response length:', html.length, 'First 200 chars:', html.substring(0, 200));
+            const data = await response.json();
+            console.log('Got data:', data);
 
-            // Parsuj HTML a extrakt nové riadky z tabuľky
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(html, 'text/html');
-            const newRows = doc.querySelectorAll('#users-tbody tr');
-
-            console.log('Loaded rows count:', newRows.length);
-
-            // Ak nie sú žiadne nové riadky, sme na konci
-            if (newRows.length === 0) {
+            if (!data.data || data.data.length === 0) {
                 hasMorePages = false;
-                console.log('No rows returned - reached end');
+                console.log('No more data');
             } else {
-                // Pridaj nové riadky do tabuľky
-                newRows.forEach(row => {
-                    tbody.appendChild(row.cloneNode(true));
+                // Pridaj riadky
+                data.data.forEach(user => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = createUserRow(user).replace('<tr>', '').replace('</tr>', '');
+                    tbody.appendChild(row);
                 });
-                currentPage = nextPage;
-                console.log('Added rows, currentPage now:', currentPage);
 
-                // Skontroluj či sú ešte ďalšie stránky
-                if (currentPage >= lastPage) {
+                currentPage = data.current_page;
+                console.log('Added rows, now at page', currentPage, 'of', data.last_page);
+
+                if (currentPage >= data.last_page) {
                     hasMorePages = false;
-                    console.log('Reached lastPage');
                 }
             }
 
         } catch (error) {
-            console.error('Chyba pri načítaní ďalších používateľov:', error);
+            console.error('Error loading:', error);
         } finally {
             isLoading = false;
             loadingIndicator.style.display = 'none';
@@ -208,27 +240,24 @@
         }
     }
 
-    // Click handler na tlačidlo
     loadMoreBtn.addEventListener('click', function() {
         loadMoreUsers();
     });
 
-    // Infinite scroll listener
+    // Infinite scroll
     let scrollTimeout;
     window.addEventListener('scroll', function() {
         if (!hasMorePages || isLoading) return;
 
         clearTimeout(scrollTimeout);
         scrollTimeout = setTimeout(function() {
-            // Ak je používateľ blízko konca stránky
             if ((window.innerHeight + window.scrollY) >= (document.body.offsetHeight - 300)) {
-                console.log('Auto-loading due to scroll');
+                console.log('Scroll trigger');
                 loadMoreUsers();
             }
         }, 200);
     });
 
-    // Inicializácia - zobraz správne tlačidlo na začiatku
     updateLoadMoreButton();
 })();
 </script>
